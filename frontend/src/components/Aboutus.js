@@ -1,16 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Home = () => {
+const AboutUs = () => {
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 50 }} 
-      animate={{ opacity: 1, y: 0 }} 
+      initial={{ opacity: 0, x: -50 }} 
+      animate={{ opacity: 1, x: 0 }} 
       transition={{ duration: 0.8 }}
       style={styles.container}
     >
-      <h1 style={styles.header}>Welcome to Our Website</h1>
-      <p style={styles.text}>Your journey to excellence starts here.</p>
+      <h1 style={styles.header}>About Us</h1>
+      <p style={styles.text}>
+        We are committed to delivering the best experiences for our customers.
+      </p>
     </motion.div>
   );
 };
@@ -30,4 +32,4 @@ const styles = {
   },
 };
 
-export default Home;
+export default AboutUs;
