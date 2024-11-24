@@ -4,9 +4,6 @@ import { Link } from 'react-router-dom';
 const Navbar = () => {
   return (
     <nav style={styles.nav}>
-      <Link to="/" style={styles.link} className="nav-link">Home</Link>
-      <Link to="/about-us" style={styles.link} className="nav-link">About Us</Link>
-      <Link to="/contact-us" style={styles.link} className="nav-link">Contact Us</Link>
     </nav>
   );
 };
