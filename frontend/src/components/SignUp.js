@@ -29,17 +29,13 @@ export default function SignUp() {
         <h1 className="text-2xl font-semibold text-richblack-5 mb-6 text-center">Register Here</h1>
             
             <div
-            style={{
-                boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
-            }}
-            className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 rounded-full max-w-max"
+                className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 rounded-full max-w-max"
             >
             {tabData.map((tab) => (
                 <button
                 key={tab.id}
                 onClick={() => setField(tab.type)}
-                className={`py-2 px-5 rounded-lg transition-all duration-200 text-lg font-semibold
-                  ${field === tab.type ? 'bg-yellow-200 text-richblack-900' : 'bg-transparent text-richblack-5'}`}
+                className={`py-2 px-5 rounded-lg transition-all duration-200 text-lg font-semibold`}
                 >
                 {tab?.tabName}
                 </button>
@@ -47,7 +43,7 @@ export default function SignUp() {
 
             
             <div
-                className="absolute bottom-0 left-0 h-0.5 bg-yellow-300 transition-all duration-300"
+                className="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300"
                 style={{
                 width: field === "student" ? "50%" : "50%",
                 transform: field === "student" ? "translateX(0%)" : "translateX(100%)",
@@ -138,7 +134,7 @@ export default function SignUp() {
             </div>
             <button
                 type="submit"
-                className="mt-6 w-full max-w-md rounded-[8px] bg-yellow-200 py-[8px] px-[12px] font-medium text-richblack-900 transition-all hover:scale-105 duration-300"
+                className="mt-6 w-full max-w-md rounded-[8px] bg-black py-[8px] px-[12px] font-medium text-white transition-all hover:scale-105 duration-300"
             >
                 Create Account
             </button>

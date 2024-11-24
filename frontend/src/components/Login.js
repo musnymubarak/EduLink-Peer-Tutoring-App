@@ -31,25 +31,20 @@ export default function Login() {
           <h1 className="text-3xl font-semibold text-richblack-5 mb-8 text-center">Login Here</h1>
 
           <div
-            style={{
-              boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
-            }}
-            className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 rounded-full max-w-max"
+            className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 max-w-max"
           >
             {tabData.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setField(tab.type)}
-                className={`py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out 
-                           ${field === tab.type ? 'bg-yellow-200 text-richblack-900' : 'bg-transparent text-richblack-5'}`}
-              >
+                className={`py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out`}>
                 {tab.tabName}
               </button>
             ))}
 
             
             <div
-              className="absolute bottom-0 left-0 h-0.5 bg-yellow-300 transition-all duration-300"
+              className="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300"
               style={{
                 width: field === "student" ? "50%" : "50%",
                 transform: field === "student" ? "translateX(0%)" : "translateX(100%)",
@@ -93,7 +88,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="mt-6 w-full max-w-md rounded-lg bg-yellow-200 py-3 px-6 text-lg font-medium text-richblack-900 transition-all hover:scale-105 duration-300"
+              className="mt-6 w-full max-w-md rounded-lg bg-black py-3 px-6 text-lg font-medium text-white transition-all hover:scale-105 duration-300"
             >
               Log In
             </button>
