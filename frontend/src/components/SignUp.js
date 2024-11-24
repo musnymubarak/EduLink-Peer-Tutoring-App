@@ -27,7 +27,7 @@ export default function SignUp() {
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#121212] to-[#00bcd4]">
         <div className="w-full max-w-lg bg-richblack-800 p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
         <h1 className="text-2xl font-semibold text-richblack-5 mb-6 text-center">Register Here</h1>
-            {/* Tab container */}
+            
             <div
             style={{
                 boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
@@ -45,7 +45,7 @@ export default function SignUp() {
                 </button>
             ))}
 
-            {/* Slider effect */}
+            
             <div
                 className="absolute bottom-0 left-0 h-0.5 bg-yellow-300 transition-all duration-300"
                 style={{
@@ -55,7 +55,7 @@ export default function SignUp() {
             />
             </div>
 
-            {/* Form */}
+            
             <form className="flex w-full flex-col gap-y-4">
             <div className="flex gap-x-4">
                 <label className="w-full">

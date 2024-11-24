@@ -27,11 +27,9 @@ export default function Login() {
       <div className="flex justify-center items-center min-h-screen" 
         style={{ background: 'linear-gradient(135deg, #121212, #00bcd4)' }}>
 
-        {/* Added margin-top to prevent overlap with navbar */}
         <div className="w-full max-w-lg bg-richblack-800 p-8 rounded-xl shadow-xl transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
           <h1 className="text-3xl font-semibold text-richblack-5 mb-8 text-center">Login Here</h1>
 
-          {/* Tab container */}
           <div
             style={{
               boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
@@ -49,7 +47,7 @@ export default function Login() {
               </button>
             ))}
 
-            {/* Slider effect */}
+            
             <div
               className="absolute bottom-0 left-0 h-0.5 bg-yellow-300 transition-all duration-300"
               style={{
@@ -59,7 +57,7 @@ export default function Login() {
             />
           </div>
 
-          {/* Form */}
+          
           <form className="flex w-full flex-col gap-y-6">
             <label className="w-full">
               <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
