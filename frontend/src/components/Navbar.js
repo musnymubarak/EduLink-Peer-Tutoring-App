@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 const Navbar = () => {
   return (
     <nav style={styles.nav}>
+      <Link to="/" style={styles.link} className="nav-link">Home</Link>
+      <Link to="/about-us" style={styles.link} className="nav-link">About Us</Link>
+      <Link to="/contact-us" style={styles.link} className="nav-link">Contact Us</Link>
     </nav>
   );
 };
@@ -31,7 +34,6 @@ const styles = {
   },
 };
 
-
 const addStyles = () => {
   const styleTag = document.createElement('style');
   styleTag.innerHTML = `
@@ -42,11 +44,11 @@ const addStyles = () => {
       left: 50%;
       width: 0;
       height: 2px;
-      background: #ffffff;
+      background: #00bcd4;
       transition: width 0.3s ease, left 0.3s ease;
     }
     .nav-link:hover {
-      color: #ffffff;
+      color: #00bcd4;
       transform: scale(1.05); // Slight zoom effect
     }
     .nav-link:hover::after {
@@ -56,7 +58,6 @@ const addStyles = () => {
   `;
   document.head.appendChild(styleTag);
 };
-
 
 addStyles();
 
