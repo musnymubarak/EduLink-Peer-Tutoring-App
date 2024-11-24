@@ -24,8 +24,8 @@ export default function SignUp() {
       animate={{ scale: 1, opacity: 1 }} 
       transition={{ duration: 0.8 }}
     >
-        <div className="flex justify-center items-center min-h-screen bg-richblack-900">
-        <div className="w-full max-w-lg bg-richblack-800 p-6 rounded-lg shadow-lg">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#121212] to-[#00bcd4]">
+        <div className="w-full max-w-lg bg-richblack-800 p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
         <h1 className="text-2xl font-semibold text-richblack-5 mb-6 text-center">Register Here</h1>
             {/* Tab container */}
             <div
@@ -38,8 +38,8 @@ export default function SignUp() {
                 <button
                 key={tab.id}
                 onClick={() => setField(tab.type)}
-                className={`py-2 px-5 rounded-lg transition-all duration-200`}
-                  
+                className={`py-2 px-5 rounded-lg transition-all duration-200 text-lg font-semibold
+                  ${field === tab.type ? 'bg-yellow-200 text-richblack-900' : 'bg-transparent text-richblack-5'}`}
                 >
                 {tab?.tabName}
                 </button>
@@ -70,7 +70,7 @@ export default function SignUp() {
                     style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                     }}
-                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
+                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
                 />
                 </label>
                 <label className="w-full">
@@ -85,7 +85,7 @@ export default function SignUp() {
                     style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                     }}
-                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
+                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
                 />
                 </label>
             </div>
@@ -95,13 +95,13 @@ export default function SignUp() {
                 </p>
                 <input
                 required
-                type="text"
+                type="email"
                 name="email"
                 placeholder="Enter email address"
                 style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                 }}
-                className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
+                className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
                 />
             </label>
             <div className="flex gap-x-4">
@@ -117,7 +117,7 @@ export default function SignUp() {
                     style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                     }}
-                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] pr-10 text-richblack-5"
+                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] pr-10 text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
                 />
                 </label>
                 <label className="w-full relative">
@@ -132,13 +132,13 @@ export default function SignUp() {
                     style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                     }}
-                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] pr-10 text-richblack-5"
+                    className="w-full max-w-md rounded-[0.5rem] bg-richblack-800 p-[12px] pr-10 text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
                 />
                 </label>
             </div>
             <button
                 type="submit"
-                className="mt-6 w-full max-w-md rounded-[8px] bg-yellow-200 py-[8px] px-[12px] font-medium text-richblack-900"
+                className="mt-6 w-full max-w-md rounded-[8px] bg-yellow-200 py-[8px] px-[12px] font-medium text-richblack-900 transition-all hover:scale-105 duration-300"
             >
                 Create Account
             </button>
