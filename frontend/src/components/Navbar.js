@@ -4,11 +4,19 @@ import { Link } from 'react-router-dom';
 const Navbar = () => {
   return (
     <nav style={styles.nav}>
-      <Link to="/" style={styles.link} className="nav-link">Home</Link>
-      <Link to="/about-us" style={styles.link} className="nav-link">About Us</Link>
-      <Link to="/contact-us" style={styles.link} className="nav-link">Contact Us</Link>
-      <Link to="/sign-up" style={styles.link} className="nav-link">Sign up</Link>
-      <Link to="/login" style={styles.link} className="nav-link">Login</Link>
+      <div style={styles.logo}>
+        <Link to="/" style={styles.logoLink}>
+          EDULink
+        </Link>
+      </div>
+
+      <div style={styles.linksContainer}>
+        <Link to="/" style={styles.link} className="nav-link">Home</Link>
+        <Link to="/about-us" style={styles.link} className="nav-link">About Us</Link>
+        <Link to="/contact-us" style={styles.link} className="nav-link">Contact Us</Link>
+        <Link to="/sign-up" style={styles.link} className="nav-link">Sign up</Link>
+        <Link to="/login" style={styles.link} className="nav-link">Login</Link>
+      </div>
     </nav>
   );
 };
@@ -16,7 +24,7 @@ const Navbar = () => {
 const styles = {
   nav: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between', 
     alignItems: 'center',
     padding: '10px 30px',
     background: '#121212',
@@ -25,6 +33,20 @@ const styles = {
     top: '0',
     zIndex: '10',
     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.8)',
+  },
+  logo: {
+    fontSize: '22px',
+    fontWeight: '700',
+    color: '#fff',
+  },
+  logoLink: {
+    textDecoration: 'none',
+    color: '#00bcd4', 
+    fontWeight: 'bold',
+  },
+  linksContainer: {
+    display: 'flex',
+    gap: '35px', 
   },
   link: {
     color: '#fff',
@@ -51,7 +73,7 @@ const addStyles = () => {
     }
     .nav-link:hover {
       color: #00bcd4;
-      transform: scale(1.05); // Slight zoom effect
+      transform: scale(1.05); 
     }
     .nav-link:hover::after {
       width: 100%;
