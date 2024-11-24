@@ -11,7 +11,7 @@ const AboutUs = () => {
     >
       <div style={styles.videoSection}>
         <video
-          src="https://youtu.be/kJ3gDjtHKSY" 
+          src="https://www.w3schools.com/html/mov_bbb.mp4" 
           autoPlay
           loop
           muted

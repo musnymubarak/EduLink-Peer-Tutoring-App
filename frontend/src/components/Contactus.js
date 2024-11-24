@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 
 const ContactUs = () => {
   useEffect(() => {
-    // Apply gradient to the body when this component is rendered
     document.body.style.background = 'linear-gradient(135deg, #121212, #00bcd4)';
     document.body.style.margin = '0';
     document.body.style.height = '100vh';
@@ -35,7 +34,7 @@ const styles = {
     textAlign: 'center',
     margin: '100px auto', 
     padding: '30px',
-    background: 'rgba(0, 0, 0, 0.6)',  // Semi-transparent background to overlay on the gradient
+    background: 'rgba(0, 0, 0, 0.6)', 
     color: '#ffffff',
     borderRadius: '15px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.8)',
@@ -123,7 +122,7 @@ const addHoverStyles = () => {
   document.head.appendChild(styleTag);
 };
 
-// Apply hover styles
+
 addHoverStyles();
 
 export default ContactUs;
