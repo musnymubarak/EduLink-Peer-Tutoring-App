@@ -7,6 +7,13 @@ import Navbar from './components/Navbar';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import Dashboard from './components/dashboard/Dashboard';
+import Profile from './components/dashboard/Profile';
+import Subjects from './components/dashboard/Subjects';
+import Schedule from './components/dashboard/Schedule';
+import EnrolledSubjects from './components/dashboard/student/EnrolledSubjects';
+import Resources from './components/dashboard/student/Resources';
+import Requests from './components/dashboard/tutor/Requests';
+import YourSubjects from './components/dashboard/tutor/YourSubjects';
 
 function App() {
   return (
@@ -19,6 +26,13 @@ function App() {
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/dashboard' element={<Dashboard/>}/>
+        <Route path='/dashboard/profile' element={<Profile/>}/>
+        <Route path='/dashboard/subjects' element={<Subjects/>}/>
+        <Route path='/dashboard/schedule' element={<Schedule/>}/>
+        <Route path='/dashboard/enrolled-courses' element={<EnrolledSubjects/>}/>
+        <Route path='/dashboard/resources' element={<Resources/>}/>
+        <Route path='/dashboard/requests' element={<Requests/>}/>
+        <Route path='/dashboard/your-subjects' element={<YourSubjects/>}/>
       </Routes>
     </Router>
   );
