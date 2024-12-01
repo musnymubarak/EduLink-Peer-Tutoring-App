@@ -1,48 +1,57 @@
 import { useState } from "react";
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
   const tabData = [
     {
       id: 1,
       tabName: "Student",
-      type: "student", 
+      type: "student",
     },
     {
       id: 2,
       tabName: "Tutor",
-      type: "tutor", 
+      type: "tutor",
     },
   ];
 
-  const [field, setField] = useState("student"); 
+  const [field, setField] = useState("student");
+
+  const handleLogin = (event) => {
+    event.preventDefault(); 
+    //login logic 
+    navigate("/dashboard"); 
+  };
 
   return (
-    <motion.div 
-      initial={{ scale: 0.9, opacity: 0 }} 
-      animate={{ scale: 1, opacity: 1 }} 
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="flex justify-center items-center min-h-screen" 
-        style={{ background: 'linear-gradient(135deg, #121212, #00bcd4)' }}>
-
+      <div
+        className="flex justify-center items-center min-h-screen"
+        style={{ background: "linear-gradient(135deg, #121212, #00bcd4)" }}
+      >
         <div className="w-full max-w-lg bg-richblack-800 p-8 rounded-xl shadow-xl transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
-          <h1 className="text-3xl font-semibold text-richblack-5 mb-8 text-center">Login Here</h1>
+          <h1 className="text-3xl font-semibold text-richblack-5 mb-8 text-center">
+            Login Here
+          </h1>
 
-          <div
-            className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 max-w-max"
-          >
+          <div className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 max-w-max">
             {tabData.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setField(tab.type)}
-                className={`py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out`}>
+                className={`py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out`}
+              >
                 {tab.tabName}
               </button>
             ))}
 
-            
             <div
               className="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300"
               style={{
@@ -52,8 +61,10 @@ export default function Login() {
             />
           </div>
 
-          
-          <form className="flex w-full flex-col gap-y-6">
+          <form
+            className="flex w-full flex-col gap-y-6"
+            onSubmit={handleLogin} // Attach the login handler
+          >
             <label className="w-full">
               <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                 Email Address <sup className="text-pink-200">*</sup>
