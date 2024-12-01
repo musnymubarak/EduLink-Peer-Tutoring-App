@@ -24,16 +24,18 @@ const Sidebar = () => {
 
                 <div className="flex flex-col">
                     {
-                        LINKS.map((link, index)=>{
-                            if(accountType !== link.type){
-                                console.log("link.type and user?.accountType", link.type, accountType);
-                                console.log("link.type", link.type);
-                                return null;
-                            }
-                            console.log("link=", link);
-                            return(
-                              <SidebarLinks setClicked={setClicked} key={link?.id} iconName={link?.icon} link={link} />
-                            )
+                        LINKS.map((link, index) => {
+                          if (link.type && link.type !== accountType) {
+                            return null;
+                          }
+                          return (
+                            <SidebarLinks
+                              setClicked={setClicked}
+                              key={link?.id}
+                              iconName={link?.icon}
+                              link={link}
+                            />
+                          );
                         })
                     }
                 </div>
@@ -43,7 +45,7 @@ const Sidebar = () => {
                         <SidebarLinks link={{name:"Settings", path:"dashboard/settings"}}  iconName="VscSettingsGear"/>
                     </div>
 
-                    <button className="text-sm font-medium text-richblack-300 "> Logout </button>
+                    <button className="text-sm font-medium text-richblack-300 "/>
 
                     <div className="flex text-center text-[13px] px-6 py-2 hover:cursor-pointer hover:scale-95 transition-all duration-200 rounded-md font-bold bg-yellow-50 text-black items-center gap-x-2 justify-center">
                         <VscSignOut className="text-lg" />
