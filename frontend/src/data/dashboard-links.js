@@ -40,7 +40,7 @@ export const sidebarLinks = [
   {
     id: 7,
     name: "Requests",
-    path: "/dashboard/request",
+    path: "/dashboard/requests",
     type: 'tutor',
     icon: "VscRequestChanges",
   },  
