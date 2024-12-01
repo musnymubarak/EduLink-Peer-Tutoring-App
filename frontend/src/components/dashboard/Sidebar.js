@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import {sidebarLinks as LINKS} from "../../data/dashboard-links";
 import SidebarLinks from "./SideBarLinks";
-//import { useNavigate } from "react-router-dom";
 import { VscSignOut } from "react-icons/vsc";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 
 const Sidebar = () => {
     const [clicked, setClicked] = useState(false);
-    //const naviagte = useNavigate ();
     const accountType ='student'
     return(
         <>
