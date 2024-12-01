@@ -6,6 +6,7 @@ import ContactUs from './components/Contactus';
 import Navbar from './components/Navbar';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import Dashboard from './components/dashboard/Dashboard';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/login' element={<Login/>}/>
+        <Route path='/dashboard' element={<Dashboard/>}/>
       </Routes>
     </Router>
   );
