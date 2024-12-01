@@ -18,10 +18,8 @@ const Sidebar = () => {
              `} >
                 <p 
                 onClick={() => setClicked(prev => !prev)}
-                className="absolute  text-[25px] visible md:hidden top-2 right-[-20px] z-[1000] text-yellow-100" >{!clicked ? <div className="animation animate-pulse duration-100"><FaArrowAltCircleRight /></div> : <IoMdCloseCircle /> }</p>
+                className="absolute  text-[25px] visible md:hidden top-2 right-[-20px] z-[1000] text-red-500" >{!clicked ? <div className="animation animate-pulse duration-100"><FaArrowAltCircleRight /></div> : <IoMdCloseCircle /> }</p>
                 
-
-
                 <div className="flex flex-col">
                     {
                         LINKS.map((link, index) => {
