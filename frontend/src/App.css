@@ -37,3 +37,15 @@
   }
 }
 
+@import "@fullcalendar/daygrid/main.css";
+
+/* Customize event appearance */
+.fc-event {
+  background-color: #2563eb !important; /* Blue background */
+  color: white !important; /* White text */
+  border-radius: 5px; /* Rounded corners */
+  padding: 2px 4px; /* Add some padding */
+}
+.fc-event:hover {
+  background-color: #1e40af !important; /* Darker blue on hover */
+}
