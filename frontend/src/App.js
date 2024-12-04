@@ -14,6 +14,7 @@ import EnrolledSubjects from './components/dashboard/student/EnrolledSubjects';
 import Resources from './components/dashboard/student/Resources';
 import Requests from './components/dashboard/tutor/Requests';
 import YourSubjects from './components/dashboard/tutor/YourSubjects';
+import SubjectDetails from './components/dashboard/SubjectDetails';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path='/dashboard/resources' element={<Resources/>}/>
         <Route path='/dashboard/requests' element={<Requests/>}/>
         <Route path='/dashboard/your-subjects' element={<YourSubjects/>}/>
+        <Route path="/subject/:id" element={<SubjectDetails />} />
       </Routes>
     </Router>
   );

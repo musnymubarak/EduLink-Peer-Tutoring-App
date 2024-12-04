@@ -1,22 +1,22 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Category from "./Category"; // Import the Category component
 
-export default function Dashboard() {
+export default function Subject() {
   const categories = [
     {
       title: "IT Subject",
       subjects: [
-        { title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4 },
-        { title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5 },
-        { title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3 },
+        { id: 1, title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4 },
+        { id: 2, title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5 },
+        { id: 3, title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3 },
       ],
     },
     {
       title: "Math Subject",
       subjects: [
-        { title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2 },
-        { title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4 },
+        { id: 4, title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2 },
+        { id: 5, title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4 },
       ],
     },
   ];
@@ -25,16 +25,12 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-richblue-800 border-r border-richblack-700">
-        <br />
-        <br />
         <Sidebar />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-8">
-        <br />
-        <br />
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Subjects</h1>
 
         {/* Categories Section */}
         <div className="space-y-8">
@@ -45,7 +41,8 @@ export default function Dashboard() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.subjects.map((subject, i) => (
-                  <div
+                  <Link
+                    to={`/subject/${subject.id}`} // Navigate to the corresponding subject details page
                     key={i}
                     className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
                   >
@@ -62,7 +59,7 @@ export default function Dashboard() {
                     <p className="text-yellow-500">
                       <strong>Rating:</strong> {"⭐".repeat(subject.rating)}
                     </p>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
