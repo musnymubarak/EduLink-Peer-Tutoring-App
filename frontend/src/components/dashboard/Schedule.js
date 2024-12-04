@@ -1,4 +1,6 @@
 import Sidebar from "./Sidebar";
+import React from "react";
+import SchedulePage from "./SchedulePage";
 
 export default function Schedule(){
     return(
@@ -9,6 +11,7 @@ export default function Schedule(){
         </div>
         <div className="flex-1 p-8"><br/><br/>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">Schedule</h1>
+          <SchedulePage/>
         </div>
       </div>
     )
