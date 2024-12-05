@@ -120,3 +120,77 @@ exports.getCourseById = async (req, res) => {
         });
     }
 };
+
+// Update Course by ID (Only Admin)
+exports.updateCourseById = async (req, res) => {
+    try {
+        // Verify that the user is an Admin
+        if (req.user.accountType !== "Admin") {
+            return res.status(401).json({
+                success: false,
+                message: "Only Admins can update courses.",
+            });
+        }
+
+        const { courseId } = req.params;
+        const updatedData = req.body;
+
+        // Find and update the course
+        const updatedCourse = await Course.findByIdAndUpdate(courseId, updatedData, { new: true });
+
+        if (!updatedCourse) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found.",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Course updated successfully.",
+            data: updatedCourse,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while updating the course.",
+            error: error.message,
+        });
+    }
+};
+
+// Delete Course by ID (Only Admin)
+exports.deleteCourseById = async (req, res) => {
+    try {
+        // Verify that the user is an Admin
+        if (req.user.accountType !== "Admin") {
+            return res.status(401).json({
+                success: false,
+                message: "Only Admins can delete courses.",
+            });
+        }
+
+        const { courseId } = req.params;
+
+        // Find and delete the course
+        const deletedCourse = await Course.findByIdAndDelete(courseId);
+
+        if (!deletedCourse) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found.",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Course deleted successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while deleting the course.",
+            error: error.message,
+        });
+    }
+};
