@@ -24,7 +24,7 @@ export default function Login() {
   const handleLogin = (event) => {
     event.preventDefault(); 
     //login logic 
-    navigate("/dashboard"); 
+    navigate("/dashboard/student"); 
   };
 
   return (
