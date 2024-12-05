@@ -15,6 +15,9 @@ const courseRoutes = require("./routes/courseRoute"); // Import course routes
 // Import database configuration
 const database = require("./config/db");
 
+// Import custom middleware (if required)
+const authMiddleware = require("./middlewares/authMiddleware"); // Example authentication middleware
+
 // Initialize Express app
 const app = express();
 
@@ -39,8 +42,12 @@ app.use(
 );
 
 // Define routes
-app.use("/api/v1/auth", userRoutes);
-app.use("/api/v1/courses", courseRoutes); // Add course routes
+
+// Public routes
+app.use("/api/v1/courses", courseRoutes); // Course routes are accessible without auth
+
+// Protected routes
+app.use("/api/v1/auth", userRoutes); // Authentication required (if implemented in middleware)
 
 // Default route
 app.get("/", (req, res) => {
