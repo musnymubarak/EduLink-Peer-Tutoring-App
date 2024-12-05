@@ -12,15 +12,15 @@ exports.signup = async (req, res) => {
     if (!firstName || !lastName || !email || !password || !accountType) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required.",
+        message: "All fields are required",
       });
     }
 
-    // Validate password strength
+    // Validate password strength (for example, at least 8 characters)
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long.",
+        message: "Password must be at least 8 characters long",
       });
     }
 
@@ -45,17 +45,17 @@ exports.signup = async (req, res) => {
       accountType,
     });
 
-    // Respond without sensitive data
+    // Send response without sensitive data
     return res.status(201).json({
       success: true,
-      message: "User registered successfully.",
+      message: "User registered successfully",
       user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email },
     });
   } catch (error) {
     console.error("Error during signup:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error during signup.",
+      message: "Internal server error during signup",
     });
   }
 };
@@ -69,7 +69,7 @@ exports.login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required.",
+        message: "Email and password are required",
       });
     }
 
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password.",
+        message: "Invalid email or password",
       });
     }
 
@@ -87,41 +87,33 @@ exports.login = async (req, res) => {
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password.",
+        message: "Invalid email or password",
       });
     }
 
-    // Ensure JWT_SECRET is available
-    const secret = process.env.JWT_SECRET || "fallbackSecret";
-    if (!process.env.JWT_SECRET) {
-      console.warn("Warning: Using fallback secret for JWT. Please set JWT_SECRET in your .env file.");
-    }
-
     // Generate a JWT token
-    const token = jwt.sign(
-      { id: user._id, accountType: user.accountType },
-      secret,
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ id: user._id, accountType: user.accountType }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // Set the token in a cookie
     res.cookie("access_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 3600000, // 1 hour expiration
+      httpOnly: true,  // Makes the cookie inaccessible to JavaScript
+      secure: process.env.NODE_ENV === "production",  // Ensure the cookie is secure in production
+      maxAge: 3600000,  // 1 hour expiration time
     });
 
-    // Respond with limited user data
+    // Send response with limited user data (without token)
     return res.status(200).json({
       success: true,
-      message: "Logged in successfully.",
+      message: "Logged in successfully",
       user: { id: user._id, firstName: user.firstName, lastName: user.lastName, accountType: user.accountType },
     });
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error during login.",
-    });
-  }
+      message: "Internal server error during login",
+    });
+  }
 };
