@@ -1,6 +1,7 @@
 import { useState } from "react";
 import React from 'react';
 import { motion } from 'framer-motion';
+import Navbar from "./Navbar";
 
 export default function SignUp() {
   const tabData = [
@@ -24,6 +25,7 @@ export default function SignUp() {
       animate={{ scale: 1, opacity: 1 }} 
       transition={{ duration: 0.8 }}
     >
+        <Navbar />
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#121212] to-[#00bcd4]">
         <div className="w-full max-w-lg bg-richblack-800 p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
         <h1 className="text-2xl font-semibold text-richblack-5 mb-6 text-center">Register Here</h1>

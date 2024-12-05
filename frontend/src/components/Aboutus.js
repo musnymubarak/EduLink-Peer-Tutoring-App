@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Navbar from './Navbar';
 
 const AboutUs = () => {
   return (
@@ -9,6 +10,7 @@ const AboutUs = () => {
       transition={{ duration: 0.8 }}
       style={styles.container}
     >
+      <Navbar />
       <div style={styles.videoSection}>
         <video
           src="https://www.w3schools.com/html/mov_bbb.mp4" 

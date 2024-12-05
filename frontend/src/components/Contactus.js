@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Navbar from './Navbar';
 
 const ContactUs = () => {
   useEffect(() => {
@@ -15,6 +16,7 @@ const ContactUs = () => {
       transition={{ duration: 0.8 }}
       style={styles.container}
     >
+      <Navbar />
       <h1 style={styles.header}>Contact Us</h1>
       <p style={styles.text}>
         Have questions? We’d love to hear from you. Fill out the form below, and we’ll get back to you as soon as possible!
