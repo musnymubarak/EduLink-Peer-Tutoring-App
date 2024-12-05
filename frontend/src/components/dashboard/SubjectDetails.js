@@ -14,9 +14,9 @@ export default function SubjectDetails() {
 
   const subjectData = {
     1: {
-      title: "C++",
+      title: "C",
       banner: "image.png",
-      outline: "Learn the fundamentals of C++ programming.",
+      outline: "Learn the fundamentals of C programming.",
       content: "Topics include variables, loops, functions, OOP.",
       modules: ["Introduction", "Control Structures", "OOP Basics"],
       targetGroup: "Beginners in programming.",
