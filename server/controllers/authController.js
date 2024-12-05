@@ -16,6 +16,14 @@ exports.signup = async (req, res) => {
       });
     }
 
+    // Validate password strength (for example, at least 8 characters)
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      });
+    }
+
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -37,10 +45,11 @@ exports.signup = async (req, res) => {
       accountType,
     });
 
+    // Send response without sensitive data
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user,
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email },
     });
   } catch (error) {
     console.error("Error during signup:", error);
@@ -87,11 +96,18 @@ exports.login = async (req, res) => {
       expiresIn: "1h",
     });
 
+    // Set the token in a cookie
+    res.cookie("access_token", token, {
+      httpOnly: true,  // Makes the cookie inaccessible to JavaScript
+      secure: process.env.NODE_ENV === "production",  // Ensure the cookie is secure in production
+      maxAge: 3600000,  // 1 hour expiration time
+    });
+
+    // Send response with limited user data (without token)
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      token,
-      user,
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, accountType: user.accountType },
     });
   } catch (error) {
     console.error("Error during login:", error);
