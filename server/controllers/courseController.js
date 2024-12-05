@@ -1,7 +1,7 @@
 const Course = require("../models/Course");
 const Category = require("../models/Category");
 const Section = require("../models/Section");
-
+const RatingAndReview = require("../models/RatingAndReview");
 
 // Add Course (Only Admin)
 exports.addCourse = async (req, res) => {
