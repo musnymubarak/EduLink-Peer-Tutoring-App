@@ -11,6 +11,7 @@ dotenv.config();
 // Import routes
 const userRoutes = require("./routes/authRoute");
 const courseRoutes = require("./routes/courseRoute"); // Import course routes
+const enrollmentRoutes = require("./routes/enrollmentRoute");
 
 // Import database configuration
 const database = require("./config/db");
@@ -48,6 +49,8 @@ app.use("/api/v1/courses", courseRoutes); // Course routes are accessible withou
 
 // Protected routes
 app.use("/api/v1/auth", userRoutes); // Authentication required (if implemented in middleware)
+
+app.use("/api/v1/enrollment", enrollmentRoutes);
 
 // Default route
 app.get("/", (req, res) => {
