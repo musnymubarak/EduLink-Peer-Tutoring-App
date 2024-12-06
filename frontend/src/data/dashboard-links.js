@@ -65,7 +65,7 @@ export const sidebarLinks = [
   {
     id: 10,
     name: "Resources",
-    path: "/dashboard/student/eresources",
+    path: "/dashboard/student/resources",
     type: 'student',
     icon: "VscLibrary",
   },
