@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
-export default function SubjectDetails() {
+export default function TSubjectDetails() {
   const { id } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,7 +15,7 @@ export default function SubjectDetails() {
   const subjectData = {
     1: {
       title: "C",
-      banner: require('../../images/cppBanner.png'),
+      banner: require('../../../images/cppBanner.png'),
       outline: "Learn the fundamentals of C programming.",
       content: "Topics include variables, loops, functions, OOP.",
       modules: ["Introduction", "Control Structures", "OOP Basics"],

@@ -15,7 +15,7 @@ export default function SubjectDetails() {
   const subjectData = {
     1: {
       title: "C",
-      banner: "image.png",
+      banner: require('../../../images/cppBanner.png'),
       outline: "Learn the fundamentals of C programming.",
       content: "Topics include variables, loops, functions, OOP.",
       modules: ["Introduction", "Control Structures", "OOP Basics"],
