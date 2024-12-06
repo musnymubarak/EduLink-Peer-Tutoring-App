@@ -37,7 +37,7 @@ function App() {
         <Route path='/dashboard/student/schedule' element={<Schedule/>}/>
         <Route path='/dashboard/student/enrolled-courses' element={<EnrolledSubjects/>}/>
         <Route path='/dashboard/student/resources' element={<Resources/>}/>
-        <Route path="/dashboard/student/subject/:id" element={<SubjectDetails />} />
+        <Route path="/dashboard/student/subjectData/:id" element={<SubjectDetails />} />
 
         {/*tutor*/}
         <Route path='/dashboard/tutor' element={<TDashboard/>}/>
