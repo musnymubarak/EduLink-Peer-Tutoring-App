@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 export default function SchedulePage() {
   const [events, setEvents] = useState([
@@ -17,7 +17,7 @@ export default function SchedulePage() {
       description: "Advanced Python programming techniques.",
     }
   ]);
-  
+
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -28,7 +28,6 @@ export default function SchedulePage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
 
-  // Add new event dynamically
   const addEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) {
       alert("Please fill in all required fields.");
@@ -44,23 +43,20 @@ export default function SchedulePage() {
     setNewEvent({ title: "", start: "", end: "", description: "" });
   };
 
-  // Delete event
   const deleteEvent = (eventId) => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
   };
 
-  // Go to today
   const goToToday = () => {
     setSelectedMonth(new Date());
   };
 
-  // Generate calendar days based on view mode
   const generateCalendarView = () => {
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
+
     const filteredEvents = events.filter(event => {
       const eventDate = new Date(event.start);
       return eventDate.getFullYear() === year && eventDate.getMonth() === month;
@@ -76,19 +72,15 @@ export default function SchedulePage() {
     }
   };
 
-  // Month view generation
   const generateMonthView = (year, month, firstDay, lastDay, filteredEvents) => {
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
-    
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
 
-   
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const dayEvents = filteredEvents.filter(event => 
@@ -100,7 +92,6 @@ export default function SchedulePage() {
     return days;
   };
 
-  // Week view generation
   const generateWeekView = (year, month, filteredEvents) => {
     const firstDayOfMonth = new Date(year, month, 1);
     const weekStart = new Date(firstDayOfMonth);
@@ -112,7 +103,7 @@ export default function SchedulePage() {
       for (let i = 0; i < 6; i++) {
         const currentDate = new Date(weekStart);
         currentDate.setDate(weekStart.getDate() + j + (i * 7));
-        
+
         const dayEvents = filteredEvents.filter(event => 
           new Date(event.start).toDateString() === currentDate.toDateString()
         );
@@ -129,14 +120,12 @@ export default function SchedulePage() {
     return days;
   };
 
-  // Change month
   const changeMonth = (direction) => {
     const newMonth = new Date(selectedMonth);
     newMonth.setMonth(newMonth.getMonth() + direction);
     setSelectedMonth(newMonth);
   };
 
-  // Render view modes
   const renderView = () => {
     const calendarData = generateCalendarView();
 
@@ -214,7 +203,6 @@ export default function SchedulePage() {
     }
   };
 
-  // Modal for adding new event
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
 
   return (
@@ -224,7 +212,7 @@ export default function SchedulePage() {
           <h1 className="text-4xl font-extrabold text-gray-800">
             Class Schedule
           </h1>
-          
+
           <button 
             onClick={() => setIsAddEventModalOpen(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
@@ -233,7 +221,6 @@ export default function SchedulePage() {
           </button>
         </div>
 
-        {/* View Mode Selector */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-2">
             <button 
@@ -275,10 +262,8 @@ export default function SchedulePage() {
           </div>
         </div>
 
-        {/* Calendar View */}
         {renderView()}
 
-        {/* Add Event Modal */}
         {isAddEventModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-2xl w-96">
