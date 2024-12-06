@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; 
 import banner from '../images/banner.jpg';
+import Navbar from './Navbar';
 
 const Home = () => {
   const navigate = useNavigate(); 
@@ -17,6 +18,7 @@ const Home = () => {
       transition={{ duration: 0.8 }}
       style={styles.container}
     >
+      <Navbar />
       <h1 style={styles.header}>Welcome to Our Website</h1>
       <p style={styles.text}>Your journey to excellence starts here.</p>
       <button 

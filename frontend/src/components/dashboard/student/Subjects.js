@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Sidebar";
 
 export default function Subject() {
   const categories = [
@@ -42,7 +42,7 @@ export default function Subject() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.subjects.map((subject, i) => (
                   <Link
-                    to={`/subject/${subject.id}`} // Navigate to the corresponding subject details page
+                    to={`/dashboard/student/subject/${subject.id}`} // Navigate to the corresponding subject details page
                     key={i}
                     className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
                   >

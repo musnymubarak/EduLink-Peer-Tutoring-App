@@ -2,6 +2,7 @@ import { useState } from "react";
 import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Login() {
   const handleLogin = (event) => {
     event.preventDefault(); 
     //login logic 
-    navigate("/dashboard"); 
+    navigate("/dashboard/student"); 
   };
 
   return (
@@ -32,6 +33,7 @@ export default function Login() {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
+      <Navbar />
       <div
         className="flex justify-center items-center min-h-screen"
         style={{ background: "linear-gradient(135deg, #121212, #00bcd4)" }}

@@ -1,14 +1,13 @@
 import React from "react";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Sidebar";
 
 export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div className="w-64 bg-richblue-800 border-r border-richblack-700">
-      <br/><br/>
         <Sidebar />
       </div>
-      <div className="flex-1 p-8"><br/><br/>
+      <div className="flex-1 p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Dashboard</h1>
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-600">
