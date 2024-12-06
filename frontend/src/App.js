@@ -14,6 +14,11 @@ import Resources from './components/dashboard/student/Resources';
 import Requests from './components/dashboard/tutor/Requests';
 import YourSubjects from './components/dashboard/tutor/YourSubjects';
 import SubjectDetails from './components/dashboard/student/SubjectDetails';
+import TDashboard from './components/dashboard/tutor/TDashboard';
+import TProfile from './components/dashboard/tutor/TProfile';
+import TSubjects from './components/dashboard/tutor/TSubjects';
+import TSchedule from './components/dashboard/tutor/TSchedule';
+import TSubjectDetails from './components/dashboard/tutor/TSubjectDetails';
 
 function App() {
   return (
@@ -35,10 +40,11 @@ function App() {
         <Route path="/dashboard/student/subject/:id" element={<SubjectDetails />} />
 
         {/*tutor*/}
-        <Route path='/dashboard/tutor' element={<Dashboard/>}/>
-        <Route path='/dashboard/tutor/profile' element={<Profile/>}/>
-        <Route path='/dashboard/tutor/subjects' element={<Subjects/>}/>
-        <Route path='/dashboard/tutor/schedule' element={<Schedule/>}/>
+        <Route path='/dashboard/tutor' element={<TDashboard/>}/>
+        <Route path='/dashboard/tutor/profile' element={<TProfile/>}/>
+        <Route path='/dashboard/tutor/subjects' element={<TSubjects/>}/>
+        <Route path='/dashboard/tutor/schedule' element={<TSchedule/>}/>
+        <Route path="/dashboard/tutor/subject/:id" element={<TSubjectDetails/>} />
         <Route path='/dashboard/tutor/requests' element={<Requests/>}/>
         <Route path='/dashboard/tutor/your-subjects' element={<YourSubjects/>}/>
       </Routes>
