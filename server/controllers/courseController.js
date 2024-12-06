@@ -30,7 +30,7 @@ exports.addCourse = async (req, res) => {
         } = req.body;
 
         // Validate mandatory fields
-        if (!courseName || !courseDescription || !instructor || !price || !tag || !category) {
+        if (!courseName || !courseDescription || !price || !tag || !category) {
             return res.status(400).json({
                 success: false,
                 message: "Please provide all required fields.",
