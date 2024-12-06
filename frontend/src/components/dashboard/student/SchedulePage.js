@@ -25,7 +25,7 @@ export default function SchedulePage() {
     description: ""
   });
 
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
 
   const addEvent = () => {
@@ -48,33 +48,32 @@ export default function SchedulePage() {
   };
 
   const goToToday = () => {
-    setSelectedMonth(new Date());
+    setSelectedDate(new Date());
   };
 
   const generateCalendarView = () => {
-    const year = selectedMonth.getFullYear();
-    const month = selectedMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const day = selectedDate.getDate();
 
     const filteredEvents = events.filter(event => {
       const eventDate = new Date(event.start);
-      return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+      return eventDate >= new Date(year, month, day) && eventDate < new Date(year, month, day + 7);
     });
 
     switch(viewMode) {
       case 'month':
-        return generateMonthView(year, month, firstDay, lastDay, filteredEvents);
+        return generateMonthView(year, month, filteredEvents);
       case 'week':
-        return generateWeekView(year, month, filteredEvents);
+        return generateWeekView(year, month, day, filteredEvents);
       default:
-        return generateMonthView(year, month, firstDay, lastDay, filteredEvents);
+        return generateMonthView(year, month, filteredEvents);
     }
   };
 
-  const generateMonthView = (year, month, firstDay, lastDay, filteredEvents) => {
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+  const generateMonthView = (year, month, filteredEvents) => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startingDayOfWeek = new Date(year, month, 1).getDay();
 
     const days = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -92,38 +91,37 @@ export default function SchedulePage() {
     return days;
   };
 
-  const generateWeekView = (year, month, filteredEvents) => {
-    const firstDayOfMonth = new Date(year, month, 1);
-    const weekStart = new Date(firstDayOfMonth);
-    weekStart.setDate(firstDayOfMonth.getDate() - firstDayOfMonth.getDay());
+  const generateWeekView = (year, month, day, filteredEvents) => {
+    const weekStart = new Date(year, month, day - new Date(year, month, day).getDay());
 
     const days = [];
-    for (let j = 0; j < 7; j++) {
-      const dayColumn = [];
-      for (let i = 0; i < 6; i++) {
-        const currentDate = new Date(weekStart);
-        currentDate.setDate(weekStart.getDate() + j + (i * 7));
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(weekStart);
+      currentDate.setDate(weekStart.getDate() + i);
 
-        const dayEvents = filteredEvents.filter(event => 
-          new Date(event.start).toDateString() === currentDate.toDateString()
-        );
+      const dayEvents = filteredEvents.filter(event => 
+        new Date(event.start).toDateString() === currentDate.toDateString()
+      );
 
-        dayColumn.push({ 
-          date: currentDate, 
-          events: dayEvents,
-          isCurrentMonth: currentDate.getMonth() === month
-        });
-      }
-      days.push(dayColumn);
+      days.push({ date: currentDate, events: dayEvents });
     }
 
     return days;
   };
 
-  const changeMonth = (direction) => {
-    const newMonth = new Date(selectedMonth);
-    newMonth.setMonth(newMonth.getMonth() + direction);
-    setSelectedMonth(newMonth);
+  const changeDate = (direction) => {
+    const newDate = new Date(selectedDate);
+    if (viewMode === 'month') {
+      newDate.setMonth(newDate.getMonth() + direction);
+    } else if (viewMode === 'week') {
+      newDate.setDate(newDate.getDate() + direction * 7);
+    }
+    setSelectedDate(newDate);
+  };
+
+  const isToday = (date) => {
+    const today = new Date();
+    return today.toDateString() === date.toDateString();
   };
 
   const renderView = () => {
@@ -139,7 +137,7 @@ export default function SchedulePage() {
             {calendarData.map((day, index) => (
               <div 
                 key={index} 
-                className={`border p-2 min-h-[100px] ${day ? 'bg-white' : 'bg-gray-100'}`}
+                className={`border p-2 min-h-[100px] ${day ? 'bg-white' : 'bg-gray-100'} ${day && isToday(day.date) ? 'bg-yellow-300' : ''}`}
               >
                 {day && (
                   <>
@@ -166,19 +164,19 @@ export default function SchedulePage() {
         );
       case 'week':
         return (
-          <div className="grid grid-cols-7 gap-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, dayIndex) => (
-              <div key={day} className="bg-white border">
-                <div className="font-bold text-gray-600 text-center py-2">{day}</div>
-                {calendarData[dayIndex].map(weekDay => (
-                  <div 
-                    key={weekDay.date.toISOString()} 
-                    className={`p-2 min-h-[80px] ${weekDay.isCurrentMonth ? 'bg-white' : 'bg-gray-100'}`}
-                  >
-                    <div className="text-sm text-gray-500">
-                      {weekDay.date.getDate()}
-                    </div>
-                    {weekDay.events.map(event => (
+          <div className="grid grid-cols-7 gap-2 text-center h-full">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="font-bold text-gray-600">{day}</div>
+            ))}
+            {calendarData.map((day, index) => (
+              <div 
+                key={index} 
+                className={`border p-2 flex flex-col justify-between ${day ? 'bg-white h-full' : 'bg-gray-100'} ${day && isToday(day.date) ? 'bg-yellow-300' : ''}`}
+              >
+                {day && (
+                  <>
+                    <div className="text-sm text-gray-500">{day.date.getDate()}</div>
+                    {day.events.map(event => (
                       <div 
                         key={event.id} 
                         className="bg-blue-100 text-blue-800 rounded p-1 mt-1 text-xs flex justify-between items-center"
@@ -192,8 +190,8 @@ export default function SchedulePage() {
                         </button>
                       </div>
                     ))}
-                  </div>
-                ))}
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -245,16 +243,16 @@ export default function SchedulePage() {
               Today
             </button>
             <button 
-              onClick={() => changeMonth(-1)}
+              onClick={() => changeDate(-1)}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Previous
             </button>
             <h2 className="text-2xl font-bold">
-              {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+              {viewMode === 'month' ? selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : selectedDate.toDateString()}
             </h2>
             <button 
-              onClick={() => changeMonth(1)}
+              onClick={() => changeDate(1)}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Next
@@ -265,61 +263,61 @@ export default function SchedulePage() {
         {renderView()}
 
         {isAddEventModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-lg shadow-2xl w-96">
-              <h3 className="text-2xl font-bold mb-6 text-gray-800">Add New Class</h3>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Class Title"
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+              <h2 className="text-2xl font-bold mb-4">Add New Event</h2>
+              <div className="mb-4">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                <input 
+                  type="text" 
+                  id="title" 
                   value={newEvent.title}
-                  onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg"
                 />
-                <div className="flex space-x-2">
-                  <div className="w-1/2">
-                    <label className="block text-sm text-gray-600 mb-1">Start Time</label>
-                    <input
-                      type="datetime-local"
-                      value={newEvent.start}
-                      onChange={(e) => setNewEvent({...newEvent, start: e.target.value})}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label className="block text-sm text-gray-600 mb-1">End Time</label>
-                    <input
-                      type="datetime-local"
-                      value={newEvent.end}
-                      onChange={(e) => setNewEvent({...newEvent, end: e.target.value})}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <textarea
-                  placeholder="Class Description"
+              </div>
+              <div className="mb-4">
+                <label htmlFor="start" className="block text-sm font-medium text-gray-700">Start</label>
+                <input 
+                  type="datetime-local" 
+                  id="start" 
+                  value={newEvent.start}
+                  onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="end" className="block text-sm font-medium text-gray-700">End</label>
+                <input 
+                  type="datetime-local" 
+                  id="end" 
+                  value={newEvent.end}
+                  onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                <textarea 
+                  id="description"
                   value={newEvent.description}
-                  onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="3"
-                ></textarea>
-                <div className="flex justify-end space-x-4">
-                  <button 
-                    onClick={() => setIsAddEventModalOpen(false)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={() => {
-                      addEvent();
-                      setIsAddEventModalOpen(false);
-                    }}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  >
-                    Add Class
-                  </button>
-                </div>
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="flex justify-between">
+                <button 
+                  onClick={addEvent} 
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Add Event
+                </button>
+                <button 
+                  onClick={() => setIsAddEventModalOpen(false)} 
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
