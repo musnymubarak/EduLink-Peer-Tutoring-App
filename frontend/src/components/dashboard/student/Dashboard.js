@@ -65,7 +65,7 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-richblue-800 to-blue-600 text-white p-6 rounded-lg shadow mb-8">
+        <div className="bg-gradient-to-r from-richblue-800 to-blue-600 text-black p-6 rounded-lg shadow mb-8">
           <h2 className="text-2xl font-bold">Welcome, [Student Name]!</h2>
           <p className="mt-2">"Keep pushing forward—success is just around the corner!"</p>
         </div>
