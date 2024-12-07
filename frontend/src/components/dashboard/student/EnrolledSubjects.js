@@ -6,16 +6,16 @@ export default function EnrolledSubjects() {
     {
       title: "IT Subject",
       subjects: [
-        { id: 1, title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4 },
-        { id: 2, title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5 },
-        { id: 3, title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3 },
+        { id: 1, title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4, progress: 75 },
+        { id: 2, title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5, progress: 50 },
+        { id: 3, title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3, progress: 40 },
       ],
     },
     {
       title: "Math Subject",
       subjects: [
-        { id: 4, title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2 },
-        { id: 5, title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4 },
+        { id: 4, title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2, progress: 80 },
+        { id: 5, title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4, progress: 60 },
       ],
     },
   ];
@@ -42,6 +42,7 @@ export default function EnrolledSubjects() {
                 {category.subjects.map((subject, i) => (
                   <div
                     className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
+                    key={i}
                   >
                     <h3 className="text-lg font-semibold text-gray-800">
                       {subject.title}
@@ -56,6 +57,17 @@ export default function EnrolledSubjects() {
                     <p className="text-yellow-500">
                       <strong>Rating:</strong> {"⭐".repeat(subject.rating)}
                     </p>
+
+                    {/* Progress Bar */}
+                    <div className="mt-4">
+                      <p className="text-gray-600">Progress</p>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div
+                          className="bg-blue-500 h-2.5 rounded-full"
+                          style={{ width: `${subject.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
