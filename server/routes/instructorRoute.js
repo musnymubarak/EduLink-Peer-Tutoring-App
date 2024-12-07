@@ -3,26 +3,21 @@ const router = express.Router();
 const { auth, isInstructor } = require("../middlewares/authMiddleware");
 const {
     addCourse,
-    getAllCourses,
-    getCourseById,
+    getInstructorCourses,
     updateCourse,
     deleteCourse,
-    getInstructorCourses,
 } = require("../controllers/instructorController");
 
-// Route to add a course (Instructor)
+// Route to add a new course
 router.post("/add", auth, isInstructor, addCourse);
 
-// Route to get all courses (Instructor-specific)
-router.get("/instructor", auth, isInstructor, getInstructorCourses);
+// Route to get all courses created by the instructor
+router.get("/", auth, isInstructor, getInstructorCourses);
 
-// Route to update a course (Instructor-specific)
+// Route to update a specific course
 router.put("/:courseId", auth, isInstructor, updateCourse);
 
-// Route to delete a course (Instructor-specific)
+// Route to delete a specific course
 router.delete("/:courseId", auth, isInstructor, deleteCourse);
-
-// Route to get a single course by ID
-router.get("/:courseId", auth, getCourseById);
 
 module.exports = router;
