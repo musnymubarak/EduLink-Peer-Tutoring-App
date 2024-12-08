@@ -20,6 +20,12 @@ import TSubjects from './components/dashboard/tutor/TSubjects';
 import TSchedule from './components/dashboard/tutor/TSchedule';
 import TSubjectDetails from './components/dashboard/tutor/TSubjectDetails';
 
+import AdminDashboard from './components/dashboard/admin/AdminDashboard';
+import DashboardOverview from './components/dashboard/admin/Pages/DashboardOverview';
+import ManageSubjects from './components/dashboard/admin/Pages/ManageSubjects';
+import ManageStudents from './components/dashboard/admin/Pages/ManageStudents';
+import ManageTutors from './components/dashboard/admin/Pages/ManageTutors';
+
 function App() {
   return (
     <Router>
@@ -47,6 +53,14 @@ function App() {
         <Route path="/dashboard/tutor/subject/:id" element={<TSubjectDetails/>} />
         <Route path='/dashboard/tutor/requests' element={<Requests/>}/>
         <Route path='/dashboard/tutor/your-subjects' element={<YourSubjects/>}/>
+
+        {/* admin */}
+        <Route path='/dashboard/admin/AdminDashboard' element={<AdminDashboard/>}/>
+        <Route path='/dashboard/admin/Pages/DashboardOverview' element={<DashboardOverview/>}/>
+        <Route path='/dashboard/admin/Pages/ManageSubjects' element={<ManageSubjects/>}/>
+        <Route path='/dashboard/admin/Pages/ManageStudents' element={<ManageStudents/>}/>
+        <Route path='/dashboard/admin/Pages/ManageTutors' element={<ManageTutors/>}/>
+        
       </Routes>
     </Router>
   );
