@@ -26,8 +26,13 @@ import ManageSubjects from './components/dashboard/admin/Pages/AddSubject';
 import ManageStudents from './components/dashboard/admin/Pages/AddStudent';
 import ManageTutors from './components/dashboard/admin/Pages/AddTutor';
 import NotificationPage from './components/dashboard/admin/Pages/NotificationPage';
+
 import AddStudent from './components/dashboard/admin/Pages/AddStudent';
 import ListStudent from './components/dashboard/admin/Pages/ListStudent';
+import AddSubject from './components/dashboard/admin/Pages/AddSubject';
+import ListSubject from './components/dashboard/admin/Pages/ListSubject';
+import AddTutor from './components/dashboard/admin/Pages/AddTutor';
+import ListTutor from './components/dashboard/admin/Pages/ListTutor';
 
 function App() {
   return (
@@ -64,8 +69,13 @@ function App() {
         <Route path='/dashboard/admin/Pages/ManageStudents' element={<ManageStudents/>}/>
         <Route path='/dashboard/admin/Pages/ManageTutors' element={<ManageTutors/>}/>
         <Route path='/dashboard/admin/Pages/NotificationPage' element={<NotificationPage/>}/>
+
         <Route path='/dashboard/admin/Pages/AddStudent' element={<AddStudent/>}/>
         <Route path='/dashboard/admin/Pages/ListStudent' element={<ListStudent/>}/>
+        <Route path='/dashboard/admin/Pages/AddSubject' element={<AddSubject/>}/>
+        <Route path='/dashboard/admin/Pages/ListSubject' element={<ListSubject/>}/>
+        <Route path='/dashboard/admin/Pages/AddTutor' element={<AddTutor/>}/>
+        <Route path='/dashboard/admin/Pages/ListTutor' element={<ListTutor/>}/>
         
       </Routes>
     </Router>

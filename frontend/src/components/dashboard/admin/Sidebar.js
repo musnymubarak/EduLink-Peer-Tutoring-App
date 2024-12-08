@@ -13,8 +13,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       name: "Manage Tutors",
       icon: Users,
       subItems: [
-        { name: "Add Tutor", path: "" },
-        { name: "Tutor List", path: "" },
+        { name: "Add Tutor", path: "/dashboard/admin/Pages/AddTutor" },
+        { name: "Tutor List", path: "/dashboard/admin/Pages/ListTutor" },
       ],
     },
     {
@@ -29,8 +29,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       name: "Subjects",
       icon: BookOpen,
       subItems: [
-        { name: "Add Subject", path: "/add-subject" },
-        { name: "Subject List", path: "/subject-list" },
+        { name: "Add Subject", path: "/dashboard/admin/Pages/AddSubject" },
+        { name: "Subject List", path: "/dashboard/admin/Pages/ListSubject" },
       ],
     },
     {
