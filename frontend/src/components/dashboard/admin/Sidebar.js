@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { LayoutDashboard, Users, BookOpen, Bell, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-// Sidebar Component
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const menuItems = [
     {
@@ -36,7 +35,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       name: "Notifications",
-      path: "/notifications",
+      path: "",
       icon: Bell,
     },
   ];
