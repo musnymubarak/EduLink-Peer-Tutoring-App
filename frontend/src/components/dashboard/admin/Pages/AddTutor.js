@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import Footer from "./Footer";
+import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
 
 const AddTutor = () => {
   const [formData, setFormData] = useState({
