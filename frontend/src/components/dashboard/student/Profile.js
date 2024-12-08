@@ -4,12 +4,12 @@ export default function Profile() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="w-64 bg-richblue-800 border-r border-richblack-700">
+      <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
 
       {/* Profile Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Profile</h1>
 
         <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
