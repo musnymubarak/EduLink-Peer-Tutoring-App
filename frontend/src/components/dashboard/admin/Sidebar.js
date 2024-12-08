@@ -6,23 +6,23 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const menuItems = [
     {
       name: "Dashboard",
-      path: "/AdminDashboard",
+      path: "/dashboard/admin/AdminDashboard",
       icon: LayoutDashboard,
     },
     {
       name: "Manage Tutors",
       icon: Users,
       subItems: [
-        { name: "Add Tutor", path: "/add-tutor" },
-        { name: "Tutor List", path: "/tutor-list" },
+        { name: "Add Tutor", path: "" },
+        { name: "Tutor List", path: "" },
       ],
     },
     {
       name: "Manage Students",
       icon: Users,
       subItems: [
-        { name: "Add Student", path: "/add-student" },
-        { name: "Student List", path: "/student-list" },
+        { name: "Add Student", path: "/dashboard/admin/Pages/AddStudent" },
+        { name: "Student List", path: "/dashboard/admin/Pages/ListStudent" },
       ],
     },
     {
@@ -35,7 +35,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       name: "Notifications",
-      path: "",
+      path: "/dashboard/admin/Pages/NotificationPage",
       icon: Bell,
     },
   ];

@@ -22,12 +22,12 @@ import TSubjectDetails from './components/dashboard/tutor/TSubjectDetails';
 
 import AdminDashboard from './components/dashboard/admin/AdminDashboard';
 import DashboardOverview from './components/dashboard/admin/Pages/DashboardOverview';
-import ManageSubjects from './components/dashboard/admin/Pages/ManageSubjects';
+import ManageSubjects from './components/dashboard/admin/Pages/AddSubject';
 import ManageStudents from './components/dashboard/admin/Pages/AddStudent';
-import ManageTutors from './components/dashboard/admin/Pages/ManageTutors';
+import ManageTutors from './components/dashboard/admin/Pages/AddTutor';
 import NotificationPage from './components/dashboard/admin/Pages/NotificationPage';
 import AddStudent from './components/dashboard/admin/Pages/AddStudent';
-import AddStudent from './components/dashboard/admin/Pages/AddStudent';
+import ListStudent from './components/dashboard/admin/Pages/ListStudent';
 
 function App() {
   return (
@@ -65,7 +65,7 @@ function App() {
         <Route path='/dashboard/admin/Pages/ManageTutors' element={<ManageTutors/>}/>
         <Route path='/dashboard/admin/Pages/NotificationPage' element={<NotificationPage/>}/>
         <Route path='/dashboard/admin/Pages/AddStudent' element={<AddStudent/>}/>
-        <Route path='/dashboard/admin/Pages/AddStudent' element={<AddStudent/>}/>
+        <Route path='/dashboard/admin/Pages/ListStudent' element={<ListStudent/>}/>
         
       </Routes>
     </Router>
