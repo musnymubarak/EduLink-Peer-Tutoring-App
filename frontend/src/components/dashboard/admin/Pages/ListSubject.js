@@ -70,60 +70,59 @@ const ListSubject = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {subjectsData.map((subject) => (
-                    <>
-                      {/* Main Row */}
-                      <tr key={subject.id}>
-                        <td className="border-b py-2">{subject.id}</td>
-                        <td className="border-b py-2">{subject.name}</td>
-                        <td className="border-b py-2">
-                          <button
-                            className="text-blue-600"
-                            onClick={() => toggleRow(subject.id)}
-                          >
-                            {expandedRows.includes(subject.id) ? (
-                              <ChevronUp size={20} />
-                            ) : (
-                              <ChevronDown size={20} />
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-
-                      {/* Expanded Row */}
-                      {expandedRows.includes(subject.id) && (
-                        <tr>
-                          <td colSpan={3} className="border-b bg-gray-50 p-4">
-                            <div className="space-y-2">
-                              <p>
-                                <strong>Description:</strong>{" "}
-                                {subject.details.description}
-                              </p>
-                              <p>
-                                <strong>Prerequisites:</strong>{" "}
-                                {subject.details.prerequisites}
-                              </p>
-                              <div className="flex space-x-4 mt-2">
-                                <button
-                                  className="bg-blue-600 text-white py-1 px-3 rounded-lg hover:bg-blue-700 transition"
-                                  onClick={() => handleEdit(subject.id)}
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition"
-                                  onClick={() => handleDelete(subject.id)}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </div>
+                    {subjectsData.map((subject) => (
+                      <>
+                        {/* Main Row */}
+                        <tr key={subject.id}> {/* Use `subject.id` as a unique key */}
+                          <td className="border-b py-2">{subject.id}</td>
+                          <td className="border-b py-2">{subject.name}</td>
+                          <td className="border-b py-2">
+                            <button
+                              className="text-blue-600"
+                              onClick={() => toggleRow(subject.id)}
+                            >
+                              {expandedRows.includes(subject.id) ? (
+                                <ChevronUp size={20} />
+                              ) : (
+                                <ChevronDown size={20} />
+                              )}
+                            </button>
                           </td>
                         </tr>
-                      )}
-                    </>
-                  ))}
-                </tbody>
+
+                        {/* Expanded Row */}
+                        {expandedRows.includes(subject.id) && (
+                          <tr>
+                            <td colSpan={3} className="border-b bg-gray-50 p-4">
+                              <div className="space-y-2">
+                                <p>
+                                  <strong>Description:</strong> {subject.details.description}
+                                </p>
+                                <p>
+                                  <strong>Prerequisites:</strong> {subject.details.prerequisites}
+                                </p>
+                                <div className="flex space-x-4 mt-2">
+                                  <button
+                                    className="bg-blue-600 text-white py-1 px-3 rounded-lg hover:bg-blue-700 transition"
+                                    onClick={() => handleEdit(subject.id)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition"
+                                    onClick={() => handleDelete(subject.id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ))}
+                  </tbody>
+
               </table>
             </div>
           </div>
