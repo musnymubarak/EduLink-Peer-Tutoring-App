@@ -1,42 +1,67 @@
 import React, { useState } from "react";
-import Table from "../Utilities/Table";
+import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
 
-const ManageSubjects = () => {
-  const [subjects, setSubjects] = useState([
-    { id: 1, name: "Mathematics", code: "MATH101", status: "Active" },
-    { id: 2, name: "Physics", code: "PHYS201", status: "Inactive" },
-  ]);
+const AddSubject = () => {
+  const [subject, setSubject] = useState("");
 
-  const handleDelete = (id) => {
-    setSubjects(subjects.filter((subject) => subject.id !== id));
-  };
-
-  const handleAdd = () => {
-    const newSubject = {
-      id: subjects.length + 1,
-      name: `New Subject ${subjects.length + 1}`,
-      code: `SUBJ${subjects.length + 101}`,
-      status: "Pending",
-    };
-    setSubjects([...subjects, newSubject]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Subject Added:", subject);
+    setSubject(""); // Reset form
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Manage Subjects</h2>
-      <button
-        onClick={handleAdd}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-      >
-        Add Subject
-      </button>
-      <Table
-        data={subjects}
-        columns={["Name", "Code", "Status", "Actions"]}
-        onDelete={handleDelete}
-      />
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
+      <Sidebar />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-4">
+          <div className="container mx-auto max-w-7xl">
+            <div className="mb-6">
+              <h1 className="text-2xl font-semibold">Add New Subject</h1>
+              <p className="text-sm text-gray-600">
+                Fill in the form below to add a new subject.
+              </p>
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white shadow-md rounded-lg p-6 space-y-4"
+            >
+              <div className="flex flex-col">
+                <label htmlFor="subject" className="text-gray-600 text-sm mb-1">
+                  Subject Name
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Enter subject name"
+                  className="border border-gray-300 rounded-lg p-2"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+              >
+                Add Subject
+              </button>
+            </form>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
     </div>
   );
 };
 
-export default ManageSubjects;
+export default AddSubject;
