@@ -63,7 +63,7 @@ function App() {
         <Route path='/dashboard/tutor/your-subjects' element={<YourSubjects/>}/>
 
         {/* admin */}
-        <Route path='/dashboard/admin/AdminDashboard' element={<AdminDashboard/>}/>
+        <Route path='/dashboard/admin' element={<AdminDashboard/>}/>
         <Route path='/dashboard/admin/Pages/DashboardOverview' element={<DashboardOverview/>}/>
         <Route path='/dashboard/admin/Pages/ManageSubjects' element={<ManageSubjects/>}/>
         <Route path='/dashboard/admin/Pages/ManageStudents' element={<ManageStudents/>}/>
