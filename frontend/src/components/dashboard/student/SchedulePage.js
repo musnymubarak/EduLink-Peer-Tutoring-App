@@ -210,13 +210,6 @@ export default function SchedulePage() {
           <h1 className="text-4xl font-extrabold text-gray-800">
             Class Schedule
           </h1>
-
-          <button 
-            onClick={() => setIsAddEventModalOpen(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
-          >
-            + Add Class
-          </button>
         </div>
 
         <div className="flex justify-between items-center mb-4">

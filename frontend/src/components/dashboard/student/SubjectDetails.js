@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+
 
 export default function SubjectDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -57,11 +60,18 @@ export default function SubjectDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
+      >
+        <IoArrowBack className="mr-2 text-2xl" />
+        Back
+      </button>
       <div className="relative">
         <img
           src={subject.banner}
           alt={`${subject.title} banner`}
-          className="w-full h-64 object-cover rounded-lg shadow-lg"
+          className="w-full h-96 object-cover rounded-lg shadow-lg"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-4">
           <h1 className="text-4xl font-bold text-white">{subject.title}</h1>
