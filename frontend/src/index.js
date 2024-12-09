@@ -4,11 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import { AccountTypeProvider } from "./components/dashboard/AccountTypeContext";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <AccountTypeProvider>
+      <App />
+    </AccountTypeProvider>
   </React.StrictMode>
 );
 

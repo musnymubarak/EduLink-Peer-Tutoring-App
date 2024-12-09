@@ -3,8 +3,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { useAccountType } from "./dashboard/AccountTypeContext";
 
 export default function Login() {
+  const { setAccountType } = useAccountType();
   const navigate = useNavigate();
   const tabData = [
     {
@@ -17,14 +19,19 @@ export default function Login() {
       tabName: "Tutor",
       type: "tutor",
     },
+    {
+      id: 3,
+      tabName: "Admin",
+      type: "admin",
+    },
   ];
 
   const [field, setField] = useState("student");
 
   const handleLogin = (event) => {
-    event.preventDefault(); 
-    //login logic 
-    navigate("/dashboard/student"); 
+    event.preventDefault();
+    setAccountType(field); // Set account type in context
+    navigate(`/dashboard/${field}`);
   };
 
   return (
@@ -57,15 +64,20 @@ export default function Login() {
             <div
               className="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300"
               style={{
-                width: field === "student" ? "50%" : "50%",
-                transform: field === "student" ? "translateX(0%)" : "translateX(100%)",
+                width: field === "student" ? "33.33%" : field === "tutor" ? "33.33%" : "33.33%",
+                transform:
+                  field === "student"
+                    ? "translateX(0%)"
+                    : field === "tutor"
+                    ? "translateX(100%)"
+                    : "translateX(200%)",
               }}
             />
           </div>
 
           <form
             className="flex w-full flex-col gap-y-6"
-            onSubmit={handleLogin} // Attach the login handler
+            onSubmit={handleLogin}
           >
             <label className="w-full">
               <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">

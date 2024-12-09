@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import {sidebarLinks as LINKS} from "../../data/dashboard-links";
+import { sidebarLinks as LINKS } from "../../data/dashboard-links";
 import SidebarLinks from "./SideBarLinks";
 import { VscSignOut } from "react-icons/vsc";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
+import { useAccountType } from "./AccountTypeContext";
 
 const Sidebar = () => {
     const [clicked, setClicked] = useState(false);
-    const accountType = 'student';
+    const { accountType } = useAccountType(); // Fetch account type from context
 
     return (
         <div
@@ -50,5 +51,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-
