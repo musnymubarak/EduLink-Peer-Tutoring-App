@@ -1,38 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 
 const AdminDashboard = () => {
-  // Dummy data for pending tutors
-  const pendingTutors = [
+  // Simulated pending tutors data
+  const [pendingTutors, setPendingTutors] = useState([
     {
       id: 1,
       firstName: "John",
       lastName: "Doe",
       email: "john.doe@example.com",
-      password: "password123",
       resume: "resume-john-doe.pdf",
+      subject: "C++ Fundamentals",
     },
     {
       id: 2,
       firstName: "Jane",
       lastName: "Smith",
       email: "jane.smith@example.com",
-      password: "password456",
       resume: "resume-jane-smith.pdf",
+      subject: "JavaScript Basics",
     },
-  ];
+  ]);
 
-  // Handle accept and reject actions
+  // Handle accept action
   const handleAccept = (tutor) => {
-    console.log("Accepted Tutor:", tutor);
-    // Add API call to save tutor credentials to the database
+    alert(`${tutor.firstName} ${tutor.lastName} has been accepted as a tutor for ${tutor.subject}.`);
+    setPendingTutors(pendingTutors.filter((t) => t.id !== tutor.id));
   };
 
+  // Handle reject action
   const handleReject = (tutorId) => {
-    console.log("Rejected Tutor ID:", tutorId);
-    // Add API call to remove tutor from pending list
+    alert(`Tutor request with ID ${tutorId} has been rejected.`);
+    setPendingTutors(pendingTutors.filter((t) => t.id !== tutorId));
   };
 
   return (
@@ -55,6 +56,7 @@ const AdminDashboard = () => {
                       <th className="border-b py-2">First Name</th>
                       <th className="border-b py-2">Last Name</th>
                       <th className="border-b py-2">Email</th>
+                      <th className="border-b py-2">Subject</th>
                       <th className="border-b py-2">Resume</th>
                       <th className="border-b py-2">Actions</th>
                     </tr>
@@ -65,6 +67,7 @@ const AdminDashboard = () => {
                         <td className="border-b py-2">{tutor.firstName}</td>
                         <td className="border-b py-2">{tutor.lastName}</td>
                         <td className="border-b py-2">{tutor.email}</td>
+                        <td className="border-b py-2">{tutor.subject}</td>
                         <td className="border-b py-2">
                           <a
                             href={`/resumes/${tutor.resume}`}
