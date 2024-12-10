@@ -1,23 +1,9 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { auth, isInstructor } = require("../middlewares/authMiddleware");
-const {
-    addCourse,
-    getInstructorCourses,
-    updateCourse,
-    deleteCourse,
-} = require("../controllers/instructorController");
+const { assignInstructorToCourse } = require('../controllers/instructorController');
+const { auth, isInstructor } = require('../middlewares/authMiddleware');
 
-// Route to add a new course
-router.post("/add", auth, isInstructor, addCourse);
-
-// Route to get all courses created by the instructor
-router.get("/", auth, isInstructor, getInstructorCourses);
-
-// Route to update a specific course
-router.put("/:courseId", auth, isInstructor, updateCourse);
-
-// Route to delete a specific course
-router.delete("/:courseId", auth, isInstructor, deleteCourse);
+// Route to assign instructor to a course
+router.post('/assign/:courseId', auth, isInstructor, assignInstructorToCourse);
 
 module.exports = router;

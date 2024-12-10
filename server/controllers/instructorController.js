@@ -1,170 +1,51 @@
-const Course = require("../models/Course");
-const mongoose = require("mongoose");
+const Course = require('../models/Course');
+const User = require('../models/User');  // Import the User model
 
-// Add a new course
-exports.addCourse = async (req, res) => {
-    try {
-        const {
-            courseName,
-            courseDescription,
-            whatYouWillLearn,
-            courseContent,
-            price,
-            thumbnail,
-            tag,
-            category,
-            instructions,
-        } = req.body;
+exports.assignInstructorToCourse = async (req, res) => {
+    const { courseId } = req.params;  // Extract courseId from the URL
+    const instructorId = req.user._id;  // Get the instructor ID from the authenticated user (from the middleware)
 
-        // Validate required fields
-        if (!courseName || !courseDescription || !price || !tag || !category) {
-            return res.status(400).json({
-                success: false,
-                message: "Required fields are missing.",
-            });
-        }
-
-        // Validate category is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid category ID.",
-            });
-        }
-
-        // Create a new course with the logged-in instructor as the creator
-        const newCourse = await Course.create({
-            courseName,
-            courseDescription,
-            instructor: req.user.id, // Use the instructor's ID from the authenticated user
-            whatYouWillLearn,
-            courseContent,
-            price,
-            thumbnail,
-            tag,
-            category,
-            instructions,
-            status: "Draft", // Default to draft
-        });
-
-        return res.status(201).json({
-            success: true,
-            message: "Course created successfully.",
-            data: newCourse,
-        });
-    } catch (error) {
-        console.error("Error adding course:", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Error adding course.",
-            error: error.message,
-        });
+    if (!courseId || !instructorId) {
+        return res.status(400).json({ success: false, message: "Missing courseId or instructorId." });
     }
-};
 
-// Get all courses created by the instructor
-exports.getInstructorCourses = async (req, res) => {
     try {
-        const courses = await Course.find({ instructor: req.user.id });
+        // Check if the course exists
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ success: false, message: "Course not found." });
+        }
 
-        if (!courses.length) {
-            return res.status(404).json({
-                success: false,
-                message: "No courses found for this instructor.",
-            });
+        // Check if the instructor is already assigned (optional check)
+        if (course.availableInstructors.includes(instructorId)) {
+            return res.status(400).json({ success: false, message: "Instructor is already assigned to this course." });
+        }
+
+        // Add instructor to the course's availableInstructors array
+        course.availableInstructors.push(instructorId);
+        await course.save();
+
+        // Find the instructor (User) and update their courses array
+        const instructor = await User.findById(instructorId);
+        if (!instructor) {
+            return res.status(404).json({ success: false, message: "Instructor not found." });
+        }
+
+        // Check if the course is already in the instructor's courses array
+        if (!instructor.courses.includes(courseId)) {
+            instructor.courses.push(courseId);
+            await instructor.save();
         }
 
         return res.status(200).json({
             success: true,
-            message: "Courses fetched successfully.",
-            data: courses,
+            message: "Instructor assigned to course successfully.",
         });
     } catch (error) {
-        console.error("Error fetching instructor courses:", error.message);
+        console.error(error);
         return res.status(500).json({
             success: false,
-            message: "Error fetching instructor courses.",
-            error: error.message,
-        });
-    }
-};
-
-// Update a course
-exports.updateCourse = async (req, res) => {
-    try {
-        const { courseId } = req.params;
-        const updatedData = req.body;
-
-        // Validate courseId
-        if (!mongoose.Types.ObjectId.isValid(courseId)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid course ID.",
-            });
-        }
-
-        const updatedCourse = await Course.findOneAndUpdate(
-            { _id: courseId, instructor: req.user.id }, // Ensure the course belongs to the instructor
-            updatedData,
-            { new: true }
-        );
-
-        if (!updatedCourse) {
-            return res.status(404).json({
-                success: false,
-                message: "Course not found or unauthorized to update.",
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: "Course updated successfully.",
-            data: updatedCourse,
-        });
-    } catch (error) {
-        console.error("Error updating course:", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Error updating course.",
-            error: error.message,
-        });
-    }
-};
-
-// Delete a course
-exports.deleteCourse = async (req, res) => {
-    try {
-        const { courseId } = req.params;
-
-        // Validate courseId
-        if (!mongoose.Types.ObjectId.isValid(courseId)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid course ID.",
-            });
-        }
-
-        const deletedCourse = await Course.findOneAndDelete({
-            _id: courseId,
-            instructor: req.user.id, // Ensure the course belongs to the instructor
-        });
-
-        if (!deletedCourse) {
-            return res.status(404).json({
-                success: false,
-                message: "Course not found or unauthorized to delete.",
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: "Course deleted successfully.",
-        });
-    } catch (error) {
-        console.error("Error deleting course:", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Error deleting course.",
+            message: "Error occurred while assigning instructor.",
             error: error.message,
         });
     }

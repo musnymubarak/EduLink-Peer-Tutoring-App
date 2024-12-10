@@ -12,7 +12,7 @@ dotenv.config();
 const userRoutes = require("./routes/authRoute");
 const courseRoutes = require("./routes/courseRoute"); // Import course routes
 const enrollmentRoutes = require("./routes/enrollmentRoute");
-const instructorRoutes = require("./routes/instructorRoute");
+const instructorRoutes = require("./routes/instructorRoute"); // Import instructor routes
 
 // Import database configuration
 const database = require("./config/db");
@@ -30,10 +30,10 @@ const PORT = process.env.PORT || 4000;
 database.connect();
 
 // Middleware setup
-app.use(express.json()); 
-app.use(cookieParser()); 
-app.use(cors()); 
-app.use(morgan("dev")); 
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use(morgan("dev"));
 
 // File upload configuration
 app.use(
@@ -50,9 +50,8 @@ app.use("/api/v1/courses", courseRoutes); // Course routes are accessible withou
 
 // Protected routes
 app.use("/api/v1/auth", userRoutes); // Authentication required (if implemented in middleware)
-
 app.use("/api/v1/enrollment", enrollmentRoutes);
-app.use("/api/v1/instructor", instructorRoutes);
+app.use("/api/v1/instructor", instructorRoutes); // Instructor routes
 
 // Default route
 app.get("/", (req, res) => {

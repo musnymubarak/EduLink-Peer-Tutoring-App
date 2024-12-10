@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const coursesSchema = new mongoose.Schema({
 	courseName: { type: String },
 	courseDescription: { type: String },
-	instructor: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "user",
-	},
+	availableInstructors: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+	],
 	whatYouWillLearn: {
 		type: String,
 	},
