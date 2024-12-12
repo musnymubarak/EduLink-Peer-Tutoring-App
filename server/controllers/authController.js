@@ -24,12 +24,12 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Check if the user already exists
-    const existingUser = await User.findOne({ email });
+    // Check if a user with the same email and account type already exists
+    const existingUser = await User.findOne({ email, accountType });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists. Please log in.",
+        message: `An account with this email already exists as a ${accountType}. Please log in or choose a different account type.`,
       });
     }
 
@@ -48,8 +48,8 @@ exports.signup = async (req, res) => {
     // Send response without sensitive data
     return res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email },
+      message: `${accountType} account registered successfully`,
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, accountType: user.accountType },
     });
   } catch (error) {
     console.error("Error during signup:", error);
@@ -63,22 +63,22 @@ exports.signup = async (req, res) => {
 // Controller for user login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, accountType } = req.body;
 
     // Validate required fields
-    if (!email || !password) {
+    if (!email || !password || !accountType) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required",
+        message: "Email, password, and account type are required",
       });
     }
 
-    // Check if the user exists
-    const user = await User.findOne({ email });
+    // Check if the user exists for the given email and account type
+    const user = await User.findOne({ email, accountType });
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: `No ${accountType} account found with this email. Please check your account type or sign up.`,
       });
     }
 
@@ -98,22 +98,28 @@ exports.login = async (req, res) => {
 
     // Set the token in a cookie
     res.cookie("access_token", token, {
-      httpOnly: true,  // Makes the cookie inaccessible to JavaScript
-      secure: process.env.NODE_ENV === "production",  // Ensure the cookie is secure in production
-      maxAge: 3600000,  // 1 hour expiration time
+      httpOnly: true, // Makes the cookie inaccessible to JavaScript
+      secure: process.env.NODE_ENV === "production", // Ensure the cookie is secure in production
+      maxAge: 3600000, // 1 hour expiration time
     });
 
-    // Send response with limited user data (without token)
+    // Send response with user data and accountType included
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, accountType: user.accountType },
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        accountType: user.accountType, // Ensure accountType is sent in response
+      },
     });
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error during login",
-    });
-  }
+    });
+  }
 };
