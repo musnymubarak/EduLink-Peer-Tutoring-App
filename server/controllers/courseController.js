@@ -17,7 +17,7 @@ exports.addCourse = async (req, res) => {
 
         // Extract course details from the request body
         const {
-            courseName,
+            courseName, // Only required field
             courseDescription,
             availableInstructors,
             whatYouWillLearn,
@@ -25,52 +25,51 @@ exports.addCourse = async (req, res) => {
             price,
             thumbnail,
             tag,
-            category, // We will ignore this temporarily
+            category,
             instructions,
             status,
         } = req.body;
 
-        // Validate mandatory fields (excluding category)
-        if (!courseName || !courseDescription || !price || !tag) {
+        // Validate mandatory field
+        if (!courseName) {
             return res.status(400).json({
                 success: false,
-                message: "Please provide all required fields.",
+                message: "Course name is required.",
             });
         }
 
-        // Skip category validation temporarily by setting it to null or a default value
-        const categoryToUse = category || null;
-
-        // Validate if availableInstructors is an array and has values
-        if (!Array.isArray(availableInstructors)) {
+        // Validate if availableInstructors is an array if provided
+        if (availableInstructors && !Array.isArray(availableInstructors)) {
             return res.status(400).json({
                 success: false,
                 message: "availableInstructors must be an array.",
             });
         }
 
-        // Check if all instructors exist
-        const invalidInstructors = await User.find({ '_id': { $in: availableInstructors } });
-        if (invalidInstructors.length !== availableInstructors.length) {
-            return res.status(400).json({
-                success: false,
-                message: "One or more instructors do not exist.",
-            });
+        // Check if all instructors exist if provided
+        if (availableInstructors && availableInstructors.length > 0) {
+            const invalidInstructors = await User.find({ '_id': { $in: availableInstructors } });
+            if (invalidInstructors.length !== availableInstructors.length) {
+                return res.status(400).json({
+                    success: false,
+                    message: "One or more instructors do not exist.",
+                });
+            }
         }
 
         // Create a new course
         const newCourse = await Course.create({
             courseName,
-            courseDescription,
-            availableInstructors,
-            whatYouWillLearn,
-            courseContent,
-            price,
-            thumbnail,
-            tag,
-            category: categoryToUse,  // Use the default or null category
-            instructions,
-            status,
+            courseDescription: courseDescription || null,
+            availableInstructors: availableInstructors || [],
+            whatYouWillLearn: whatYouWillLearn || null,
+            courseContent: courseContent || [],
+            price: price || null,
+            thumbnail: thumbnail || null,
+            tag: tag || null,
+            category: category || null,
+            instructions: instructions || null,
+            status: status || "Draft", // Default status if not provided
         });
 
         return res.status(201).json({
