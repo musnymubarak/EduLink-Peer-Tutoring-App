@@ -96,23 +96,24 @@ exports.login = async (req, res) => {
       expiresIn: "1h",
     });
 
-    // Set the token in a cookie
-    res.cookie("access_token", token, {
-      httpOnly: true, // Makes the cookie inaccessible to JavaScript
-      secure: process.env.NODE_ENV === "production", // Ensure the cookie is secure in production
-      maxAge: 3600000, // 1 hour expiration time
+    // Set the token in cookies (httpOnly and secure flags are added for security)
+    res.cookie("token", token, {
+      httpOnly: true,  // Prevents JavaScript access to the cookie
+      secure: process.env.NODE_ENV === "production",  // Only set cookies over HTTPS in production
+      expires: new Date(Date.now() + 3600 * 1000),  // 1 hour expiration
     });
 
-    // Send response with user data and accountType included
+    // Send the token in the response body for local storage
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
+      token,  // Include the token in the response body
       user: {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        accountType: user.accountType, // Ensure accountType is sent in response
+        accountType: user.accountType,
       },
     });
   } catch (error) {

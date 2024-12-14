@@ -5,8 +5,16 @@ require("dotenv").config();
 // Authentication Middleware
 exports.auth = async (req, res, next) => {
     try {
-        // Extract token from cookies
-        const token = req.cookies.access_token;
+        // Extract token from cookies first
+        let token = req.cookies.access_token;
+
+        // If token is not found in cookies, look for it in the Authorization header
+        if (!token) {
+            const authHeader = req.headers['authorization'];
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1]; // Extract token from "Bearer token" format
+            }
+        }
 
         // If token is missing, respond with an error
         if (!token) {
