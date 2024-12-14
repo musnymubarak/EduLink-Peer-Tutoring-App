@@ -1,0 +1,8 @@
+# Node.js dependencies
+node_modules/
+.env
+
+# Cache and build files
+.cache/
+dist/
+build/
