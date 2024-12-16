@@ -16,7 +16,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Validate password strength (for example, at least 8 characters)
+    // Validate password strength
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
@@ -24,7 +24,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Check if a user with the same email and account type already exists
+    // Check for existing user
     const existingUser = await User.findOne({ email, accountType });
     if (existingUser) {
       return res.status(400).json({
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
       accountType,
     });
 
-    // Send response without sensitive data
+    // Respond without sensitive data
     return res.status(201).json({
       success: true,
       message: `${accountType} account registered successfully`,
@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check if the user exists for the given email and account type
+    // Check if user exists
     const user = await User.findOne({ email, accountType });
     if (!user) {
       return res.status(401).json({
@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Compare the entered password with the hashed password
+    // Compare passwords
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(401).json({
@@ -96,18 +96,19 @@ exports.login = async (req, res) => {
       expiresIn: "1h",
     });
 
-    // Set the token in cookies (httpOnly and secure flags are added for security)
-    res.cookie("token", token, {
-      httpOnly: true,  // Prevents JavaScript access to the cookie
-      secure: process.env.NODE_ENV === "production",  // Only set cookies over HTTPS in production
-      expires: new Date(Date.now() + 3600 * 1000),  // 1 hour expiration
+    // Save the token in cookies
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "strict", // Helps prevent CSRF attacks
+      expires: new Date(Date.now() + 3600 * 1000), // Token expires in 1 hour
     });
 
-    // Send the token in the response body for local storage
+    // Include token in the response body for localStorage
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      token,  // Include the token in the response body
+      token, // Include the token for saving in localStorage
       user: {
         id: user._id,
         firstName: user.firstName,
