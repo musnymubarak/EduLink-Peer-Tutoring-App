@@ -5,6 +5,7 @@ const RatingAndReview = require("../models/RatingAndReview");
 const User = require("../models/User");
 
 // Add Course (Only Admin)
+// Add Course (Only Admin)
 exports.addCourse = async (req, res) => {
     try {
         // Verify that the user is an Admin
@@ -17,24 +18,39 @@ exports.addCourse = async (req, res) => {
 
         // Extract course details from the request body
         const {
-            courseName, // Only required field
+            courseName,
             courseDescription,
             availableInstructors,
             whatYouWillLearn,
             courseContent,
             price,
             thumbnail,
-            tag,
+            tag, // Tag is now compulsory
             category,
             instructions,
             status,
         } = req.body;
 
-        // Validate mandatory field
+        // Validate mandatory fields
         if (!courseName) {
             return res.status(400).json({
                 success: false,
                 message: "Course name is required.",
+            });
+        }
+
+        if (!category) {
+            return res.status(400).json({
+                success: false,
+                message: "Category is required.",
+            });
+        }
+
+        // Validate the tag
+        if (!tag) {
+            return res.status(400).json({
+                success: false,
+                message: "Tag is required.",
             });
         }
 
@@ -57,6 +73,12 @@ exports.addCourse = async (req, res) => {
             }
         }
 
+        // Check if category exists, if not, create a new category
+        let categoryObj = await Category.findOne({ name: category });
+        if (!categoryObj) {
+            categoryObj = await Category.create({ name: category });
+        }
+
         // Create a new course
         const newCourse = await Course.create({
             courseName,
@@ -66,11 +88,15 @@ exports.addCourse = async (req, res) => {
             courseContent: courseContent || [],
             price: price || null,
             thumbnail: thumbnail || null,
-            tag: tag || null,
-            category: category || null,
+            tag, // Tag is now required
+            category: categoryObj._id,
             instructions: instructions || null,
             status: status || "Draft", // Default status if not provided
         });
+
+        // If a category is provided, add the course to the category's courses array
+        categoryObj.courses.push(newCourse._id);
+        await categoryObj.save();
 
         return res.status(201).json({
             success: true,
@@ -85,6 +111,8 @@ exports.addCourse = async (req, res) => {
         });
     }
 };
+
+
 
 // Get All Courses
 exports.getAllCourses = async (req, res) => {
