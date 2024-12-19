@@ -11,6 +11,7 @@ dotenv.config();
 // Import routes
 const userRoutes = require("./routes/authRoute");
 const courseRoutes = require("./routes/courseRoute"); // Import course routes
+const sectionRoutes = require("./routes/sectionRoute"); // Import section routes
 const enrollmentRoutes = require("./routes/enrollmentRoute");
 const instructorRoutes = require("./routes/instructorRoute"); // Import instructor routes
 
@@ -47,6 +48,7 @@ app.use(
 
 // Public routes
 app.use("/api/v1/courses", courseRoutes); // Course routes are accessible without auth
+app.use("/api/v1/sections", sectionRoutes); // Section routes are accessible without auth
 
 // Protected routes
 app.use("/api/v1/auth", userRoutes); // Authentication required (if implemented in middleware)

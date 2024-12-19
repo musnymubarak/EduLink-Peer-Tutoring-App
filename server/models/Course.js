@@ -31,10 +31,7 @@ const coursesSchema = new mongoose.Schema({
             ref: "RatingAndReview",
         },
     ],
-    price: {
-        type: Number,
-        default: null, // Optional field with default value of null
-    },
+    
     thumbnail: {
         type: String,
         default: null, // Optional field with default value of null
@@ -42,6 +39,7 @@ const coursesSchema = new mongoose.Schema({
     tag: {
         type: [String],
         default: [], // Optional array with default value of empty array
+        required: true,
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
