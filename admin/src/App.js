@@ -5,7 +5,7 @@ import AdminDashboard from './components/dashboard/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/dashboard/Sidebar'; // Import Sidebar
 import AddCourse from './components/dashboard/Pages/AddCourse'; // Import AddCourse page
-
+import AddSection from './components/dashboard/Pages/AddSection'; // Import AddSection page
 
 function App() {
   return (
@@ -42,7 +42,18 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+
+        <Route
+          path="/dashboard/admin/add-section"
+          element={
+            <ProtectedRoute>
+              <div className="flex">
+                <Sidebar /> {/* Sidebar */}
+                <AddSection /> {/* Add Section Page */}
+              </div>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
