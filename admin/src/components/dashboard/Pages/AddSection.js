@@ -3,11 +3,20 @@ import axios from "axios";
 
 const AddSection = () => {
   const [sectionName, setSectionName] = useState("");
-  const [videoFile, setVideoFile] = useState(null); // State for video file input
-  const [quiz, setQuiz] = useState([{ questionText: "", options: [{ optionText: "", isCorrect: false }] }]); // State for quiz
+  const [videoFile, setVideoFile] = useState("");
+  const [quiz, setQuiz] = useState([
+    {
+      questionText: "",
+      options: [
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+      ],
+    },
+  ]);
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState("");
 
   const handleQuizChange = (index, field, value) => {
     const updatedQuiz = [...quiz];
@@ -15,66 +24,59 @@ const AddSection = () => {
     setQuiz(updatedQuiz);
   };
 
-  const handleOptionChange = (qIndex, oIndex, field, value) => {
+  const handleOptionChange = (quizIndex, optionIndex, field, value) => {
     const updatedQuiz = [...quiz];
-    updatedQuiz[qIndex].options[oIndex][field] = value;
+    updatedQuiz[quizIndex].options[optionIndex][field] = value;
     setQuiz(updatedQuiz);
-  };
-
-  const addOption = (qIndex) => {
-    const updatedQuiz = [...quiz];
-    updatedQuiz[qIndex].options.push({ optionText: "", isCorrect: false });
-    setQuiz(updatedQuiz);
-  };
-
-  const addQuestion = () => {
-    setQuiz([...quiz, { questionText: "", options: [{ optionText: "", isCorrect: false }] }]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess("");
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("Authentication required. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    if (!videoFile) {
-      setError("Please upload a video file.");
-      setLoading(false);
-      return;
-    }
+    setMessage("");
 
     try {
-      const formData = new FormData();
-      formData.append("sectionName", sectionName);
-      formData.append("videoFile", videoFile);
-      formData.append("quiz", JSON.stringify(quiz)); // Convert quiz to JSON string
+      // Prepare data to be sent to the backend
+      const sectionData = {
+        sectionName,
+        videoFile,
+        quiz,
+      };
 
-      const response = await axios.post("http://localhost:4000/api/v1/sections/add", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // Send POST request to the backend to add a new section
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/sections/add",
+        sectionData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // Include JWT token if required
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      if (response.data.success) {
-        setSuccess("Section added successfully!");
-        setSectionName("");
-        setVideoFile(null);
-        setQuiz([{ questionText: "", options: [{ optionText: "", isCorrect: false }] }]);
-      }
+      setMessage(response.data.message); // Show success message
     } catch (error) {
-      setError(error.response ? error.response.data.message : "An error occurred.");
+      setMessage(error.response?.data?.message || "An error occurred.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const addQuestion = () => {
+    setQuiz([
+      ...quiz,
+      {
+        questionText: "",
+        options: [
+          { optionText: "", isCorrect: false },
+          { optionText: "", isCorrect: false },
+          { optionText: "", isCorrect: false },
+          { optionText: "", isCorrect: false },
+        ],
+      },
+    ]);
   };
 
   return (
@@ -84,9 +86,7 @@ const AddSection = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="mb-6">
               <h1 className="text-2xl font-semibold">Add New Section</h1>
-              <p className="text-sm text-gray-600">
-                Fill in the form below to add a new section.
-              </p>
+              <p className="text-sm text-gray-600">Fill in the form below to add a new section.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-4">
@@ -107,86 +107,65 @@ const AddSection = () => {
 
               <div className="flex flex-col">
                 <label htmlFor="videoFile" className="text-gray-600 text-sm mb-1">
-                  Video File
+                  Video URL (Required)
                 </label>
                 <input
-                  type="file"
+                  type="url"
                   id="videoFile"
-                  accept="video/*"
-                  onChange={(e) => setVideoFile(e.target.files[0])}
+                  value={videoFile}
+                  onChange={(e) => setVideoFile(e.target.value)}
+                  placeholder="Enter video URL"
                   className="border border-gray-300 rounded-lg p-2"
                   required
                 />
               </div>
 
-              {quiz.map((q, qIndex) => (
-                <div key={qIndex} className="flex flex-col space-y-2">
-                  <label className="text-gray-600 text-sm">
-                    Question {qIndex + 1}
-                  </label>
+              {quiz.map((question, quizIndex) => (
+                <div key={quizIndex} className="flex flex-col space-y-2">
+                  <label className="text-gray-600 text-sm">Question {quizIndex + 1}</label>
                   <input
                     type="text"
-                    value={q.questionText}
-                    onChange={(e) =>
-                      handleQuizChange(qIndex, "questionText", e.target.value)
-                    }
+                    value={question.questionText}
+                    onChange={(e) => handleQuizChange(quizIndex, "questionText", e.target.value)}
                     placeholder="Enter question text"
                     className="border border-gray-300 rounded-lg p-2"
                     required
                   />
-                  {q.options.map((o, oIndex) => (
-                    <div key={oIndex} className="flex items-center space-x-2">
+                  {question.options.map((option, optionIndex) => (
+                    <div key={optionIndex} className="flex items-center space-x-2">
                       <input
                         type="text"
-                        value={o.optionText}
+                        value={option.optionText}
                         onChange={(e) =>
-                          handleOptionChange(qIndex, oIndex, "optionText", e.target.value)
+                          handleOptionChange(quizIndex, optionIndex, "optionText", e.target.value)
                         }
-                        placeholder={`Option ${oIndex + 1}`}
+                        placeholder={`Option ${optionIndex + 1}`}
                         className="border border-gray-300 rounded-lg p-2 flex-1"
                         required
                       />
                       <label className="flex items-center space-x-1">
                         <input
                           type="checkbox"
-                          checked={o.isCorrect}
+                          checked={option.isCorrect}
                           onChange={(e) =>
-                            handleOptionChange(qIndex, oIndex, "isCorrect", e.target.checked)
+                            handleOptionChange(quizIndex, optionIndex, "isCorrect", e.target.checked)
                           }
                         />
-                        <span className="text-gray-600 text-sm">Correct</span>
+                        <span className="text-gray-600 text-xs">Correct</span>
                       </label>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    className="text-blue-600 text-sm"
-                    onClick={() => addOption(qIndex)}
-                  >
-                    + Add Option
-                  </button>
                 </div>
               ))}
-
-              <button
-                type="button"
-                className="text-blue-600 text-sm"
-                onClick={addQuestion}
-              >
-                + Add Question
+              <button type="button" onClick={addQuestion} className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                Add Question
               </button>
-
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              {success && <p className="text-green-500 text-sm">{success}</p>}
-
-              <button
-                type="submit"
-                className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-                disabled={loading}
-              >
-                {loading ? "Adding..." : "Add Section"}
+              <button type="submit" disabled={loading} className="w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600">
+                {loading ? "Adding Section..." : "Add Section"}
               </button>
             </form>
+
+            {message && <p className="text-center text-gray-600 mt-4">{message}</p>}
           </div>
         </main>
       </div>
