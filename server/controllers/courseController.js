@@ -117,25 +117,36 @@ exports.addCourse = async (req, res) => {
 // Get All Courses
 exports.getAllCourses = async (req, res) => {
     try {
-        const courses = await Course.find()
-            .populate("availableInstructors", "firstName lastName email") // Populate availableInstructors details
-            .populate("category", "name")                               // Populate category details
-            .populate("courseContent")                                  // Populate sections if needed
-            .populate("ratingAndReviews");                              // Populate reviews if needed
-
-        return res.status(200).json({
-            success: true,
-            message: "Courses fetched successfully.",
-            data: courses,
-        });
+      const courses = await Course.find()
+        .populate("availableInstructors", "firstName lastName email")
+        .populate("category", "name")
+        .populate("studentsEnrolled", "_id")
+        .populate("ratingAndReviews");
+  
+      const formattedCourses = courses.map((course) => ({
+        _id: course._id,
+        courseName: course.courseName,
+        courseDescription: course.courseDescription,
+        availableInstructors: course.availableInstructors,
+        category: course.category,
+        studentsEnrolled: course.studentsEnrolled,
+        ratingAndReviews: course.ratingAndReviews,
+      }));
+  
+      return res.status(200).json({
+        success: true,
+        message: "Courses fetched successfully.",
+        data: formattedCourses,
+      });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error occurred while fetching courses.",
-            error: error.message,
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Error occurred while fetching courses.",
+        error: error.message,
+      });
     }
-};
+  };
+  
 
 // Get a Single Course by ID
 exports.getCourseById = async (req, res) => {

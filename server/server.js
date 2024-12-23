@@ -25,7 +25,7 @@ const authMiddleware = require("./middlewares/authMiddleware"); // Example authe
 const app = express();
 
 // Define the port
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 // Connect to the database
 database.connect();

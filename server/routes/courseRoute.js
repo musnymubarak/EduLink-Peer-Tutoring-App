@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { auth, isAdmin } = require("../middlewares/authMiddleware");
-const { 
-    addCourse, 
-    getAllCourses, 
-    getCourseById, 
-    updateCourseById, 
-    deleteCourseById 
+const {
+  getAllCourses,
+  getCourseById,
+  addCourse,
+  updateCourseById,
+  deleteCourseById,
 } = require("../controllers/courseController");
 
 // Public: Get All Courses
