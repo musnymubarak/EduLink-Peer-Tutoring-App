@@ -5,12 +5,14 @@ import AboutUs from './components/Aboutus';
 import ContactUs from './components/Contactus';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+
 import Dashboard from './components/dashboard/student/Dashboard';
 import Profile from './components/dashboard/student/Profile';
 import Subjects from './components/dashboard/student/Subjects';
 import Schedule from './components/dashboard/student/Schedule';
 import EnrolledSubjects from './components/dashboard/student/EnrolledSubjects';
 import Resources from './components/dashboard/student/Resources';
+
 import Requests from './components/dashboard/tutor/Requests';
 import YourSubjects from './components/dashboard/tutor/YourSubjects';
 import SubjectDetails from './components/dashboard/student/SubjectDetails';
@@ -33,6 +35,7 @@ import AddSubject from './components/dashboard/admin/Pages/AddSubject';
 import ListSubject from './components/dashboard/admin/Pages/ListSubject';
 import AddTutor from './components/dashboard/admin/Pages/AddTutor';
 import ListTutor from './components/dashboard/admin/Pages/ListTutor';
+import ExploreCourses from './components/ExploreCourses';
 
 function App() {
   return (
@@ -43,6 +46,7 @@ function App() {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/login' element={<Login/>}/>
+        <Route path='/explore' element={<ExploreCourses/>}/>
 
         {/*student*/}
         <Route path='/dashboard/student/' element={<Dashboard/>}/>
