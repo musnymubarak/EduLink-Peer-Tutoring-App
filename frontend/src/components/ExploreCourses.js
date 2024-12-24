@@ -3,7 +3,55 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export default function ExploreCourses() {
+  const [categories, setCategories] = useState([]);
 
+  useEffect(() => {
+    // Fetch courses from the backend
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/v1/courses");
+        const data = response.data.data;
+    
+        console.log(data);
+    
+        const groupedByCategory = data.reduce((acc, course) => {
+          const category = course.category?.name || "Uncategorized"; // Ensure category.name exists
+          if (!acc[category]) acc[category] = [];
+          acc[category].push(course);
+          return acc;
+        }, {});
+    
+        const formattedCategories = Object.entries(groupedByCategory).map(
+          ([title, courses]) => ({
+            title,
+            subjects: courses.map((course) => ({
+              id: course._id,
+              title: course.courseName,
+              description: course.courseDescription || "No description available.",
+              author: course.availableInstructors?.map(
+                (inst) => `${inst.firstName} ${inst.lastName}`
+              ).join(", ") || "N/A",
+              whatYouWillLearn: course.whatYouWillLearn || "Details not provided.",
+              courseContentCount: course.courseContent?.length || 0, // Number of sections
+              thumbnail: course.thumbnail || "No thumbnail available.",
+              tags: course.tag?.join(", ") || "No tags available.",
+              likes: course.studentsEnrolled?.length || 0,
+              rating: course.ratingAndReviews?.length || 0,
+              status: course.status || "Unknown",
+              createdAt: new Date(course.createdAt).toLocaleDateString(),
+            })),
+          })
+        );
+    
+        setCategories(formattedCategories);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    
+
+    fetchCourses();
+  }, []);
   return (
     <div className="flex min-h-screen bg-gray-100">      
       {/* Main Content */}
