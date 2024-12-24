@@ -15,6 +15,8 @@ export default function ExploreSingleCourse() {
     preferredTimes: [],
     suggestions: "",
   });
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // Track user login state
+  const [showLoginMessage, setShowLoginMessage] = useState(false); // Track if login message should show
 
   // Fetch course details based on course ID
   useEffect(() => {
@@ -28,6 +30,10 @@ export default function ExploreSingleCourse() {
     };
 
     fetchCourse();
+
+    // Check if the user is logged in (this can be based on your login flow, e.g., checking a token in localStorage)
+    const user = localStorage.getItem("user");
+    setIsUserLoggedIn(user ? true : false);
   }, [id]);
 
   if (!course) {
@@ -51,6 +57,15 @@ export default function ExploreSingleCourse() {
     e.preventDefault();
     console.log("Form Submitted: ", formData);
     setIsModalOpen(false);
+  };
+
+  const handleRequestClick = () => {
+    if (!isUserLoggedIn) {
+      setShowLoginMessage(true);
+      setTimeout(() => setShowLoginMessage(false), 5000); // Hide message after 5 seconds
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -158,13 +173,28 @@ export default function ExploreSingleCourse() {
         {/* Request Class Button */}
         <div className="text-right">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleRequestClick}
             className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             Request to Class
           </button>
         </div>
       </div>
+
+      {/* Login Message */}
+      {showLoginMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">You need to be logged in to request a class.</h2>
+            <button
+              onClick={() => setShowLoginMessage(false)}
+              className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal for Class Request */}
       {isModalOpen && (
