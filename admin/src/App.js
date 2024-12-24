@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/dashboard/Sidebar'; // Import Sidebar
 import AddCourse from './components/dashboard/Pages/AddCourse'; // Import AddCourse page
 import AddSection from './components/dashboard/Pages/AddSection'; // Import AddSection page
+import ListCourses from './components/dashboard/Pages/ListCourses'; // Import ListCourses page
 
 function App() {
   return (
@@ -50,6 +51,19 @@ function App() {
               <div className="flex">
                 <Sidebar /> {/* Sidebar */}
                 <AddSection /> {/* Add Section Page */}
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Route for List Courses Page */}
+        <Route
+          path="/dashboard/admin/list-courses"
+          element={
+            <ProtectedRoute>
+              <div className="flex">
+                <Sidebar /> {/* Sidebar */}
+                <ListCourses /> {/* List Courses Page */}
               </div>
             </ProtectedRoute>
           }
