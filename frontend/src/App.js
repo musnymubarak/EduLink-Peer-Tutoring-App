@@ -36,6 +36,7 @@ import ListSubject from './components/dashboard/admin/Pages/ListSubject';
 import AddTutor from './components/dashboard/admin/Pages/AddTutor';
 import ListTutor from './components/dashboard/admin/Pages/ListTutor';
 import ExploreCourses from './components/ExploreCourses';
+import ExploreSingleCourse from './components/ExploreSingleCourse';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/explore' element={<ExploreCourses/>}/>
+        <Route path='/explore/:id' element={<ExploreSingleCourse/>}/>
 
         {/*student*/}
         <Route path='/dashboard/student/' element={<Dashboard/>}/>
