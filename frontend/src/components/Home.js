@@ -8,7 +8,7 @@ const Home = () => {
   const navigate = useNavigate(); 
 
   const handleNavigate = () => {
-    navigate('/about-us'); 
+    navigate('/explore'); 
   };
 
   return (
@@ -51,7 +51,7 @@ const Home = () => {
                      hover:bg-blue-700 transition-all duration-300 ease-in-out 
                      shadow-lg hover:shadow-xl transform hover:-translate-y-1"
         >
-          More Info
+          Explore Courses
         </motion.button>
       </div>
     </motion.div>
