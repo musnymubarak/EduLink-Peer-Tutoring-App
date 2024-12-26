@@ -59,6 +59,9 @@ const userSchema = new mongoose.Schema(
         ref: "courseProgress",
       },
     ],
+    resumePath: {
+      type: String,
+    }
   },
   { timestamps: true }
 );

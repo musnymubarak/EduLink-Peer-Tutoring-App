@@ -4,22 +4,20 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
+const path = require("path");
 
 // Load environment variables
 dotenv.config();
 
 // Import routes
 const userRoutes = require("./routes/authRoute");
-const courseRoutes = require("./routes/courseRoute"); // Import course routes
-const sectionRoutes = require("./routes/sectionRoute"); // Import section routes
+const courseRoutes = require("./routes/courseRoute"); 
+const sectionRoutes = require("./routes/sectionRoute"); 
 const enrollmentRoutes = require("./routes/enrollmentRoute");
-const instructorRoutes = require("./routes/instructorRoute"); // Import instructor routes
+const instructorRoutes = require("./routes/instructorRoute"); 
 
 // Import database configuration
 const database = require("./config/db");
-
-// Import custom middleware (if required)
-const authMiddleware = require("./middlewares/authMiddleware"); // Example authentication middleware
 
 // Initialize Express app
 const app = express();
@@ -35,8 +33,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 app.use(morgan("dev"));
-
-// File upload configuration
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -44,16 +40,19 @@ app.use(
   })
 );
 
+// File uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Define routes
 
 // Public routes
-app.use("/api/v1/courses", courseRoutes); // Course routes are accessible without auth
-app.use("/api/v1/sections", sectionRoutes); // Section routes are accessible without auth
+app.use("/api/v1/courses", courseRoutes); 
+app.use("/api/v1/sections", sectionRoutes); 
 
 // Protected routes
-app.use("/api/v1/auth", userRoutes); // Authentication required (if implemented in middleware)
+app.use("/api/v1/auth", userRoutes); 
 app.use("/api/v1/enrollment", enrollmentRoutes);
-app.use("/api/v1/instructor", instructorRoutes); // Instructor routes
+app.use("/api/v1/instructor", instructorRoutes); 
 
 // Default route
 app.get("/", (req, res) => {
