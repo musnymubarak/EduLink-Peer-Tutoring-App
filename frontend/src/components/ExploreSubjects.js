@@ -27,4 +27,8 @@ export default function ExploreSubjects() {
 
       fetchSubjects();
     }, []);
+
+    
+
+
 }
