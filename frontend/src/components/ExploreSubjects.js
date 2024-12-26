@@ -10,5 +10,21 @@ export default function ExploreSubjects() {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+      const fetchSubjects = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/v1/courses"
+          ); // Replace our true end point
+          setSubjects(response.data);
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching subjects:", err);
+          setError("Failed to load subjects. Please try again later.");
+          setLoading(false);
+        }
+      };
 
+      fetchSubjects();
+    }, []);
 }
