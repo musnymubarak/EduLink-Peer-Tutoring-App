@@ -29,7 +29,7 @@ export const sidebarLinks = [
   },
   {
     id: 5,
-    name: "Subjects",
+    name: "Explore Courses",
     path: "/dashboard/student/subjects",
     type: 'student',
     icon: "VscVm",
