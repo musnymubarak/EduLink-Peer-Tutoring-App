@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 
 export default function ExploreSubjects() {
@@ -64,7 +64,58 @@ export default function ExploreSubjects() {
       );
     }
 
-    
+    return (
+      <div className="flex min-h-screen bg-gray-100">
+        {/* Main Content */}
+        <div className="flex-1 ml-64 p-8 overflow-y-auto">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
+          >
+            <IoArrowBack className="mr-2 text-2xl" />
+            Back
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            Explore Subjects
+          </h1>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {subjects.map((subject) => (
+              <Link
+                to={`/subject/${subject.id}`}
+                key={subject.id}
+                className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
+              >
+                {/* Thumbnail */}
+                {subject.thumbnail && (
+                  <img
+                    src={subject.thumbnail}
+                    alt={subject.title}
+                    className="w-full h-32 object-cover rounded-lg mb-4"
+                  />
+                )}
+
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {subject.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-gray-500 text-sm mb-2">
+                  <strong>Description:</strong> {subject.description}
+                </p>
+
+                {/* Enrolled Students */}
+                <p className="text-gray-500 text-sm mb-2">
+                  <strong>Enrolled Students:</strong> {subject.enrolledStudents}
+                </p>
+
+                
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
 
 }
