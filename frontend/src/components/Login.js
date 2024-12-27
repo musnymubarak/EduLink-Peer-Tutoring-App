@@ -12,8 +12,7 @@ export default function Login() {
   // Tab data for account type selection
   const tabData = [
     { id: 1, tabName: "Student", type: "Student" },
-    { id: 2, tabName: "Tutor", type: "Instructor" },
-    { id: 3, tabName: "Admin", type: "Admin" },
+    { id: 2, tabName: "Tutor", type: "Instructor" }
   ];
 
   // Default field is "Student", this will be updated based on user selection
@@ -52,7 +51,7 @@ export default function Login() {
       setAccountType(accountType); // Set the accountType in the context
 
       // Redirect to the appropriate dashboard based on accountType
-      navigate(`/dashboard/${accountType.toLowerCase()}`);
+      navigate(`/dashboard/${accountType.toLowerCase()}/subjects`);
     } catch (error) {
       console.error("Login failed:", error.message || error.response?.data?.message);
       alert("Login failed: " + (error.message || error.response?.data?.message || "Unexpected error"));
@@ -76,31 +75,18 @@ export default function Login() {
           </h1>
 
           {/* Tab buttons for account type selection */}
-          <div className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 max-w-max">
+          <div className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 rounded-full max-w-max">
             {tabData.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setField(tab.type)} // Update the field on tab click
-                className={`py-3 px-6 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out ${
-                  field === tab.type ? "bg-yellow-300 text-black" : "text-white"
+                onClick={() => setField(tab.type)}
+                className={`py-2 px-5 rounded-lg transition-all duration-200 text-lg font-semibold ${
+                  field === tab.type ? "bg-yellow-400 text-black" : "bg-transparent text-white"
                 }`}
               >
-                {tab.tabName}
+                {tab?.tabName}
               </button>
             ))}
-            {/* Bottom indicator to show the selected account type */}
-            <div
-              className="absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300"
-              style={{
-                width: "33.33%",
-                transform:
-                  field === "Student"
-                    ? "translateX(0%)"
-                    : field === "Instructor"
-                    ? "translateX(100%)"
-                    : "translateX(200%)",
-              }}
-            />
           </div>
 
           {/* Login form */}
