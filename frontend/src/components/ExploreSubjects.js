@@ -56,6 +56,15 @@ export default function ExploreSubjects() {
       );
     }
     
+    if (error) {
+      return (
+        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+          <p className="text-xl font-semibold text-red-600">{error}</p>
+        </div>
+      );
+    }
+
+    
 
 
 }
