@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
+import Navbar from "./Navbar";
 
 export default function ExploreCourses() {
   const [categories, setCategories] = useState([]);
@@ -11,7 +12,7 @@ export default function ExploreCourses() {
     // Fetch courses from the backend
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/courses");
+        const response = await axios.get("http://localhost:4000/api/v1/courses");
         const data = response.data.data;
 
         const groupedByCategory = data.reduce((acc, course) => {
@@ -56,6 +57,7 @@ export default function ExploreCourses() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Navbar/>
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <button
