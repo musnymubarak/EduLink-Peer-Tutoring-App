@@ -29,17 +29,8 @@ export default function Subject() {
               id: course._id,
               title: course.courseName,
               description: course.courseDescription || "No description available.",
-              author: course.availableInstructors?.map(
-                (inst) => `${inst.firstName} ${inst.lastName}`
-              ).join(", ") || "N/A",
-              whatYouWillLearn: course.whatYouWillLearn || "Details not provided.",
-              courseContentCount: course.courseContent?.length || 0, // Number of sections
               thumbnail: course.thumbnail || "No thumbnail available.",
               tags: course.tag?.join(", ") || "No tags available.",
-              likes: course.studentsEnrolled?.length || 0,
-              rating: course.ratingAndReviews?.length || 0,
-              status: course.status || "Unknown",
-              createdAt: new Date(course.createdAt).toLocaleDateString(),
             })),
           })
         );
@@ -89,34 +80,9 @@ export default function Subject() {
                       {subject.description}
                     </p>
   
-                    {/* What You'll Learn */}
-                    <p className="text-gray-500 text-sm mb-2">
-                      <strong>What You’ll Learn:</strong> {subject.whatYouWillLearn}
-                    </p>
-  
-                    {/* Instructors */}
-                    <p className="text-gray-500 text-sm mb-2">
-                      <strong>Instructors:</strong> {subject.author}
-                    </p>
-  
                     {/* Tags */}
                     <p className="text-gray-500 text-sm mb-2">
                       <strong>Tags:</strong> {subject.tags}
-                    </p>
-  
-                    {/* Likes */}
-                    <p className="text-gray-500 text-sm mb-2">
-                      <strong>Likes:</strong> {subject.likes}
-                    </p>
-  
-                    {/* Rating */}
-                    <p className="text-yellow-500 mb-2">
-                      <strong>Rating:</strong> {"⭐".repeat(subject.rating)}
-                    </p>
-  
-                    {/* Status */}
-                    <p className={`text-sm ${subject.status === "Published" ? "text-green-500" : "text-red-500"}`}>
-                      <strong>Status:</strong> {subject.status}
                     </p>
   
                     {/* Thumbnail */}
@@ -127,11 +93,6 @@ export default function Subject() {
                         className="mt-4 w-full h-32 object-cover rounded-lg"
                       />
                     )}
-  
-                    {/* Created At */}
-                    <p className="text-gray-400 text-sm mt-2">
-                      <strong>Created On:</strong> {subject.createdAt}
-                    </p>
                   </Link>
                 ))}
               </div>
