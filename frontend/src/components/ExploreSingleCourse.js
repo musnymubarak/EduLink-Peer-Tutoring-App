@@ -2,27 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
+import Navbar from "./Navbar";
 
 export default function ExploreSingleCourse() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    studentAge: "",
-    educationBackground: "",
-    preferredTimes: [],
-    suggestions: "",
-  });
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // Track user login state
-  const [showLoginMessage, setShowLoginMessage] = useState(false); // Track if login message should show
+  const [showStudentLoginMessage, setShowStudentLoginMessage] = useState(false); // Track if login message should show
+  const [showTutorLoginMessage, setShowTutorLoginMessage] = useState(false); // Track if login message should show
 
   // Fetch course details based on course ID
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/v1/courses/${id}`);
+        const response = await axios.get(`http://localhost:4000/api/v1/courses/${id}`);
         setCourse(response.data.data);  // Set the fetched course data
       } catch (error) {
         console.error("Error fetching course:", error);
@@ -31,45 +24,26 @@ export default function ExploreSingleCourse() {
 
     fetchCourse();
 
-    // Check if the user is logged in (this can be based on your login flow, e.g., checking a token in localStorage)
-    const user = localStorage.getItem("user");
-    setIsUserLoggedIn(user ? true : false);
   }, [id]);
 
   if (!course) {
     return <div className="p-8 text-center text-xl text-gray-700">Course not found!</div>;
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handlePreferredTimesChange = (e) => {
-    const { options } = e.target;
-    const selectedTimes = Array.from(options)
-      .filter((option) => option.selected)
-      .map((option) => option.value);
-    setFormData({ ...formData, preferredTimes: selectedTimes });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Submitted: ", formData);
-    setIsModalOpen(false);
-  };
-
   const handleRequestClick = () => {
-    if (!isUserLoggedIn) {
-      setShowLoginMessage(true);
-      setTimeout(() => setShowLoginMessage(false), 5000); // Hide message after 5 seconds
-    } else {
-      setIsModalOpen(true);
-    }
+    setShowStudentLoginMessage(true); // Corrected this line
+    setTimeout(() => setShowStudentLoginMessage(false), 5000); // Hide message after 5 seconds
   };
+  
+  const handleEnrollClick = () => {
+    setShowTutorLoginMessage(true); // Corrected this line
+    setTimeout(() => setShowTutorLoginMessage(false), 5000); // Hide message after 5 seconds
+  };
+  
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-100">
+      <Navbar/>
       <button
         onClick={() => navigate(-1)}
         className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
@@ -171,23 +145,43 @@ export default function ExploreSingleCourse() {
         </section>
 
         {/* Request Class Button */}
-        <div className="text-right">
+        <div className="flex justify-end space-x-4">
           <button
             onClick={handleRequestClick}
             className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             Request to Class
           </button>
+          <button
+            onClick={handleEnrollClick}
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            Enroll as a Tutor
+          </button>
         </div>
       </div>
 
       {/* Login Message */}
-      {showLoginMessage && (
+      {showStudentLoginMessage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">You need to be logged in to request a class.</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">You need to be logged in as a Student to request a class.</h2>
             <button
-              onClick={() => setShowLoginMessage(false)}
+              onClick={() => setShowStudentLoginMessage(false)}
+              className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+  
+      {showTutorLoginMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">You need to be logged in as a Tutor.</h2>
+            <button
+              onClick={() => setShowTutorLoginMessage(false)}
               className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg"
             >
               Close
@@ -196,89 +190,6 @@ export default function ExploreSingleCourse() {
         </div>
       )}
 
-      {/* Modal for Class Request */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg mx-auto relative">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Request to Class</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Student Age</label>
-                <input
-                  type="number"
-                  name="studentAge"
-                  value={formData.studentAge}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Education Background</label>
-                <input
-                  type="text"
-                  name="educationBackground"
-                  value={formData.educationBackground}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Preferred Times</label>
-                <select
-                  name="preferredTimes"
-                  multiple
-                  value={formData.preferredTimes}
-                  onChange={handlePreferredTimesChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                >
-                  <option value="Monday Morning">Monday Morning</option>
-                  <option value="Monday Evening">Monday Evening</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
-                  Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
-                </p>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Suggestions</label>
-                <textarea
-                  name="suggestions"
-                  value={formData.suggestions}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  rows="4"
-                />
-              </div>
-              <div className="text-right">
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
-                >
-                  Send Request to Teacher
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="ml-4 px-6 py-3 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-red-700"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
