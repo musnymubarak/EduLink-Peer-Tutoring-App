@@ -31,13 +31,13 @@ export default function ExploreSingleCourse() {
   }
 
   const handleRequestClick = () => {
-    setShowStudentLoginMessage(true); // Corrected this line
-    setTimeout(() => setShowStudentLoginMessage(false), 5000); // Hide message after 5 seconds
+    setShowStudentLoginMessage(true);
+    setTimeout(() => setShowStudentLoginMessage(false), 5000);
   };
   
   const handleEnrollClick = () => {
-    setShowTutorLoginMessage(true); // Corrected this line
-    setTimeout(() => setShowTutorLoginMessage(false), 5000); // Hide message after 5 seconds
+    setShowTutorLoginMessage(true);
+    setTimeout(() => setShowTutorLoginMessage(false), 5000);
   };
   
 
