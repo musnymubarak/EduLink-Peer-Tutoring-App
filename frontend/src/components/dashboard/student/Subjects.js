@@ -10,7 +10,7 @@ export default function Subject() {
     // Fetch courses from the backend
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/courses");
+        const response = await axios.get("http://localhost:4000/api/v1/courses");
         const data = response.data.data;
     
         console.log(data);
