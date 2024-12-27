@@ -110,7 +110,15 @@ export default function ExploreSubjects() {
                   <strong>Enrolled Students:</strong> {subject.enrolledStudents}
                 </p>
 
-                
+                {/* Rating */}
+                <p className="text-gray-500 text-sm mb-2">
+                  <strong>Rating:</strong> {subject.rating}
+                </p>
+
+                {/* Created At */}
+                <p className="text-gray-500 text-sm">
+                  <strong>Created On:</strong> {subject.createdAt}
+                </p>
               </Link>
             ))}
           </div>
