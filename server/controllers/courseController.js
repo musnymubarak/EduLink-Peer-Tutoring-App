@@ -331,15 +331,24 @@ exports.deleteCourseById = async (req, res) => {
 
         const { courseId } = req.params;
 
-        // Find and delete the course
-        const deletedCourse = await Course.findByIdAndDelete(courseId);
-
-        if (!deletedCourse) {
+        // Find the course to delete
+        const courseToDelete = await Course.findById(courseId);
+        if (!courseToDelete) {
             return res.status(404).json({
                 success: false,
                 message: "Course not found.",
             });
         }
+
+        // Find the associated category and remove the course ID from its courses array
+        const categoryObj = await Category.findById(courseToDelete.category);
+        if (categoryObj) {
+            categoryObj.courses.pull(courseId); // Remove the course from the category's courses array
+            await categoryObj.save(); // Save the updated category
+        }
+
+        // Delete the course
+        await Course.findByIdAndDelete(courseId);
 
         return res.status(200).json({
             success: true,
