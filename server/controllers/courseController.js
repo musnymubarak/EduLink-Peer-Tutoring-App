@@ -73,6 +73,15 @@ exports.addCourse = async (req, res) => {
             }
         }
 
+        // Check if the courseName already exists in the database
+        const existingCourse = await Course.findOne({ courseName: courseName });
+        if (existingCourse) {
+            return res.status(400).json({
+                success: false,
+                message: "This course name is already in use.",
+            });
+        }
+
         // Check if category exists, if not, create a new category
         let categoryObj = await Category.findOne({ name: category });
         if (!categoryObj) {
@@ -111,8 +120,6 @@ exports.addCourse = async (req, res) => {
         });
     }
 };
-
-
 
 // Get All Courses
 exports.getAllCourses = async (req, res) => {
@@ -159,6 +166,7 @@ exports.getCourseById = async (req, res) => {
     try {
         const { courseId } = req.params;
 
+        // Attempt to fetch the course by ID
         const course = await Course.findById(courseId)
             .populate("availableInstructors", "firstName lastName email")
             .populate("category", "name")
@@ -179,20 +187,21 @@ exports.getCourseById = async (req, res) => {
             data: {
                 _id: course._id,
                 courseName: course.courseName,
-                courseDescription: course.courseDescription || null, // Default to null if not present
-                availableInstructors: course.availableInstructors || [], // Default to empty array if not present
-                category: course.category || null, // Default to null if not present
-                studentsEnrolled: course.studentsEnrolled || [], // Default to empty array if not present
-                ratingAndReviews: course.ratingAndReviews || [], // Default to empty array if not present
-                courseContent: course.courseContent || [], // Default to empty array if not present
-                thumbnail: course.thumbnail || null, // Default to null if not present
-                tag: course.tag || [], // Default to empty array if not present
-                instructions: course.instructions || [], // Default to empty array if not present
-                status: course.status || "Draft", // Default to "Draft" if not present
-                createdAt: course.createdAt || Date.now(), // Default to current timestamp if not present
+                courseDescription: course.courseDescription || null,
+                availableInstructors: course.availableInstructors || [],
+                category: course.category || null,
+                studentsEnrolled: course.studentsEnrolled || [],
+                ratingAndReviews: course.ratingAndReviews || [],
+                courseContent: course.courseContent || [],
+                thumbnail: course.thumbnail || null,
+                tag: course.tag || [],
+                instructions: course.instructions || [],
+                status: course.status || "Draft",
+                createdAt: course.createdAt || Date.now(),
             }
         });
     } catch (error) {
+        console.error(error);  // Log the error for debugging
         return res.status(500).json({
             success: false,
             message: "Error occurred while fetching the course.",
@@ -331,24 +340,15 @@ exports.deleteCourseById = async (req, res) => {
 
         const { courseId } = req.params;
 
-        // Find the course to delete
-        const courseToDelete = await Course.findById(courseId);
-        if (!courseToDelete) {
+        // Find and delete the course
+        const deletedCourse = await Course.findByIdAndDelete(courseId);
+
+        if (!deletedCourse) {
             return res.status(404).json({
                 success: false,
                 message: "Course not found.",
             });
         }
-
-        // Find the associated category and remove the course ID from its courses array
-        const categoryObj = await Category.findById(courseToDelete.category);
-        if (categoryObj) {
-            categoryObj.courses.pull(courseId); // Remove the course from the category's courses array
-            await categoryObj.save(); // Save the updated category
-        }
-
-        // Delete the course
-        await Course.findByIdAndDelete(courseId);
 
         return res.status(200).json({
             success: true,

@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const coursesSchema = new mongoose.Schema({
     courseName: {
         type: String,
-        required: true, // courseName is mandatory
+        required: true,
+        unique : true
     },
     courseDescription: {
         type: String,
