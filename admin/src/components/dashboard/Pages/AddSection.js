@@ -18,52 +18,29 @@ const AddSection = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Handle changes in question text
   const handleQuizChange = (index, field, value) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[index][field] = value;
     setQuiz(updatedQuiz);
   };
 
+  // Handle changes in option text
   const handleOptionChange = (quizIndex, optionIndex, field, value) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[quizIndex].options[optionIndex][field] = value;
     setQuiz(updatedQuiz);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    try {
-      // Prepare data to be sent to the backend
-      const sectionData = {
-        sectionName,
-        videoFile,
-        quiz,
-      };
-
-      // Send POST request to the backend to add a new section
-      const response = await axios.post(
-        "http://localhost:4000/api/v1/sections/add",
-        sectionData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            // Include JWT token if required
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      setMessage(response.data.message); // Show success message
-    } catch (error) {
-      setMessage(error.response?.data?.message || "An error occurred.");
-    } finally {
-      setLoading(false);
-    }
+  // Handle change in isCorrect flag for options
+  const handleCorrectOptionChange = (quizIndex, optionIndex) => {
+    const updatedQuiz = [...quiz];
+    const selectedOption = updatedQuiz[quizIndex].options[optionIndex];
+    selectedOption.isCorrect = !selectedOption.isCorrect;
+    setQuiz(updatedQuiz);
   };
 
+  // Add a new question
   const addQuestion = () => {
     setQuiz([
       ...quiz,
@@ -77,6 +54,65 @@ const AddSection = () => {
         ],
       },
     ]);
+  };
+
+  // Remove a question
+  const removeQuestion = (index) => {
+    const updatedQuiz = quiz.filter((_, i) => i !== index);
+    setQuiz(updatedQuiz);
+  };
+
+  // Add an option to a question
+  const addOption = (quizIndex) => {
+    const updatedQuiz = [...quiz];
+    updatedQuiz[quizIndex].options.push({ optionText: "", isCorrect: false });
+    setQuiz(updatedQuiz);
+  };
+
+  // Remove an option from a question
+  const removeOption = (quizIndex, optionIndex) => {
+    const updatedQuiz = [...quiz];
+    updatedQuiz[quizIndex].options = updatedQuiz[quizIndex].options.filter((_, i) => i !== optionIndex);
+    setQuiz(updatedQuiz);
+  };
+
+  // Form submission handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    // Validate that each question has at least one correct option
+    const isValid = quiz.every((question) =>
+      question.options.some((option) => option.isCorrect)
+    );
+
+    if (!isValid) {
+      setMessage("Each question must have at least one correct option.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const sectionData = { sectionName, videoFile, quiz };
+
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/sections/add",
+        sectionData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setMessage(response.data.message); // Show success message
+    } catch (error) {
+      setMessage(error.response?.data?.message || "An error occurred.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,8 +157,19 @@ const AddSection = () => {
               </div>
 
               {quiz.map((question, quizIndex) => (
-                <div key={quizIndex} className="flex flex-col space-y-2">
-                  <label className="text-gray-600 text-sm">Question {quizIndex + 1}</label>
+                <div key={quizIndex} className="flex flex-col space-y-4">
+                  <div className="flex justify-between">
+                    <label className="text-gray-600 text-sm">Question {quizIndex + 1}</label>
+                    {quiz.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(quizIndex)}
+                        className="text-red-500 text-xs"
+                      >
+                        Remove Question
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={question.questionText}
@@ -147,20 +194,43 @@ const AddSection = () => {
                         <input
                           type="checkbox"
                           checked={option.isCorrect}
-                          onChange={(e) =>
-                            handleOptionChange(quizIndex, optionIndex, "isCorrect", e.target.checked)
-                          }
+                          onChange={() => handleCorrectOptionChange(quizIndex, optionIndex)}
                         />
                         <span className="text-gray-600 text-xs">Correct</span>
                       </label>
+                      {question.options.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeOption(quizIndex, optionIndex)}
+                          className="text-red-500 text-xs"
+                        >
+                          Remove Option
+                        </button>
+                      )}
                     </div>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => addOption(quizIndex)}
+                    className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                  >
+                    Add Option
+                  </button>
                 </div>
               ))}
-              <button type="button" onClick={addQuestion} className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+              <button
+                type="button"
+                onClick={addQuestion}
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+              >
                 Add Question
               </button>
-              <button type="submit" disabled={loading} className="w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600">
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600"
+              >
                 {loading ? "Adding Section..." : "Add Section"}
               </button>
             </form>

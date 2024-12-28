@@ -37,6 +37,7 @@ const ListCourses = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      // Update this part to match the new response structure.
       setCourses(response.data.data);
     } catch (err) {
       setError(err.response ? err.response.data.message : "Failed to fetch courses");

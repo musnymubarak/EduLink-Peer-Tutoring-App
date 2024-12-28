@@ -1,13 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Select from "react-select"; // For searchable dropdown
 
 const AddCourse = () => {
-  const [subject, setSubject] = useState("");
-  const [category, setCategory] = useState(""); // State for category input
-  const [tags, setTags] = useState(""); // State for tags input
-  const [loading, setLoading] = useState(false); // For loading state
-  const [error, setError] = useState(null); // For error handling
-  const [success, setSuccess] = useState(""); // For success message
+  const [course, setCourse] = useState(""); // Course name state
+  const [category, setCategory] = useState(""); // Category state
+  const [tags, setTags] = useState(""); // Tags state
+  const [sections, setSections] = useState([]); // Sections fetched from API
+  const [selectedSections, setSelectedSections] = useState([]); // Selected sections
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [success, setSuccess] = useState(""); // Success message state
+
+  // Fetch sections from the API
+  useEffect(() => {
+    const fetchSections = async () => {
+      setLoading(true); // Set loading to true when the fetch starts
+      try {
+        const response = await axios.get("http://localhost:4000/api/v1/sections");
+        console.log(response.data); // Log the fetched data to check the structure
+        
+        // Map the sections to the format required by react-select
+        const sectionOptions = response.data.data.map((section) => ({
+          value: section._id, // Assuming each section has an _id field
+          label: section.sectionName || "Unnamed Section", // Accessing section name
+        }));
+        
+        setSections(sectionOptions); // Set the fetched sections
+      } catch (error) {
+        setError("Failed to load sections.");
+      } finally {
+        setLoading(false); // Set loading to false once the fetch completes
+      }
+    };
+
+    fetchSections();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,9 +72,10 @@ const AddCourse = () => {
 
     try {
       const courseData = {
-        courseName: subject,
+        courseName: course, // Use course instead of subject
         category: category,
         tag: tagsArray, // Send tags as an array
+        courseContent: selectedSections.map((section) => section.value), // Send selected sections
       };
 
       // Sending POST request to add course
@@ -63,12 +92,17 @@ const AddCourse = () => {
 
       if (response.data.success) {
         setSuccess("Course added successfully!");
-        setSubject(""); // Reset form
+        setCourse(""); // Reset form
         setCategory(""); // Reset category input
         setTags(""); // Reset tags input
+        setSelectedSections([]); // Reset selected sections
       }
     } catch (error) {
-      setError(error.response ? error.response.data.message : "An error occurred.");
+      if (error.response && error.response.data.message === "Course name must be unique.") {
+        setError("Course name already exists. Please choose a different name.");
+      } else {
+        setError(error.response ? error.response.data.message : "An error occurred.");
+      }
     } finally {
       setLoading(false); // Stop loading state
     }
@@ -91,22 +125,21 @@ const AddCourse = () => {
               className="bg-white shadow-md rounded-lg p-6 space-y-4"
             >
               <div className="flex flex-col">
-                <label htmlFor="subject" className="text-gray-600 text-sm mb-1">
+                <label htmlFor="course" className="text-gray-600 text-sm mb-1">
                   Course Name
                 </label>
                 <input
                   type="text"
-                  id="subject"
-                  name="subject"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
+                  id="course"
+                  name="course"
+                  value={course}
+                  onChange={(e) => setCourse(e.target.value)}
                   placeholder="Enter course name"
                   className="border border-gray-300 rounded-lg p-2"
                   required
                 />
               </div>
 
-              {/* Category input field */}
               <div className="flex flex-col">
                 <label htmlFor="category" className="text-gray-600 text-sm mb-1">
                   Category
@@ -123,7 +156,6 @@ const AddCourse = () => {
                 />
               </div>
 
-              {/* Tags input field */}
               <div className="flex flex-col">
                 <label htmlFor="tags" className="text-gray-600 text-sm mb-1">
                   Tags (separate by commas)
@@ -139,18 +171,33 @@ const AddCourse = () => {
                 />
               </div>
 
-              {error && (
-                <p className="text-red-500 text-sm">{error}</p>
-              )}
+              {/* Sections dropdown */}
+              <div className="flex flex-col">
+                <label htmlFor="sections" className="text-gray-600 text-sm mb-1">
+                  Sections
+                </label>
+                <Select
+                  isMulti
+                  name="sections"
+                  options={sections}
+                  value={selectedSections}
+                  onChange={setSelectedSections}
+                  getOptionLabel={(e) => e.label}
+                  getOptionValue={(e) => e.value}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  placeholder="Select sections"
+                  isLoading={loading} // Show loading spinner while fetching data
+                />
+              </div>
 
-              {success && (
-                <p className="text-green-500 text-sm">{success}</p>
-              )}
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {success && <p className="text-green-500 text-sm">{success}</p>}
 
               <button
                 type="submit"
                 className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-                disabled={loading} // Disable button when loading
+                disabled={loading}
               >
                 {loading ? "Adding..." : "Add Course"}
               </button>
