@@ -22,6 +22,15 @@ exports.addSection = async (req, res) => {
             });
         }
 
+        // Check if the section name is unique
+        const existingSection = await Section.findOne({ sectionName });
+        if (existingSection) {
+            return res.status(400).json({
+                success: false,
+                message: "A section with this name already exists.",
+            });
+        }
+
         // Create a new section
         const newSection = await Section.create({
             sectionName,
