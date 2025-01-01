@@ -19,60 +19,45 @@
   }
   
   .login-form-container h1 {
-    color: #f3f4f6;
+    color: #ffffff;
     font-size: 2rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .login-input {
     background: rgba(255, 255, 255, 0.05);
-    color: #f3f4f6;
+    color: #ffffff; /* Ensures input text is white */
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
   }
   
   .login-input::placeholder {
-    color: #9ca3af;
-  }
-  
-  .login-input:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #fbbf24;
-    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+    color: rgba(255, 255, 255, 0.6);
   }
   
   .login-button {
     background: linear-gradient(45deg, #fbbf24, #f59e0b);
-    color: #000;
-    font-weight: 600;
+    color: #000000; /* Button text remains black */
+    font-weight: 700;
     box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
     transition: all 0.3s ease;
   }
   
   .login-button:hover {
-    background: linear-gradient(45deg, #f59e0b, #d97706);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    background: linear-gradient(45deg, #fbbf24, #fbbf24);
+    color: #000000; /* Button text remains black */
   }
   
   .tab-button {
-    color: #f3f4f6;
-    transition: all 0.3s ease;
+    color: #ffffff; /* Tab text is white */
   }
   
   .tab-button.active {
-    background: linear-gradient(45deg, #fbbf24, #f59e0b);
-    color: #000;
-    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    background: linear-gradient(45deg, #fbbf24, #fbbf24);
+    color: #000000; /* Active tab button text is black */
   }
   
   .form-label {
-    color: #f3f4f6;
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
+    color: #ffffff; /* Form labels are white */
   }
   
-  .required-star {
-    color: #fbbf24;
-    font-weight: bold;
-  }

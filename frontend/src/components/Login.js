@@ -11,7 +11,7 @@ export default function Login() {
   const { setAccountType } = useAccountType();
   const tabData = [
     { id: 1, tabName: "Student", type: "Student" },
-    { id: 2, tabName: "Tutor", type: "Instructor" }
+    { id: 2, tabName: "Tutor", type: "Instructor" },
   ];
 
   const [field, setField] = useState("Student");
@@ -57,9 +57,7 @@ export default function Login() {
       <Navbar />
       <div className="flex justify-center items-center min-h-screen login-container">
         <div className="w-full max-w-lg bg-richblack-800 p-8 rounded-xl shadow-xl transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20 login-form-container">
-          <h1 className="text-3xl font-semibold text-richblack-5 mb-8 text-center">
-            Login Here
-          </h1>
+          <h1 className="text-3xl font-semibold mb-8 text-center">Login Here</h1>
 
           <div className="relative flex bg-richblack-800 p-1 gap-x-1 my-6 rounded-full max-w-max">
             {tabData.map((tab) => (
@@ -67,7 +65,7 @@ export default function Login() {
                 key={tab.id}
                 onClick={() => setField(tab.type)}
                 className={`tab-button py-2 px-5 rounded-lg transition-all duration-200 text-lg font-semibold ${
-                  field === tab.type ? "bg-yellow-400 text-black" : "bg-transparent text-white"
+                  field === tab.type ? "active" : ""
                 }`}
               >
                 {tab?.tabName}
@@ -77,32 +75,34 @@ export default function Login() {
 
           <form className="flex w-full flex-col gap-y-6" onSubmit={handleLogin}>
             <label className="w-full">
-              <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
-                Email Address <sup className="text-pink-200">*</sup>
-              </p>
+            <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-white">
+              Email Address <sup className="text-pink-200">*</sup>
+            </p>
+
               <input
                 required
                 type="email"
                 name="email"
                 placeholder="Enter email address"
-                className="login-input w-full max-w-md rounded-lg bg-richblack-800 p-[14px] text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
+                className="login-input w-full max-w-md rounded-lg p-[14px] border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
               />
             </label>
             <label className="w-full relative">
-              <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
-                Password <sup className="text-pink-200">*</sup>
-              </p>
+            <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-white">
+              Password <sup className="text-pink-200">*</sup>
+            </p>
+
               <input
                 required
                 type="password"
                 name="password"
                 placeholder="Enter Password"
-                className="login-input w-full max-w-md rounded-lg bg-richblack-800 p-[14px] text-richblack-5 border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
+                className="login-input w-full max-w-md rounded-lg p-[14px] border border-transparent focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:ring-opacity-50 transition-all hover:border-yellow-300"
               />
             </label>
             <button
               type="submit"
-              className="login-button mt-6 w-full max-w-md rounded-lg py-3 px-6 text-lg font-medium text-white transition-all hover:scale-105 duration-300"
+              className="login-button mt-6 w-full max-w-md rounded-lg py-3 px-6 text-lg font-medium transition-all hover:scale-105 duration-300"
             >
               Log In
             </button>
