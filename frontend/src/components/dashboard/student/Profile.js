@@ -91,27 +91,22 @@ export default function Profile() {
               ></textarea>
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="bg-green-600 text-white px-6 py-2 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                onClick={() => alert("Changes Saved!")}
-              >
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+              {/* Save Button */}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-6 py-2 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
 
-      {/* Change Password Modal */}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Change Password</h2>
-            <form>
-              {/* Current Password */}
+            {/* Password Update Form */}
+            <form className="mt-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Change Password
+              </h2>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Current Password
@@ -119,7 +114,10 @@ export default function Profile() {
                 <input
                   type="password"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600"
-                  placeholder="Enter current password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) =>
+                    setPasswordData({ ...passwordData, currentPassword: e.target.value })
+                  }
                 />
               </div>
 
@@ -131,11 +129,13 @@ export default function Profile() {
                 <input
                   type="password"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600"
-                  placeholder="Enter new password"
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData({ ...passwordData, newPassword: e.target.value })
+                  }
                 />
               </div>
 
-              {/* Confirm New Password */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Confirm New Password
@@ -143,33 +143,26 @@ export default function Profile() {
                 <input
                   type="password"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600"
-                  placeholder="Confirm new password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                  }
                 />
               </div>
 
               <div className="flex justify-end">
                 <button
                   type="button"
-                  className="bg-red-600 text-white px-4 py-2 rounded-md shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mr-2"
-                  onClick={() => setShowModal(false)}
+                  className="bg-green-600 text-white px-6 py-2 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onClick={updatePassword}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="bg-green-600 text-white px-4 py-2 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  onClick={() => {
-                    alert("Password Changed!");
-                    setShowModal(false);
-                  }}
-                >
-                  Save
+                  Update Password
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
