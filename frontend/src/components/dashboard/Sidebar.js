@@ -13,7 +13,6 @@ const Sidebar = () => {
   // Ensure accountType is in lowercase
   const normalizedAccountType = accountType.toLowerCase();
 
-  console.log(normalizedAccountType); // For debugging purposes
 
   return (
     <div
