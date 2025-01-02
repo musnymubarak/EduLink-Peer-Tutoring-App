@@ -4,10 +4,10 @@ import Sidebar from "../Sidebar";
 export default function Requests() {
   const [selectedRequest, setSelectedRequest] = useState(null); // Tracks the request to view
   const [requests, setRequests] = useState([
-    { id: 1, student: "Alice Johnson", topic: "Control Structures", date: "2024-12-08", status: "Pending", isNew: true },
-    { id: 2, student: "Bob Smith", topic: "OOP Basics", date: "2024-12-07", status: "Accepted", isNew: false },
-    { id: 3, student: "Charlie Brown", topic: "Loops", date: "2024-12-06", status: "Declined", isNew: false },
-    { id: 4, student: "David Lee", topic: "Functions in C", date: "2024-12-05", status: "Pending", isNew: true },
+    { id: 1, student: "Alice Johnson", topic: "Control Structures", date: "2024-12-08", time:"12.00 p.m.", status: "Pending", isNew: true },
+    { id: 2, student: "Bob Smith", topic: "OOP Basics", date: "2024-12-07", time:"12.00 p.m.", status: "Accepted", isNew: false },
+    { id: 3, student: "Charlie Brown", topic: "Loops", date: "2024-12-06", time:"12.00 p.m.", status: "Declined", isNew: false },
+    { id: 4, student: "David Lee", topic: "Functions in C", date: "2024-12-05", time:"12.00 p.m.", status: "Pending", isNew: true },
   ]);
   const [showZoomModal, setShowZoomModal] = useState(false); // Tracks the Zoom link modal state
   const [zoomLink, setZoomLink] = useState(""); // Stores the Zoom link
@@ -46,15 +46,17 @@ export default function Requests() {
                   <div>
                     <p className="text-gray-800 font-semibold">{request.student}</p>
                     <p className="text-gray-600 text-sm">
-                      Topic: {request.topic} | Date: {request.date}
+                      Topic: {request.topic} | Date: {request.date}{ request.status === "Accepted" && (<> | Scheduled Time: {request.time}</>)}
                     </p>
-                    <p className={`mt-1 text-sm font-medium ${
-                      request.status === "Accepted"
-                        ? "text-green-600"
-                        : request.status === "Declined"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}>
+                    <p
+                      className={`mt-1 text-sm font-medium ${
+                        request.status === "Accepted"
+                          ? "text-green-600"
+                          : request.status === "Declined"
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
                       Status: {request.status}
                     </p>
                   </div>
