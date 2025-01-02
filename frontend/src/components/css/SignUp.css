@@ -1,75 +1,46 @@
-.signup-container {
-    min-height: 100vh;
+.bg-gradient-to-r {
     background: linear-gradient(-45deg, #1a1d28, #2a2d3a, #2c3444, #1f2937);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-.signup-form-container {
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.bg-richblack-800 {
     background: rgba(31, 41, 55, 0.7);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
 }
 
-h1 {
-    color: #ffffff;
-    font-size: 2rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-.signup-input {
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 14px;
-    border-radius: 8px;
-    width: 100%;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
-.signup-input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+input:focus {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6) !important;
 }
 
-.signup-input:focus {
-    border-color: #00bcd4; 
-    outline: none;
-    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
-}
-
-.signup-button {
-    background: linear-gradient(45deg, #00bcd4, #0097a7);
-    color: #000000;
-    font-weight: 700;
+.bg-yellow-400 {
+    background: linear-gradient(45deg, #00bcd4, #0097a7) !important;
     box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
-    padding: 10px;
-    border-radius: 8px;
-    width: 100%;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    margin-top: 1rem;
 }
 
-.signup-button:hover {
-    background: linear-gradient(45deg, #0097a7, #00bcd4);
+.bg-yellow-400:hover {
+    background: linear-gradient(45deg, #0097a7, #00bcd4) !important;
 }
 
-.signup-error {
-    background-color: rgba(255, 0, 0, 0.2);
-    color: #ffffff;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 1rem;
-    text-align: center;
+.text-richblack-5 {
+    color: #ffffff !important;
 }
