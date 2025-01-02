@@ -1,0 +1,115 @@
+body {
+  margin: 0;
+  padding-top: 70px;
+  font-family: 'Poppins', sans-serif;
+ }
+ 
+ .navbar {
+  background: #121212;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+ }
+ 
+ .navbar.scrolled {
+  background: #1f1f1f;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+ }
+ 
+ .navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+ }
+ 
+ .navbar-logo-link {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00bcd4;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+ }
+ 
+ .navbar-logo-link:hover {
+  color: #0097a7;
+ }
+ 
+ .navbar-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+ }
+ 
+ .navbar-link {
+  color: #e0e0e0;
+  font-size: 16px;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 4px;
+  transition: background 0.3s ease, color 0.3s ease;
+ }
+ 
+ .navbar-link:hover {
+  background: #00bcd4;
+  color: #121212;
+ }
+ 
+ .navbar-menu-icon {
+  display: none;
+  cursor: pointer;
+ }
+ 
+ .menu-bar {
+  width: 25px;
+  height: 3px;
+  background: #e0e0e0;
+  margin: 4px 0;
+  transition: transform 0.3s ease;
+ }
+ 
+ .navbar-menu-icon.open .menu-bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+ }
+ 
+ .navbar-menu-icon.open .menu-bar:nth-child(2) {
+  opacity: 0;
+ }
+ 
+ .navbar-menu-icon.open .menu-bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+ }
+ 
+ @media (max-width: 768px) {
+  .navbar-links {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: #121212;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    transition: height 0.3s ease;
+  }
+ 
+  .navbar-links.open {
+    height: 200px;
+    padding: 10px 0;
+  }
+ 
+  .navbar-menu-icon {
+    display: block;
+  }
+ 
+  .navbar-link {
+    padding: 10px 20px;
+  }
+ }

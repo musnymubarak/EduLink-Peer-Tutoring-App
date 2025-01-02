@@ -8,7 +8,7 @@ const Home = () => {
   const navigate = useNavigate(); 
 
   const handleNavigate = () => {
-    navigate('/aboutus'); 
+    navigate('/explore'); 
   };
 
   return (
@@ -16,20 +16,21 @@ const Home = () => {
       initial={{ opacity: 0, y: 50 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.8 }}
-      className="relative h-screen w-full bg-cover bg-center bg-no-repeat flex flex-col"
+      className="relative h-screen w-full bg-cover bg-center flex flex-col"
       style={{ 
         backgroundImage: `url(${banner})`,
-        backgroundBlendMode: 'overlay'
+        backgroundBlendMode: 'overlay',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
       }}
     >
       <Navbar />
 
-      <div className="flex flex-col justify-center items-center text-center flex-grow px-4">
+      <div className="flex flex-col justify-center items-center text-center flex-grow px-6 space-y-6">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-3xl"
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight"
         >
           Welcome to Our Website
         </motion.h1>
@@ -38,7 +39,7 @@ const Home = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-xl md:text-2xl text-white mb-8 max-w-xl"
+          className="text-lg md:text-2xl text-gray-200 max-w-2xl"
         >
           Your journey to excellence starts here
         </motion.p>
@@ -54,6 +55,7 @@ const Home = () => {
           More Info
         </motion.button>
       </div>
+      
     </motion.div>
   );
 };

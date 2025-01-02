@@ -1,0 +1,70 @@
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(-45deg, #1a1d28, #2a2d3a, #2c3444, #1f2937);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .login-form-container {
+    background: rgba(31, 41, 55, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  h1 {
+    color: #ffffff;
+    font-size: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-input {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .login-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .login-input:focus {
+    border-color: #00bcd4; 
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
+  }
+  
+  .login-button {
+    background: linear-gradient(45deg, #00bcd4, #0097a7);
+    color: #000000;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .login-button:hover {
+    background: linear-gradient(45deg, #0097a7, #00bcd4);
+  }
+  
+  .tab-button {
+    color: #ffffff;
+  }
+  
+  .tab-button.active {
+    background: linear-gradient(45deg, #00bcd4, #00d3eb);
+    color: #000000;
+  }
+  
+  label {
+    color: #ffffff;
+  }
+  
