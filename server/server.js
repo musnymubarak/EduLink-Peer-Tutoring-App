@@ -14,7 +14,8 @@ const userRoutes = require("./routes/authRoute");
 const courseRoutes = require("./routes/courseRoute"); 
 const sectionRoutes = require("./routes/sectionRoute"); 
 const enrollmentRoutes = require("./routes/enrollmentRoute");
-const instructorRoutes = require("./routes/instructorRoute"); 
+const instructorRoutes = require("./routes/instructorRoute");
+const profileRoutes = require("./routes/profileRoute"); // Import profile routes
 
 // Import database configuration
 const database = require("./config/db");
@@ -52,7 +53,8 @@ app.use("/api/v1/sections", sectionRoutes);
 // Protected routes
 app.use("/api/v1/auth", userRoutes); 
 app.use("/api/v1/enrollment", enrollmentRoutes);
-app.use("/api/v1/instructor", instructorRoutes); 
+app.use("/api/v1/instructor", instructorRoutes);
+app.use("/api/v1/profile", profileRoutes); // Add profile routes
 
 // Default route
 app.get("/", (req, res) => {
