@@ -1,0 +1,46 @@
+.bg-gradient-to-r {
+    background: linear-gradient(-45deg, #1a1d28, #2a2d3a, #2c3444, #1f2937);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.bg-richblack-800 {
+    background: rgba(31, 41, 55, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+input:focus {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6) !important;
+}
+
+.bg-yellow-400 {
+    background: linear-gradient(45deg, #00bcd4, #0097a7) !important;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.bg-yellow-400:hover {
+    background: linear-gradient(45deg, #0097a7, #00bcd4) !important;
+}
+
+.text-richblack-5 {
+    color: #ffffff !important;
+}
