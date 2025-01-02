@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./Navbar";
 import { useAccountType } from "./dashboard/AccountTypeContext";
-import "./Login.css";
+import "./css/Login.css";
 
 export default function Login() {
   const { setAccountType } = useAccountType();
