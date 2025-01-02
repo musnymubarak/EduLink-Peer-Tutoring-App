@@ -2,7 +2,111 @@ import { useState } from "react";
 import Sidebar from "../Sidebar";
 
 export default function Profile() {
-  const [showModal, setShowModal] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    bio: "",
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [imageData, setImageData] = useState(null); // State for new image file
+
+  // Fetch profile data
+  const fetchProfile = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setProfileData(response.data);
+      setFormData({
+        firstName: response.data.name.split(" ")[0],
+        lastName: response.data.name.split(" ")[1],
+        email: response.data.email,
+        bio: response.data.additionalDetails?.bio || "",
+      });
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+  };
+
+  // Update profile data
+  const updateProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(
+        "http://localhost:4000/api/v1/profile/student",
+        formData,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("Profile updated successfully!");
+      setProfileData(response.data.profile); // Update profile state with new data
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    }
+  };
+
+  // Upload profile picture
+  const uploadProfilePicture = async () => {
+    if (!imageData) {
+      alert("Please select an image to upload.");
+      return;
+    }
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("image", imageData);
+
+      const response = await axios.put(
+        "http://localhost:4000/api/v1/profile/pic",
+        formDataObj,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      alert("Profile picture updated successfully!");
+      setProfileData({ ...profileData, image: response.data.image }); // Update profile image
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      alert("Failed to upload profile picture. Please try again.");
+    }
+  };
+
+  // Update password
+  const updatePassword = async () => {
+    try {
+      const response = await axios.put(
+        "http://localhost:4000/api/v1/profile/change-password",
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+          confirmPassword: passwordData.confirmPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("Password updated successfully!");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("Failed to update password. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
