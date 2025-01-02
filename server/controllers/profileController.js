@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 // Controller to get logged-in student's profile details
@@ -69,4 +70,44 @@ const updateStudentProfile = async (req, res) => {
   }
 };
 
-module.exports = { getStudentProfile, updateStudentProfile };
+const changePassword = async (req, res) => {
+  try {
+    // Extract user ID from the authenticated request
+    const userId = req.user.id; // Assuming req.user is set after authentication
+
+    // Ensure the user is a student
+    const user = await User.findOne({ _id: userId, accountType: "Student" });
+    if (!user) {
+      return res.status(404).json({ message: "Student profile not found" });
+    }
+
+    // Get current password, new password, and confirm password from request body
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Check if the current password is correct
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Check if the new password and confirm password match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password with the hashed new password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Respond with success
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { getStudentProfile, updateStudentProfile, changePassword };
