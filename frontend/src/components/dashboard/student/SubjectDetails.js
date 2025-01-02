@@ -150,38 +150,6 @@ export default function SubjectDetails() {
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Request to Class</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Student Age</label>
-                <input
-                  type="number"
-                  name="studentAge"
-                  value={formData.studentAge}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Education Background</label>
-                <input
-                  type="text"
-                  name="educationBackground"
-                  value={formData.educationBackground}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                />
-              </div>
-              <div>
                 <label className="block text-gray-700 font-semibold mb-2">Preferred Times</label>
                 <select
                   name="preferredTimes"
