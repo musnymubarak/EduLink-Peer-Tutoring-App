@@ -9,8 +9,8 @@ export const sidebarLinks = [
   {
     id: 2,
     name: "Dashboard",
-    path: "/dashboard/tutor",
-    type: 'tutor',
+    path: "/dashboard/instructor",
+    type: 'instructor',
     icon: "VscDashboard",
   },
   {
@@ -23,8 +23,8 @@ export const sidebarLinks = [
   {
     id: 4,
     name: "My Profile",
-    path: "/dashboard/tutor/profile",
-    type: 'tutor',
+    path: "/dashboard/instructor/profile",
+    type: 'instructor',
     icon: "VscAccount",
   },
   {
@@ -37,8 +37,8 @@ export const sidebarLinks = [
   {
     id: 6,
     name: "Subjects",
-    path: "/dashboard/tutor/subjects",
-    type: 'tutor',
+    path: "/dashboard/instructor/subjects",
+    type: 'instructor',
     icon: "VscVm",
   },
   {
@@ -51,8 +51,8 @@ export const sidebarLinks = [
   {
     id: 8,
     name: "Schedule",
-    path: "/dashboard/tutor/schedule",
-    type: 'tutor',
+    path: "/dashboard/instructor/schedule",
+    type: 'instructor',
     icon: "VscCalendar",
   },
   {
@@ -72,15 +72,15 @@ export const sidebarLinks = [
   {
     id: 11,
     name: "Requests",
-    path: "/dashboard/tutor/requests",
-    type: 'tutor',
+    path: "/dashboard/instructor/requests",
+    type: 'instructor',
     icon: "VscRequestChanges",
   },  
   {
     id: 12,
     name: "Your Subjects",
-    path: "/dashboard/tutor/your-subjects",
-    type: 'tutor',
+    path: "/dashboard/instructor/your-subjects",
+    type: 'instructor',
     icon: "VscMortarBoard",
   },
 ];

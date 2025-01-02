@@ -68,17 +68,17 @@ function App() {
 
         {/*tutor*/}
         <Route path="/explore-subjects" element={<ExploreSubjects />} />
-        <Route path="/dashboard/tutor" element={<TDashboard />} />
-        <Route path="/dashboard/tutor/profile" element={<TProfile />} />
-        <Route path="/dashboard/tutor/subjects" element={<TSubjects />} />
-        <Route path="/dashboard/tutor/schedule" element={<TSchedule />} />
+        <Route path="/dashboard/instructor" element={<TDashboard />} />
+        <Route path="/dashboard/instructor/profile" element={<TProfile />} />
+        <Route path="/dashboard/instructor/subjects" element={<TSubjects />} />
+        <Route path="/dashboard/instructor/schedule" element={<TSchedule />} />
         <Route
-          path="/dashboard/tutor/subject/:id"
+          path="/dashboard/instructor/subject/:id"
           element={<TSubjectDetails />}
         />
-        <Route path="/dashboard/tutor/requests" element={<Requests />} />
+        <Route path="/dashboard/instructor/requests" element={<Requests />} />
         <Route
-          path="/dashboard/tutor/your-subjects"
+          path="/dashboard/instructor/your-subjects"
           element={<YourSubjects />}
         />
 
