@@ -132,7 +132,7 @@ export default function SignUp() {
                   placeholder="Enter first name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full max-w-md rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full max-w-md text-black rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
                 />
               </label>
 
@@ -147,7 +147,7 @@ export default function SignUp() {
                   placeholder="Enter last name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full max-w-md rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full max-w-md rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-black text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
                 />
               </label>
             </div>
@@ -163,7 +163,7 @@ export default function SignUp() {
                 placeholder="Enter email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
               />
             </label>
 
@@ -178,7 +178,7 @@ export default function SignUp() {
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
               />
             </label>
 
@@ -193,7 +193,7 @@ export default function SignUp() {
                 placeholder="Confirm password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
               />
             </label>
 
@@ -208,7 +208,7 @@ export default function SignUp() {
                   name="resume"
                   accept="application/pdf"
                   onChange={handleChange}
-                  className="w-full rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full rounded-[0.5rem] border text-black border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
                 />
               </label>
             )}
