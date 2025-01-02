@@ -2,13 +2,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require("dotenv").config();
+const path = require('path');
+
 
 // Controller for user signup
 exports.signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password, accountType } = req.body;
 
-    // Validate required fields
     if (!firstName || !lastName || !email || !password || !accountType) {
       return res.status(400).json({
         success: false,
@@ -16,7 +17,6 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Validate password strength
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
@@ -24,7 +24,6 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Check for existing user
     const existingUser = await User.findOne({ email, accountType });
     if (existingUser) {
       return res.status(400).json({
@@ -33,19 +32,26 @@ exports.signup = async (req, res) => {
       });
     }
 
-    // Hash the password
+    let resumePath;
+    if (accountType === "Instructor" && req.files && req.files.resume) {
+      const file = req.files.resume;
+      const uniqueFileName = `${Date.now()}_${file.name}`;
+      const uploadPath = path.join(__dirname, "../uploads/cvs", uniqueFileName); // Unique file name
+      await file.mv(uploadPath);
+      resumePath = `/uploads/cvs/${uniqueFileName}`;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user
     const user = await User.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
       accountType,
+      resumePath,
     });
 
-    // Respond without sensitive data
     return res.status(201).json({
       success: true,
       message: `${accountType} account registered successfully`,
