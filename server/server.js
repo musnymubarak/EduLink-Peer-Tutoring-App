@@ -58,6 +58,7 @@ app.use("/api/v1/instructor", instructorRoutes);
 app.use("/api/v1/profile", profileRoutes); 
 app.use("/api/v1/messages", messageRoutes);
 
+
 // Default route
 app.get("/", (req, res) => {
   res.status(200).json({
