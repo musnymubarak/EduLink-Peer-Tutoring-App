@@ -4,7 +4,6 @@ const User = require("../models/User");
 require("dotenv").config();
 const path = require('path');
 
-
 // Controller for user signup
 exports.signup = async (req, res) => {
   try {
@@ -33,7 +32,7 @@ exports.signup = async (req, res) => {
     }
 
     let resumePath;
-    if (accountType === "Instructor" && req.files && req.files.resume) {
+    if (accountType === "Tutor" && req.files && req.files.resume) {
       const file = req.files.resume;
       const uniqueFileName = `${Date.now()}_${file.name}`;
       const uploadPath = path.join(__dirname, "../uploads/cvs", uniqueFileName); // Unique file name

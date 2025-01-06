@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: ["Admin", "Student", "Instructor"],
+      enum: ["Admin", "Student", "Tutor"],
       required: true,
     },
     active: {
@@ -67,7 +67,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Compound index for email and accountType to allow multiple accounts per email
 userSchema.index({ email: 1, accountType: 1 }, { unique: true });
 
 module.exports = mongoose.model("User", userSchema);
