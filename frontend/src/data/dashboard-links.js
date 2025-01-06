@@ -83,4 +83,11 @@ export const sidebarLinks = [
     type: 'instructor',
     icon: "VscMortarBoard",
   },
+  {
+    id: 13,
+    name: "Add Courses",
+    path: "/dashboard/instructor/add-course",
+    type: 'instructor',
+    icon: "VscVm",
+  },
 ];

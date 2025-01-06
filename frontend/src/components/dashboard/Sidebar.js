@@ -5,15 +5,25 @@ import { VscSignOut } from "react-icons/vsc";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 import { useAccountType } from "./AccountTypeContext";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 const Sidebar = () => {
   const [clicked, setClicked] = useState(true); // Default to true to show sidebar initially
   const { accountType } = useAccountType(); // Fetch account type from context
+  const navigate = useNavigate(); // Hook for navigation
 
   // Ensure accountType is in lowercase
   const normalizedAccountType = accountType.toLowerCase();
 
-  console.log(normalizedAccountType); // For debugging purposes
+  // Function to handle logout
+  const handleLogout = () => {
+    // Clear authentication data from localStorage or context (e.g., JWT token)
+    localStorage.removeItem("token"); // Clear token from localStorage
+    // You can also remove any other related user data if stored (e.g., user info)
+
+    // Redirect to the login page
+    navigate("/login");
+  };
 
   return (
     <div
@@ -48,7 +58,10 @@ const Sidebar = () => {
 
       <div className="mx-auto mt-6 mb-6 h-[1px] w-10/12 bg-richblack-600">
         <button className="text-sm font-medium text-richblack-300" />
-        <div className="flex text-center text-[13px] px-6 py-2 hover:cursor-pointer hover:scale-95 transition-all duration-200 rounded-md font-bold bg-red-500 text-black items-center gap-x-2 justify-center">
+        <div
+          onClick={handleLogout} // Add onClick to trigger logout
+          className="flex text-center text-[13px] px-6 py-2 hover:cursor-pointer hover:scale-95 transition-all duration-200 rounded-md font-bold bg-red-500 text-black items-center gap-x-2 justify-center"
+        >
           <VscSignOut className="text-lg" />
           <span>Logout</span>
         </div>

@@ -1,9 +1,9 @@
-// Import necessary dependencies
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import axios from "axios";
+import "./css/SignUp.css";
 
 export default function SignUp() {
   const tabData = [
@@ -93,9 +93,9 @@ export default function SignUp() {
   return (
     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }}>
       <Navbar />
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#121212] to-[#00bcd4]">
-        <div className="w-full max-w-lg bg-richblack-800 p-6 rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
-          <h1 className="text-2xl font-semibold text-richblack-5 mb-6 text-center">
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-r">
+        <div className="w-full max-w-lg bg-richblack-800 p-8 rounded-xl shadow-xl transform transition-transform hover:scale-105 hover:shadow-2xl duration-500 mt-20">
+          <h1 className="text-3xl font-semibold mb-8 text-center text-richblack-5">
             Register Here
           </h1>
 
@@ -122,7 +122,7 @@ export default function SignUp() {
           <form className="flex w-full flex-col gap-y-4" onSubmit={handleSubmit}>
             <div className="flex gap-x-4">
               <label className="w-full">
-                <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                   First Name <sup className="text-pink-200">*</sup>
                 </p>
                 <input
@@ -132,12 +132,12 @@ export default function SignUp() {
                   placeholder="Enter first name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full max-w-md text-black rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
                 />
               </label>
 
               <label className="w-full">
-                <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                   Last Name <sup className="text-pink-200">*</sup>
                 </p>
                 <input
@@ -147,13 +147,13 @@ export default function SignUp() {
                   placeholder="Enter last name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full max-w-md rounded-[0.5rem] border border-richblack-500 bg-richblack-900 p-3 text-black text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
                 />
               </label>
             </div>
 
             <label className="w-full">
-              <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+              <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                 Email <sup className="text-pink-200">*</sup>
               </p>
               <input
@@ -163,12 +163,12 @@ export default function SignUp() {
                 placeholder="Enter email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
               />
             </label>
 
             <label className="w-full">
-              <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+              <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                 Password <sup className="text-pink-200">*</sup>
               </p>
               <input
@@ -178,12 +178,12 @@ export default function SignUp() {
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
               />
             </label>
 
             <label className="w-full">
-              <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+              <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                 Confirm Password <sup className="text-pink-200">*</sup>
               </p>
               <input
@@ -193,13 +193,13 @@ export default function SignUp() {
                 placeholder="Confirm password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full rounded-[0.5rem] text-black border border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
               />
             </label>
 
             {field === "Instructor" && (
               <label className="w-full">
-                <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                   Resume <sup className="text-pink-200">*</sup>
                 </p>
                 <input
@@ -208,14 +208,14 @@ export default function SignUp() {
                   name="resume"
                   accept="application/pdf"
                   onChange={handleChange}
-                  className="w-full rounded-[0.5rem] border text-black border-richblack-500 bg-richblack-900 p-3 text-richblack-5 focus:border-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+                  className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
                 />
               </label>
             )}
 
             <button
               type="submit"
-              className="w-full bg-yellow-400 py-3 px-6 text-black text-lg rounded-[0.5rem] font-semibold hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1"
+              className="bg-yellow-400 py-3 px-6 text-black text-lg rounded-lg font-semibold hover:scale-105 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all mt-6"
             >
               {loading ? "Submitting..." : "Sign Up"}
             </button>
