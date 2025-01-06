@@ -69,18 +69,18 @@ exports.isStudent = async (req, res, next) => {
     }
 };
 
-// Instructor Role Middleware
-exports.isInstructor = async (req, res, next) => {
+// Tutor Role Middleware
+exports.isTutor = async (req, res, next) => {
     try {
-        if (req.user.accountType !== "Instructor") {
+        if (req.user.accountType !== "Tutor") {
             return res.status(403).json({
                 success: false,
-                message: "This route is only for instructors.",
+                message: "This route is only for tutors.",
             });
         }
         next();
     } catch (error) {
-        console.error("Error in isInstructor middleware:", error.message);
+        console.error("Error in isTutor middleware:", error.message);
         return res.status(500).json({
             success: false,
             message: "Error verifying user role.",

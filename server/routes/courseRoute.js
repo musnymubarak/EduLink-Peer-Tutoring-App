@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { auth, isAdmin } = require("../middlewares/authMiddleware");
+const { auth, isTutor } = require("../middlewares/authMiddleware");
 const {
   getAllCourses,
   getCourseById,
@@ -16,12 +16,12 @@ router.get("/", getAllCourses);
 router.get("/:courseId", getCourseById);
 
 // Admin-only: Add Course
-router.post("/add", auth, isAdmin, addCourse);
+router.post("/add", auth, isTutor, addCourse);
 
 // Admin-only: Update Course by ID
-router.put("/:courseId", auth, isAdmin, updateCourseById);
+router.put("/:courseId", auth, isTutor, updateCourseById);
 
 // Admin-only: Delete Course by ID
-router.delete("/:courseId", auth, isAdmin, deleteCourseById);
+router.delete("/:courseId", auth, isTutor, deleteCourseById);
 
 module.exports = router;

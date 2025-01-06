@@ -14,7 +14,7 @@ const userRoutes = require("./routes/authRoute");
 const courseRoutes = require("./routes/courseRoute"); 
 const sectionRoutes = require("./routes/sectionRoute"); 
 const enrollmentRoutes = require("./routes/enrollmentRoute");
-const instructorRoutes = require("./routes/instructorRoute");
+const tutorRoutes = require("./routes/tutorRoute");
 const profileRoutes = require("./routes/profileRoute"); 
 const messageRoutes = require("./routes/messageRoute");
 const ratingRoutes = require("./routes/ratingRoute");
@@ -55,7 +55,7 @@ app.use("/api/v1/sections", sectionRoutes);
 // Protected routes
 app.use("/api/v1/auth", userRoutes); 
 app.use("/api/v1/enrollment", enrollmentRoutes);
-app.use("/api/v1/instructor", instructorRoutes);
+app.use("/api/v1/tutor", tutorRoutes);
 app.use("/api/v1/profile", profileRoutes); 
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/rating", ratingRoutes);

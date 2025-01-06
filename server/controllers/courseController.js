@@ -4,15 +4,14 @@ const Section = require("../models/Section");
 const RatingAndReview = require("../models/RatingAndReview");
 const User = require("../models/User");
 
-// Add Course (Only Admin)
-// Add Course (Only Admin)
+// Add Course (Only Tutor)
 exports.addCourse = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can add courses.",
+                message: "Only Tutors can add courses.",
             });
         }
 
@@ -160,7 +159,7 @@ exports.getAllCourses = async (req, res) => {
         });
     }
 };
-  
+
 // Get a Single Course by ID
 exports.getCourseById = async (req, res) => {
     try {
@@ -210,15 +209,14 @@ exports.getCourseById = async (req, res) => {
     }
 };
 
-
-// Update Course by ID (Only Admin)
+// Update Course by ID (Only Tutor)
 exports.updateCourseById = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can update courses.",
+                message: "Only Tutors can update courses.",
             });
         }
 
@@ -327,14 +325,14 @@ exports.updateCourseById = async (req, res) => {
     }
 };
 
-// Delete Course by ID (Only Admin)
+// Delete Course by ID (Only Tutor)
 exports.deleteCourseById = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can delete courses.",
+                message: "Only Tutors can delete courses.",
             });
         }
 
@@ -349,6 +347,11 @@ exports.deleteCourseById = async (req, res) => {
                 message: "Course not found.",
             });
         }
+
+        // Remove the course from the category's courses array
+        const categoryObj = await Category.findById(deletedCourse.category);
+        categoryObj.courses.pull(courseId);
+        await categoryObj.save();
 
         return res.status(200).json({
             success: true,
