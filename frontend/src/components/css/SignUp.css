@@ -18,28 +18,28 @@
 }
 
 input {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.05) ;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6) ;
 }
 
 input:focus {
-    border-color: #00bcd4 !important;
-    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6) !important;
+    border-color: #00bcd4;
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
 }
 
 .bg-yellow-400 {
-    background: linear-gradient(45deg, #00bcd4, #0097a7) !important;
+    background: linear-gradient(45deg, #00bcd4, #0097a7) ;
     box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
 }
 
 .bg-yellow-400:hover {
-    background: linear-gradient(45deg, #0097a7, #00bcd4) !important;
+    background: linear-gradient(45deg, #0097a7, #00bcd4) ;
 }
 
 .text-richblack-5 {
-    color: #ffffff !important;
+    color: #ffffff ;
 }
