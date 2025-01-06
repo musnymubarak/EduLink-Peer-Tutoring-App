@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
 import Sidebar from "../Sidebar";
 
 export default function TSubjects() {
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate(); // Initialize the useNavigate hook
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -54,6 +55,10 @@ export default function TSubjects() {
         subject.tags.toLowerCase().includes(searchQuery)
     );
 
+  const handleAddCourse = () => {
+    navigate("/dashboard/instructor/add-course");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -63,7 +68,7 @@ export default function TSubjects() {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Subjects</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Courses</h1>
 
         {/* Search Bar */}
         <div className="mb-6">
@@ -126,6 +131,16 @@ export default function TSubjects() {
               )
             );
           })}
+        </div>
+
+        {/* Add New Course Button */}
+        <div className="text-right">
+          <button
+            onClick={handleAddCourse} // Attach the click handler
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            Add New Course
+          </button>
         </div>
       </div>
     </div>
