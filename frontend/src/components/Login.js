@@ -11,7 +11,7 @@ export default function Login() {
   const { setAccountType } = useAccountType();
   const tabData = [
     { id: 1, tabName: "Student", type: "Student" },
-    { id: 2, tabName: "Tutor", type: "Instructor" },
+    { id: 2, tabName: "Tutor", type: "Tutor" },
   ];
 
   const [field, setField] = useState("Student");

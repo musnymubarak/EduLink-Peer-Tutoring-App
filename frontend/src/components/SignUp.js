@@ -15,7 +15,7 @@ export default function SignUp() {
     {
       id: 2,
       tabName: "Tutor",
-      type: "Instructor",
+      type: "Tutor",
     },
   ];
 
@@ -54,7 +54,7 @@ export default function SignUp() {
       setError("Passwords do not match.");
       return;
     }
-    if (field === "Instructor" && !formData.resume) {
+    if (field === "Tutor" && !formData.resume) {
       setError("Resume is required for Tutor accounts.");
       return;
     }
@@ -65,7 +65,7 @@ export default function SignUp() {
     payload.append("email", formData.email);
     payload.append("password", formData.password);
     payload.append("accountType", field);
-    if (formData.resume && field === "Instructor") {
+    if (formData.resume && field === "Tutor") {
       payload.append("resume", formData.resume);
     }
 
@@ -197,7 +197,7 @@ export default function SignUp() {
               />
             </label>
 
-            {field === "Instructor" && (
+            {field === "Tutor" && (
               <label className="w-full">
                 <p className="mb-2 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                   Resume <sup className="text-pink-200">*</sup>
