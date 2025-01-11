@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Sidebar from "../Sidebar";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
@@ -6,18 +8,35 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
-  // Attendance Data (Replace this with real data from your backend)
-  const attendanceData = [2, 3, 4, 5, 3, 4, 5]; // Days in a week (e.g., Mon-Sun)
+  const [userName, setUserName] = useState("");
+
+  // Fetch user data
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setUserName(response.data.name);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  // Attendance Data
+  const attendanceData = [2, 3, 4, 5, 3, 4, 5];
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // ChartJS configuration
   const chartData = {
     labels: days,
     datasets: [
       {
         label: "Attendance (Hours)",
         data: attendanceData,
-        backgroundColor: "rgba(34, 197, 94, 0.8)", // Stylish green
+        backgroundColor: "rgba(34, 197, 94, 0.8)",
         borderColor: "rgba(34, 197, 94, 1)",
         borderWidth: 1,
         borderRadius: 5,
@@ -65,8 +84,10 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-richblue-800 to-blue-600 text-black p-6 rounded-lg shadow mb-8">
-          <h2 className="text-2xl font-bold">Welcome, [Student Name]!</h2>
+        <div className="bg-white from-richblue-800 to-blue-600 text-black p-6 rounded-lg shadow mb-8">
+          <h2 className="text-2xl font-bold">
+            Welcome, {userName || "Student"}!
+          </h2>
           <p className="mt-2">"Keep pushing forward—success is just around the corner!"</p>
         </div>
 
