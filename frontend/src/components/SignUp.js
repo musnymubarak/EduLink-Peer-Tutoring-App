@@ -15,7 +15,7 @@ export default function SignUp() {
     {
       id: 2,
       tabName: "Tutor",
-      type: "Instructor",
+      type: "Tutor",
     },
   ];
 
