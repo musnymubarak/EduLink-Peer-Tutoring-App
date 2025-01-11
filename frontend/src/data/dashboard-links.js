@@ -57,14 +57,14 @@ export const sidebarLinks = [
   },
   {
     id: 9,
-    name: "Enrolled Subjects",
+    name: "Enrolled Courses",
     path: "/dashboard/student/enrolled-courses",
     type: 'student',
     icon: "VscMortarBoard",
   },
   {
     id: 10,
-    name: "Resources",
+    name: "Community",
     path: "/dashboard/student/resources",
     type: 'student',
     icon: "VscLibrary",
@@ -78,7 +78,7 @@ export const sidebarLinks = [
   },  
   {
     id: 12,
-    name: "Your Subjects",
+    name: "Your Courses",
     path: "/dashboard/tutor/your-subjects",
     type: 'tutor',
     icon: "VscMortarBoard",
