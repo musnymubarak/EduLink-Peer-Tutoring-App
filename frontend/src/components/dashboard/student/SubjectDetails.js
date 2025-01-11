@@ -117,7 +117,7 @@ export default function SubjectDetails() {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Available Instructors</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor</h2>
           <ul className="list-disc list-inside text-gray-600">
             {course.availableInstructors.map((instructor, index) => (
               <li key={index}>{instructor}</li>
