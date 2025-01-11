@@ -39,6 +39,7 @@ import ListTutor from './components/dashboard/admin/Pages/ListTutor';
 import ExploreCourses from './components/ExploreCourses';
 import ExploreSingleCourse from './components/ExploreSingleCourse';
 import TAddCourses from './components/dashboard/tutor/TAddCourses';
+import Notification from './components/dashboard/student/Notification';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           path="/dashboard/student/subject/:id"
           element={<SubjectDetails />}
         />
+        <Route path='/dashboard/student/noti' element={<Notification/>}/>
 
         {/*tutor*/}
         <Route path="/explore-subjects" element={<ExploreSubjects />} />
@@ -83,6 +85,7 @@ function App() {
           element={<YourSubjects />}
         />
         <Route path='/dashboard/tutor/add-course' element={<TAddCourses/>}/>
+        <Route path='/dashboard/tutor/noti' element={<Notification/>}/>
 
         {/* admin */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />

@@ -90,4 +90,17 @@ export const sidebarLinks = [
     type: 'tutor',
     icon: "VscVm",
   },
+  {
+    id: 14,
+    name: "Notifications",
+    path: "/dashboard/student/noti",
+    type: 'student',
+    icon: "VscBell",
+  },  {
+    id: 15,
+    name: "Notifications",
+    path: "/dashboard/tutor/noti",
+    type: 'tutor',
+    icon: "VscBell",
+  },
 ];
