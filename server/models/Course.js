@@ -4,18 +4,17 @@ const coursesSchema = new mongoose.Schema({
     courseName: {
         type: String,
         required: true,
-        unique : true
+        unique: true,
     },
     courseDescription: {
         type: String,
         default: null, // Optional field with default value of null
     },
-    availableInstructors: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    ],
+    tutor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // Reference to the User model for a single tutor
+        required: true, // Ensure a tutor is always assigned
+    },
     whatYouWillLearn: {
         type: String,
         default: null, // Optional field with default value of null
@@ -32,7 +31,6 @@ const coursesSchema = new mongoose.Schema({
             ref: "RatingAndReview",
         },
     ],
-    
     thumbnail: {
         type: String,
         default: null, // Optional field with default value of null
