@@ -8,6 +8,8 @@ export default function SubjectDetails() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClassType, setSelectedClassType] = useState("group"); // group or private
+  const [selectedClassId, setSelectedClassId] = useState(null); // Selected group class ID
   const [formData, setFormData] = useState({
     name: "",
     studentAge: "",
@@ -15,6 +17,20 @@ export default function SubjectDetails() {
     preferredTimes: [],
     suggestions: "",
   });
+
+  // Dummy data for tutors
+  const tutors = [
+    {
+      name: "John Doe",
+      email: "john.doe@example.com",
+      rating: 4.8,
+      classesConducted: 20,
+      availableClasses: [
+        { id: "class1", type: "Group", currentStudents: 5, maxStudents: 10 },
+        { id: "class2", type: "Group", currentStudents: 8, maxStudents: 10 },
+      ],
+    }
+  ];
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -38,17 +54,13 @@ export default function SubjectDetails() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handlePreferredTimesChange = (e) => {
-    const { options } = e.target;
-    const selectedTimes = Array.from(options)
-      .filter((option) => option.selected)
-      .map((option) => option.value);
-    setFormData({ ...formData, preferredTimes: selectedTimes });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Submitted: ", formData);
+    console.log("Form Submitted: ", {
+      formData,
+      selectedClassType,
+      selectedClassId,
+    });
     setIsModalOpen(false);
   };
 
@@ -74,37 +86,10 @@ export default function SubjectDetails() {
       </div>
 
       <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+        {/* Existing course sections */}
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Description</h2>
           <p className="text-gray-600">{course.courseDescription}</p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">What You Will Learn</h2>
-          <p className="text-gray-600">{course.whatYouWillLearn}</p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Instructions</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {course.instructions.map((instruction, index) => (
-              <li key={index}>{instruction}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tags</h2>
-          <div className="flex flex-wrap gap-2">
-            {course.tag.map((tag, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
         </section>
 
         <section className="mb-8">
@@ -116,13 +101,33 @@ export default function SubjectDetails() {
           </ul>
         </section>
 
+
+        {/* Tutor Section */}
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Available Instructors</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {course.availableInstructors.map((instructor, index) => (
-              <li key={index}>{instructor}</li>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {tutors.map((tutor, index) => (
+              <div
+                key={index}
+                className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition"
+              >
+                <h3 className="text-xl font-bold text-gray-700">{tutor.name}</h3>
+                <p className="text-gray-600"><strong>Email:</strong> {tutor.email}</p>
+                <p className="text-gray-600"><strong>Rating:</strong> {tutor.rating}/5</p>
+                <p className="text-gray-600">
+                  <strong>Classes Conducted:</strong> {tutor.classesConducted}
+                </p>
+                <p className="text-gray-600"><strong>Available Classes:</strong></p>
+                <ul className="list-disc list-inside text-gray-600">
+                  {tutor.availableClasses.map((cls) => (
+                    <li key={cls.id}>
+                      {cls.type} - {cls.currentStudents}/{cls.maxStudents} students
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         <section className="mb-8">
@@ -144,27 +149,59 @@ export default function SubjectDetails() {
         </div>
       </div>
 
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-y-auto">
           <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg mx-auto relative">
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Request to Class</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Preferred Times</label>
-                <select
-                  name="preferredTimes"
-                  multiple
-                  value={formData.preferredTimes}
-                  onChange={handlePreferredTimesChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                >
-                  <option value="Monday Morning">Monday Morning</option>
-                  <option value="Monday Evening">Monday Evening</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
-                  Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
-                </p>
+                <label className="block text-gray-700 font-semibold mb-2">Class Type</label>
+                <div className="flex gap-4">
+                  <label>
+                    <input
+                      type="radio"
+                      name="classType"
+                      value="group"
+                      checked={selectedClassType === "group"}
+                      onChange={() => setSelectedClassType("group")}
+                    />
+                    <span className="ml-2 text-black">Group Class</span>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="classType"
+                      value="private"
+                      checked={selectedClassType === "private"}
+                      onChange={() => setSelectedClassType("private")}
+                    />
+                    <span className="ml-2 text-black">Private Class</span>
+                  </label>
+                </div>
               </div>
+
+              {selectedClassType === "group" && (
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Available Group Classes</label>
+                  <select
+                    value={selectedClassId}
+                    onChange={(e) => setSelectedClassId(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2"
+                  >
+                    <option value="">Select a group class</option>
+                    {tutors.flatMap((tutor) =>
+                      tutor.availableClasses.map((cls) => (
+                        <option key={cls.id} value={cls.id}>
+                          {tutor.name}'s {cls.type} - {cls.currentStudents}/{cls.maxStudents} slots
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+              )}
+
+              {/* Suggestions */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Suggestions</label>
                 <textarea
@@ -175,6 +212,7 @@ export default function SubjectDetails() {
                   rows="4"
                 />
               </div>
+
               <div className="text-right">
                 <button
                   type="submit"

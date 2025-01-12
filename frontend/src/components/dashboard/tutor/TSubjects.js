@@ -56,7 +56,7 @@ export default function TSubjects() {
     );
 
   const handleAddCourse = () => {
-    navigate("/dashboard/instructor/add-course");
+    navigate("/dashboard/tutor/add-course");
   };
 
   return (
@@ -97,7 +97,7 @@ export default function TSubjects() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredSubjects.map((subject, i) => (
                       <Link
-                        to={`/dashboard/instructor/subject/${subject.id}`}
+                        to={`/dashboard/tutor/subject/${subject.id}`}
                         key={i}
                         className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
                       >

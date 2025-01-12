@@ -39,6 +39,7 @@ import ListTutor from './components/dashboard/admin/Pages/ListTutor';
 import ExploreCourses from './components/ExploreCourses';
 import ExploreSingleCourse from './components/ExploreSingleCourse';
 import TAddCourses from './components/dashboard/tutor/TAddCourses';
+import Notification from './components/dashboard/student/Notification';
 
 function App() {
   return (
@@ -66,23 +67,25 @@ function App() {
           path="/dashboard/student/subject/:id"
           element={<SubjectDetails />}
         />
+        <Route path='/dashboard/student/noti' element={<Notification/>}/>
 
         {/*tutor*/}
         <Route path="/explore-subjects" element={<ExploreSubjects />} />
-        <Route path="/dashboard/instructor" element={<TDashboard />} />
-        <Route path="/dashboard/instructor/profile" element={<TProfile />} />
-        <Route path="/dashboard/instructor/subjects" element={<TSubjects />} />
-        <Route path="/dashboard/instructor/schedule" element={<TSchedule />} />
+        <Route path="/dashboard/tutor" element={<TDashboard />} />
+        <Route path="/dashboard/tutor/profile" element={<TProfile />} />
+        <Route path="/dashboard/tutor/subjects" element={<TSubjects />} />
+        <Route path="/dashboard/tutor/schedule" element={<TSchedule />} />
         <Route
-          path="/dashboard/instructor/subject/:id"
+          path="/dashboard/tutor/subject/:id"
           element={<TSubjectDetails />}
         />
-        <Route path="/dashboard/instructor/requests" element={<Requests />} />
+        <Route path="/dashboard/tutor/requests" element={<Requests />} />
         <Route
-          path="/dashboard/instructor/your-subjects"
+          path="/dashboard/tutor/your-subjects"
           element={<YourSubjects />}
         />
-        <Route path='/dashboard/instructor/add-course' element={<TAddCourses/>}/>
+        <Route path='/dashboard/tutor/add-course' element={<TAddCourses/>}/>
+        <Route path='/dashboard/tutor/noti' element={<Notification/>}/>
 
         {/* admin */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />

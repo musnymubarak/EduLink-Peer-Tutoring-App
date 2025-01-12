@@ -9,8 +9,8 @@ export const sidebarLinks = [
   {
     id: 2,
     name: "Dashboard",
-    path: "/dashboard/instructor",
-    type: 'instructor',
+    path: "/dashboard/tutor",
+    type: 'tutor',
     icon: "VscDashboard",
   },
   {
@@ -23,8 +23,8 @@ export const sidebarLinks = [
   {
     id: 4,
     name: "My Profile",
-    path: "/dashboard/instructor/profile",
-    type: 'instructor',
+    path: "/dashboard/tutor/profile",
+    type: 'tutor',
     icon: "VscAccount",
   },
   {
@@ -37,8 +37,8 @@ export const sidebarLinks = [
   {
     id: 6,
     name: "Explore Courses",
-    path: "/dashboard/instructor/subjects",
-    type: 'instructor',
+    path: "/dashboard/tutor/subjects",
+    type: 'tutor',
     icon: "VscVm",
   },
   {
@@ -51,20 +51,20 @@ export const sidebarLinks = [
   {
     id: 8,
     name: "Schedule",
-    path: "/dashboard/instructor/schedule",
-    type: 'instructor',
+    path: "/dashboard/tutor/schedule",
+    type: 'tutor',
     icon: "VscCalendar",
   },
   {
     id: 9,
-    name: "Enrolled Subjects",
+    name: "Enrolled Courses",
     path: "/dashboard/student/enrolled-courses",
     type: 'student',
     icon: "VscMortarBoard",
   },
   {
     id: 10,
-    name: "Resources",
+    name: "Community",
     path: "/dashboard/student/resources",
     type: 'student',
     icon: "VscLibrary",
@@ -72,22 +72,35 @@ export const sidebarLinks = [
   {
     id: 11,
     name: "Requests",
-    path: "/dashboard/instructor/requests",
-    type: 'instructor',
+    path: "/dashboard/tutor/requests",
+    type: 'tutor',
     icon: "VscRequestChanges",
   },  
   {
     id: 12,
-    name: "Your Subjects",
-    path: "/dashboard/instructor/your-subjects",
-    type: 'instructor',
+    name: "Your Courses",
+    path: "/dashboard/tutor/your-subjects",
+    type: 'tutor',
     icon: "VscMortarBoard",
   },
   {
     id: 13,
     name: "Add Courses",
-    path: "/dashboard/instructor/add-course",
-    type: 'instructor',
+    path: "/dashboard/tutor/add-course",
+    type: 'tutor',
     icon: "VscVm",
+  },
+  {
+    id: 14,
+    name: "Notifications",
+    path: "/dashboard/student/noti",
+    type: 'student',
+    icon: "VscBell",
+  },  {
+    id: 15,
+    name: "Notifications",
+    path: "/dashboard/tutor/noti",
+    type: 'tutor',
+    icon: "VscBell",
   },
 ];

@@ -161,7 +161,7 @@ export default function Profile() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 border bg-black border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600"
                   value={formData.firstName}
                   onChange={(e) =>
                     setFormData({ ...formData, firstName: e.target.value })

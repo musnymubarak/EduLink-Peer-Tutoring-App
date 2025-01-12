@@ -7,11 +7,6 @@ export default function TSubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    topic:'',
-    report:''
-  });
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -29,21 +24,6 @@ export default function TSubjectDetails() {
   if (!course) {
     return <div className="p-8 text-center text-xl text-gray-700">Loading course details...</div>;
   }
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, pdfFile: e.target.files[0] });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Submitted: ", formData);
-    setIsModalOpen(false);
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -111,7 +91,7 @@ export default function TSubjectDetails() {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Available Instructors</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor </h2>
           <ul className="list-disc list-inside text-gray-600">
             {course.availableInstructors.map((instructor, index) => (
               <li key={index}>{instructor}</li>
@@ -127,65 +107,7 @@ export default function TSubjectDetails() {
             ))}
           </ul>
         </section>
-
-        <div className="text-right">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            Enroll as a Tutor
-          </button>
-        </div>
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg mx-auto relative">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Enroll as a Tutor</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  Give a Topic
-                </label>
-                <input
-                  type="text"
-                  name="topic"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Upload PDF</label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  name="report"
-                  onChange={handleFileChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  required
-                />
-              </div>
-              <div className="text-right">
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
-                >
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="ml-4 px-6 py-3 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-red-700"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
