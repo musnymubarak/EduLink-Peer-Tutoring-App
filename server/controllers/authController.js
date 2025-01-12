@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      token, // Include the token for saving in localStorage
+      token, 
       user: {
         id: user._id,
         firstName: user.firstName,

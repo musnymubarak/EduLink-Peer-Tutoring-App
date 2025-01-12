@@ -11,13 +11,14 @@ dotenv.config();
 
 // Import routes
 const userRoutes = require("./routes/authRoute");
-const courseRoutes = require("./routes/courseRoute"); 
-const sectionRoutes = require("./routes/sectionRoute"); 
+const courseRoutes = require("./routes/courseRoute");
+const sectionRoutes = require("./routes/sectionRoute");
 const enrollmentRoutes = require("./routes/enrollmentRoute");
 const tutorRoutes = require("./routes/tutorRoute");
-const profileRoutes = require("./routes/profileRoute"); 
+const profileRoutes = require("./routes/profileRoute");
 const messageRoutes = require("./routes/messageRoute");
 const ratingRoutes = require("./routes/ratingRoute");
+const classRoutes = require("./routes/classRoute"); 
 
 // Import database configuration
 const database = require("./config/db");
@@ -49,17 +50,17 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Define routes
 
 // Public routes
-app.use("/api/v1/courses", courseRoutes); 
-app.use("/api/v1/sections", sectionRoutes); 
+app.use("/api/v1/courses", courseRoutes);
+app.use("/api/v1/sections", sectionRoutes);
 
 // Protected routes
-app.use("/api/v1/auth", userRoutes); 
+app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/enrollment", enrollmentRoutes);
 app.use("/api/v1/tutor", tutorRoutes);
-app.use("/api/v1/profile", profileRoutes); 
+app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/rating", ratingRoutes);
-
+app.use("/api/v1/classes", classRoutes);  
 
 // Default route
 app.get("/", (req, res) => {
