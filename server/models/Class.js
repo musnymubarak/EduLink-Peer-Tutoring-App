@@ -20,6 +20,11 @@ const classSchema = new mongoose.Schema({
         type: Date,  // Class time
         required: true,
     },
+    status: {
+        type: String,
+        enum: ["Pending", "Accepted", "Rejected"],  // Status can be Pending, Accepted, or Rejected
+        default: "Pending",
+    },
     createdAt: {
         type: Date,
         default: Date.now,  // Default to current timestamp
