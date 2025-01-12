@@ -8,6 +8,8 @@ export default function SubjectDetails() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClassType, setSelectedClassType] = useState("group"); // group or private
+  const [selectedClassId, setSelectedClassId] = useState(null); // Selected group class ID
   const [formData, setFormData] = useState({
     name: "",
     studentAge: "",
