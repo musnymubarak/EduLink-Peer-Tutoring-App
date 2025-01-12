@@ -16,9 +16,16 @@ export default function Subject() {
         console.log(data);
     
         const groupedByCategory = data.reduce((acc, course) => {
-          const category = course.category?.name || "Uncategorized"; // Ensure category.name exists
-          if (!acc[category]) acc[category] = [];
-          acc[category].push(course);
+          // Extract category name or use "Uncategorized"
+          let categoryName = "Uncategorized";
+          if (typeof course.category === "string") {
+            categoryName = course.category;
+          } else if (course.category && typeof course.category.name === "string") {
+            categoryName = course.category.name;
+          }
+
+          if (!acc[categoryName]) acc[categoryName] = [];
+          acc[categoryName].push(course);
           return acc;
         }, {});
     
@@ -26,11 +33,11 @@ export default function Subject() {
           ([title, courses]) => ({
             title,
             subjects: courses.map((course) => ({
-              id: course._id,
+              id: course._id?.$oid || course._id, // Handle both string and object `_id`
               title: course.courseName,
               description: course.courseDescription || "No description available.",
-              thumbnail: course.thumbnail || "No thumbnail available.",
-              tags: course.tag?.join(", ") || "No tags available.",
+              thumbnail: course.thumbnail || "",
+              tags: Array.isArray(course.tag) ? course.tag : [], // Ensure tags are an array
             })),
           })
         );
@@ -53,7 +60,7 @@ export default function Subject() {
       
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Subjects</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Courses</h1>
         <div className="space-y-8">
           {categories.map((category, index) => (
             <div key={index}>
@@ -82,7 +89,10 @@ export default function Subject() {
   
                     {/* Tags */}
                     <p className="text-gray-500 text-sm mb-2">
-                      <strong>Tags:</strong> {subject.tags}
+                      <strong>Tags:</strong>{" "}
+                      {subject.tags.length > 0
+                        ? subject.tags.join(", ")
+                        : "No tags available."}
                     </p>
   
                     {/* Thumbnail */}
