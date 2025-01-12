@@ -64,6 +64,19 @@ export default function SubjectDetails() {
     setIsModalOpen(false);
   };
 
+  // Ensure `category` is a string or fallback to "Uncategorized"
+  const category =
+    typeof course.category === "string"
+      ? course.category
+      : typeof course.category?.name === "string"
+      ? course.category.name
+      : "Uncategorized";
+
+  // Ensure `studentsEnrolled` is an array of strings or use a fallback
+  const studentsEnrolled = Array.isArray(course.studentsEnrolled)
+    ? course.studentsEnrolled.map((student) => (typeof student === "string" ? student : JSON.stringify(student)))
+    : [];
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <button
@@ -96,7 +109,7 @@ export default function SubjectDetails() {
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Additional Details</h2>
           <ul className="list-disc list-inside text-gray-600">
             <li><strong>Status:</strong> {course.status}</li>
-            <li><strong>Category ID:</strong> {course.category}</li>
+            <li><strong>Category:</strong> {category}</li>
             <li><strong>Created At:</strong> {new Date(course.createdAt).toLocaleString()}</li>
           </ul>
         </section>
@@ -133,7 +146,7 @@ export default function SubjectDetails() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Enrolled Students</h2>
           <ul className="list-disc list-inside text-gray-600">
-            {course.studentsEnrolled.map((student, index) => (
+            {studentsEnrolled.map((student, index) => (
               <li key={index}>{student}</li>
             ))}
           </ul>
