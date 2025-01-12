@@ -1,21 +1,22 @@
 import React, { useState } from "react";
 import Sidebar from "../Sidebar";
+import axios from "axios";
 
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([
     {
       title: "IT Course",
       subjects: [
-        { id: 1, title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4, progress: 75, feedback: "" },
-        { id: 2, title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5, progress: 50, feedback: "" },
-        { id: 3, title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3, progress: 40, feedback: "" },
+        { id: '6769192d9cabb6e36fb6e622', title: "C++", description: "Fundamentals of C++", author: "John", likes: 45, rating: 4, progress: 75, feedback: "" },
+        { id: '6769192d9cabb6e36fb6e625', title: "Java", description: "OOP Concepts", author: "Smith", likes: 32, rating: 5, progress: 50, feedback: "" },
+        { id: '6769192d9cabb6e36fb6e624', title: "HTML", description: "Basic Web", author: "David", likes: 21, rating: 3, progress: 40, feedback: "" },
       ],
     },
     {
       title: "Mathematics Course",
       subjects: [
-        { id: 4, title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2, progress: 80, feedback: "" },
-        { id: 5, title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4, progress: 60, feedback: "" },
+        { id: '6769192d9cabb6e36fb6e623', title: "Discrete Math", description: "Math Fundamentals", author: "Maya", likes: 54, rating: 2, progress: 80, feedback: "" },
+        { id: '6782b3061113d1eafa8c3931', title: "Calculus", description: "Differentiation and Integration", author: "Liam", likes: 40, rating: 4, progress: 60, feedback: "" },
       ],
     },
   ]);
@@ -40,22 +41,65 @@ export default function EnrolledSubjects() {
     setForm({ rating: "", feedback: "" });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     const { categoryIndex, subjectIndex } = modal;
     const newRating = parseInt(form.rating, 10);
     const newFeedback = form.feedback;
-
-    setCategories((prevCategories) => {
-      const updatedCategories = [...prevCategories];
-      const subject = updatedCategories[categoryIndex].subjects[subjectIndex];
-      subject.rating = newRating;
-      subject.feedback = newFeedback;
-      return updatedCategories;
-    });
-
-    handleCloseModal();
+  
+    const subject = categories[categoryIndex].subjects[subjectIndex];
+    const courseId = subject.id;
+  
+    try {
+      const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+      if (!token) {
+        alert("Authentication token is missing. Please log in.");
+        return;
+      }
+  
+      // Decode the token payload to get the userId
+      const base64Url = token.split(".")[1]; // Extract the payload part of the JWT
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
+      const payload = JSON.parse(atob(base64)); // Decode Base64 and parse JSON
+      const userId = payload.id; // Extract the userId (adjust if your payload uses a different key)
+  
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/rating/",
+        {
+          courseId,
+          userId, // Include the userId
+          rating: newRating,
+          review: newFeedback,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+          },
+        }
+      );
+  
+      if (response.status === 201 || response.status === 200) {
+        alert("Rating and review posted successfully!");
+  
+        // Update the local state to reflect the changes
+        setCategories((prevCategories) => {
+          const updatedCategories = [...prevCategories];
+          updatedCategories[categoryIndex].subjects[subjectIndex].rating = newRating;
+          updatedCategories[categoryIndex].subjects[subjectIndex].feedback = newFeedback;
+          return updatedCategories;
+        });
+  
+        handleCloseModal();
+      }
+    } catch (error) {
+      console.error("Error posting rating and review:", error);
+      const errorMessage = error.response?.data?.message || "An error occurred.";
+      alert(errorMessage);
+    }
   };
+  
+  
 
   return (
     <div className="flex min-h-screen bg-gray-100">
