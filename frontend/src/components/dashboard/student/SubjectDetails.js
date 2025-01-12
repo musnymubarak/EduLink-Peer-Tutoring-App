@@ -18,6 +18,19 @@ export default function SubjectDetails() {
     suggestions: "",
   });
 
+  const tutors = [
+    {
+      name: "John Doe",
+      email: "john.doe@example.com",
+      rating: 4.8,
+      classesConducted: 20,
+      availableClasses: [
+        { id: "class1", type: "Group", currentStudents: 5, maxStudents: 10 },
+        { id: "class2", type: "Group", currentStudents: 8, maxStudents: 10 },
+      ],
+    }
+  ];
+  
   useEffect(() => {
     const fetchCourse = async () => {
       try {
