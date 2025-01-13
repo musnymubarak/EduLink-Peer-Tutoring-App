@@ -1,21 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const {
-    requestClass,
-    getClassRequestsForTutor,
-    updateClassStatus,
-} = require("../controllers/classController");
-const { isStudent, isTutor } = require("../middlewares/authMiddleware");
+const classController = require("../controllers/classController");
+const { auth, isStudent, isTutor } = require("../middlewares/authMiddleware");
 
-// Student requests a class with a tutor
-router.post("/request", isStudent, requestClass);
+// Route to send a class request (Student only)
+router.post("/send-request/:courseId", auth, isStudent, classController.sendClassRequest);
 
-// Tutor views class requests
-router.get("/requests", isTutor, getClassRequestsForTutor);
-
-// Tutor accepts or rejects a class request
-router.patch("/update-status/:classId", isTutor, updateClassStatus);
-
-// Student views available group classes for a course
+// Route to handle tutor's decision on a class request (Tutor only)
+router.post("/handle-request", auth, isTutor, classController.handleClassRequest);
 
 module.exports = router;
