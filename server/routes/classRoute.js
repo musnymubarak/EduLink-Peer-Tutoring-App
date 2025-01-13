@@ -9,4 +9,5 @@ router.post("/send-request/:courseId", auth, isStudent, classController.sendClas
 // Route to handle tutor's decision on a class request (Tutor only)
 router.post("/handle-request", auth, isTutor, classController.handleClassRequest);
 
+router.get("/class-requests", auth, isTutor, classController.getClassRequestsForTutor);
 module.exports = router;

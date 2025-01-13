@@ -145,3 +145,34 @@ exports.handleClassRequest = async (req, res) => {
         res.status(500).json({ error: "An error occurred while handling the class request." });
     }
 };
+
+exports.getClassRequestsForTutor = async (req, res) => {
+    try {
+        const tutorId = req.user.id;  // Get tutor's ID from the logged-in user
+        
+        // Check if tutorId is valid
+        if (!tutorId) {
+            return res.status(400).json({ error: "Tutor ID not found." });
+        }
+
+        // Fetch all class requests for this tutor
+        const classRequests = await ClassRequest.find({ tutor: tutorId })
+            .populate('student', 'name email')  // Optionally populate student details
+            .populate('course', 'title description'); // Optionally populate course details
+
+        // If no class requests are found
+        if (classRequests.length === 0) {
+            return res.status(404).json({ message: "No class requests found for this tutor." });
+        }
+
+        // Return the fetched class requests
+        return res.status(200).json({
+            message: "Class requests retrieved successfully.",
+            classRequests,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "An error occurred while fetching class requests." });
+    }
+};
+
