@@ -35,7 +35,8 @@ exports.markAsRead = async (req, res) => {
             return res.status(404).json({ error: "Notification not found." });
         }
 
-        notification.read = true; // Assuming you have a `read` field in the Notification model
+        // Update the status to 'read'
+        notification.status = "read"; // Update the status field to 'read'
         await notification.save();
 
         return res.status(200).json({ message: "Notification marked as read." });
