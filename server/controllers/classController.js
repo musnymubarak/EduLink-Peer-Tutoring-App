@@ -176,3 +176,67 @@ exports.getClassRequestsForTutor = async (req, res) => {
     }
 };
 
+// Function to fetch class requests made by the student
+exports.getStudentClassRequests = async (req, res) => {
+    try {
+        const studentId = req.user.id;  // Get student's ID from the logged-in user
+        
+        // Check if studentId is valid
+        if (!studentId) {
+            return res.status(400).json({ error: "Student ID not found." });
+        }
+
+        // Fetch all class requests made by this student
+        const classRequests = await ClassRequest.find({ student: studentId })
+            .populate('tutor', 'name email')  // Optionally populate tutor details
+            .populate('course', 'title description'); // Optionally populate course details
+
+        // If no class requests are found
+        if (classRequests.length === 0) {
+            return res.status(404).json({ message: "No class requests found for this student." });
+        }
+
+        // Return the fetched class requests
+        return res.status(200).json({
+            message: "Class requests retrieved successfully.",
+            classRequests,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "An error occurred while fetching class requests." });
+    }
+};
+
+// Function to fetch accepted classes for the student (personal or group)
+exports.getAcceptedClasses = async (req, res) => {
+    try {
+        const studentId = req.user.id;  // Get student's ID from the logged-in user
+        
+        // Check if studentId is valid
+        if (!studentId) {
+            return res.status(400).json({ error: "Student ID not found." });
+        }
+
+        // Fetch accepted personal and group classes for this student
+        const acceptedClasses = await Class.find({
+            participants: studentId,  // Check if the student is in the participants array
+        })
+            .populate('tutor', 'name email')  // Optionally populate tutor details
+            .populate('course', 'title description'); // Optionally populate course details
+
+        // If no accepted classes are found
+        if (acceptedClasses.length === 0) {
+            return res.status(404).json({ message: "No accepted classes found for this student." });
+        }
+
+        // Return the fetched accepted classes
+        return res.status(200).json({
+            message: "Accepted classes retrieved successfully.",
+            acceptedClasses,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "An error occurred while fetching accepted classes." });
+    }
+};
+

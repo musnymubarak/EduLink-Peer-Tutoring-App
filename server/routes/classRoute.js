@@ -9,5 +9,13 @@ router.post("/send-request/:courseId", auth, isStudent, classController.sendClas
 // Route to handle tutor's decision on a class request (Tutor only)
 router.post("/handle-request", auth, isTutor, classController.handleClassRequest);
 
+// Route to get class requests for the tutor (Tutor only)
 router.get("/class-requests", auth, isTutor, classController.getClassRequestsForTutor);
+
+// Student-only: Get Class Requests (Pending)
+router.get("/student/class-requests", auth, isStudent, classController.getStudentClassRequests);
+
+// Student-only: Get Accepted Classes (Personal & Group)
+router.get("/student/accepted-classes", auth, isStudent, classController.getAcceptedClasses);
+
 module.exports = router;
