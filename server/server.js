@@ -19,6 +19,7 @@ const profileRoutes = require("./routes/profileRoute");
 const messageRoutes = require("./routes/messageRoute");
 const ratingRoutes = require("./routes/ratingRoute");
 const classRoutes = require("./routes/classRoute"); 
+const notificationRoute = require("./routes/notificationRoute");
 
 // Import database configuration
 const database = require("./config/db");
@@ -61,6 +62,7 @@ app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/rating", ratingRoutes);
 app.use("/api/v1/classes", classRoutes);  
+app.use("/api/notifications", notificationRoute);
 
 // Default route
 app.get("/", (req, res) => {
