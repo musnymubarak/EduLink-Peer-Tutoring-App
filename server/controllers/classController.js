@@ -6,16 +6,26 @@ exports.sendClassRequest = async (req, res) => {
     try {
         const { type, time } = req.body;
         const courseId = req.params.courseId;
+        const studentId = req.user.id;
 
-        // Extract student ID from the logged-in user (e.g., from JWT token)
-        const studentId = req.user.id; // Assuming `req.user` contains the authenticated user info
-
-        // Validate the request
         if (!type || !time) {
             return res.status(400).json({ error: "Class type and time are required." });
         }
 
-        // Fetch the course to verify its existence and retrieve the tutor
+        // Convert the time string to a Date object
+        const classTime = new Date(time);
+        if (isNaN(classTime.getTime())) {
+            return res.status(400).json({ error: "Invalid time format." });
+        }
+
+        // Convert the time to UTC for uniformity
+        const startTime = new Date(classTime);
+        const endTime = new Date(classTime.getTime() + 60 * 60 * 1000); // 1 hour after the start time
+
+        // Log the start and end time
+        console.log('Start Time:', startTime.toISOString());
+        console.log('End Time:', endTime.toISOString());
+
         const course = await Course.findById(courseId);
         if (!course) {
             return res.status(404).json({ error: "Course not found." });
@@ -23,7 +33,6 @@ exports.sendClassRequest = async (req, res) => {
 
         const tutorId = course.tutor;
 
-        // Check if the student is enrolled in the course
         const isEnrolled = course.studentsEnrolled.some((enrolledStudent) =>
             enrolledStudent.equals(studentId)
         );
@@ -32,29 +41,29 @@ exports.sendClassRequest = async (req, res) => {
             return res.status(403).json({ error: "You are not enrolled in this course." });
         }
 
-        // If the student requests a group class, check for existing group classes
-        if (type === "Group") {
-            const existingGroupClasses = await ClassRequest.find({
-                course: courseId,
-                type: "Group",
-                tutor: tutorId,
-            });
+        // Check if the student already has a request for this time or within the same hour
+        const existingRequest = await ClassRequest.findOne({
+            student: studentId,
+            time: { 
+                $gte: startTime.toISOString(), 
+                $lt: endTime.toISOString() 
+            }, // Check for the same hour span
+        });
 
-            if (existingGroupClasses.length > 0) {
-                return res.status(200).json({
-                    message: "Group classes are available for the selected course.",
-                    groupClasses: existingGroupClasses,
-                });
-            }
+        // Log the existing request check
+        console.log('Existing Request:', existingRequest);
+
+        if (existingRequest) {
+            return res.status(400).json({ error: "You have already made a request for this time or within the same hour." });
         }
 
-        // Create a new class request
+        // Proceed with creating the class request
         const classRequest = new ClassRequest({
             student: studentId,
             tutor: tutorId,
             course: courseId,
             type,
-            time,
+            time: startTime, // Store the time in a standard format
             status: "Pending",
         });
 
@@ -69,7 +78,6 @@ exports.sendClassRequest = async (req, res) => {
         return res.status(500).json({ error: "An error occurred. Please try again later." });
     }
 };
-
 
 // Function to handle tutor's decision on a class request
 exports.handleClassRequest = async (req, res) => {
