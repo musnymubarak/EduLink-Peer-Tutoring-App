@@ -62,7 +62,7 @@ app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/rating", ratingRoutes);
 app.use("/api/v1/classes", classRoutes);  
-app.use("/api/notifications", notificationRoute);
+app.use("/api/v1/notifications", notificationRoute);
 
 // Default route
 app.get("/", (req, res) => {
