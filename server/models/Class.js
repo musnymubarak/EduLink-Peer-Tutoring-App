@@ -4,8 +4,16 @@ const classSchema = new mongoose.Schema({
     student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",  // Reference to the User model (Student)
-        required: true,
+        required: function () {
+            return this.type === "Personal";  // Required only for personal classes
+        },
     },
+    participants: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",  // Students participating in a group class
+        }
+    ],
     course: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course",  // Reference to the Course model
@@ -16,13 +24,18 @@ const classSchema = new mongoose.Schema({
         ref: "User",  // Reference to the User model (Tutor)
         required: true,
     },
+    type: {
+        type: String,
+        enum: ["Personal", "Group"],  // Class can be Personal or Group
+        required: true,
+    },
     time: {
         type: Date,  // Class time
         required: true,
     },
     status: {
         type: String,
-        enum: ["Pending", "Accepted", "Rejected"],  // Status can be Pending, Accepted, or Rejected
+        enum: ["Pending", "Accepted", "Rejected"],  // Class status
         default: "Pending",
     },
     createdAt: {
