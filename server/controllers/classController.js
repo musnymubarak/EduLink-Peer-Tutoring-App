@@ -67,7 +67,7 @@ exports.sendClassRequest = async (req, res) => {
         const notification = new Notification({
             user: tutorId,
             type: "ClassRequestSent",
-            message: `You have received a class request from a student for the course: ${course.title} at ${startTime.toISOString()}.`,
+            message: `You have received a class request from a student for the course: ${course.courseName} at ${startTime.toISOString()}.`,
         });
 
         await notification.save();
