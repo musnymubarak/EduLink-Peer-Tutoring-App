@@ -4,20 +4,18 @@ const {
     requestClass,
     getClassRequestsForTutor,
     updateClassStatus,
-    getAvailableGroupClasses
 } = require("../controllers/classController");
-const { authenticate, authorizeRoles } = require("../middlewares/authMiddleware");
+const { isStudent, isTutor } = require("../middlewares/authMiddleware");
 
 // Student requests a class with a tutor
-router.post("/request", authenticate, authorizeRoles("Student"), requestClass);
+router.post("/request", isStudent, requestClass);
 
 // Tutor views class requests
-router.get("/requests", authenticate, authorizeRoles("Tutor"), getClassRequestsForTutor);
+router.get("/requests", isTutor, getClassRequestsForTutor);
 
 // Tutor accepts or rejects a class request
-router.patch("/update-status/:classId", authenticate, authorizeRoles("Tutor"), updateClassStatus);
+router.patch("/update-status/:classId", isTutor, updateClassStatus);
 
 // Student views available group classes for a course
-router.get("/group-classes/:courseId", authenticate, authorizeRoles("Student"), getAvailableGroupClasses);
 
 module.exports = router;

@@ -100,37 +100,58 @@ exports.respondToClassRequest = async (req, res) => {
     }
 };
 
-// Get group classes for a course
-exports.getGroupClasses = async (req, res) => {
-    try {
-        const { courseId } = req.params;
 
-        // Check if course exists
-        const course = await Course.findById(courseId);
-        if (!course) {
-            return res.status(404).json({
+
+// Tutor updates class status (Accept or Reject)
+exports.updateClassStatus = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const { status } = req.body;
+        const tutorId = req.user._id;
+
+        // Allowed status updates
+        const validStatuses = ["Accepted", "Rejected"];
+
+        // Validate the provided status
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
                 success: false,
-                message: "Course not found."
+                message: `Status must be either 'Accepted' or 'Rejected'.`
             });
         }
 
-        // Fetch all accepted group classes for the course
-        const groupClasses = await Class.find({
-            course: courseId,
-            type: "Group",
-            status: "Accepted"
-        }).populate("tutor", "firstName lastName");
+        // Find the class and verify tutor ownership
+        const classRequest = await Class.findById(classId);
+        if (!classRequest || classRequest.tutor.toString() !== tutorId.toString()) {
+            return res.status(404).json({
+                success: false,
+                message: "Class request not found or unauthorized access."
+            });
+        }
+
+        // Prevent status change if already Accepted or Rejected
+        if (["Accepted", "Rejected"].includes(classRequest.status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Class is already marked as '${classRequest.status}'.`
+            });
+        }
+
+        // Update the class status
+        classRequest.status = status;
+        await classRequest.save();
 
         return res.status(200).json({
             success: true,
-            message: "Group classes fetched successfully.",
-            data: groupClasses
+            message: `Class status updated to '${status}'.`,
+            data: classRequest
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error while fetching group classes.",
+            message: "Error while updating class status.",
             error: error.message
         });
     }
 };
+
