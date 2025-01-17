@@ -93,26 +93,38 @@ export default function SubjectDetails() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted: ", {
-      formData,
-      selectedClassType,
-      selectedClassId,
-    });
-    setIsModalOpen(false);
+    try {
+      const payload = {
+        type: selectedClassType,
+        time: formData.time,
+        suggestions: formData.suggestions,
+      };
+
+      const response = await axios.post(
+        `http://localhost:4000/api/v1/classes/send-request/${id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      alert("Class request sent successfully!");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error sending class request:", error.response?.data || error);
+      alert(error.response?.data?.error || "An error occurred. Please try again.");
+    }
   };
 
-  const category =
-    typeof course.category === "string"
-      ? course.category
-      : typeof course.category?.name === "string"
-      ? course.category.name
-      : "Uncategorized";
+  if (!course) {
+    return <div className="p-8 text-center text-xl text-gray-700">Loading course details...</div>;
+  }
 
-  const studentsEnrolled = Array.isArray(course.studentsEnrolled)
-    ? course.studentsEnrolled.map((student) => (typeof student === "string" ? student : JSON.stringify(student)))
-    : [];
+  const category = course.category?.name || "Uncategorized";
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -210,22 +222,21 @@ export default function SubjectDetails() {
         </div>
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg mx-auto relative">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Request to Class</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Class Type</label>
-                <div className="flex gap-4">
-                  <label>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Request a Class</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Class Type</label>
+                <div>
+                  <label className="mr-4">
                     <input
                       type="radio"
                       name="classType"
-                      value="group"
-                      checked={selectedClassType === "group"}
-                      onChange={() => setSelectedClassType("group")}
+                      value="Group"
+                      checked={selectedClassType === "Group"}
+                      onChange={() => setSelectedClassType("Group")}
                     />
                     <span className="ml-2 text-black">Group Class</span>
                   </label>
@@ -233,17 +244,29 @@ export default function SubjectDetails() {
                     <input
                       type="radio"
                       name="classType"
-                      value="private"
-                      checked={selectedClassType === "private"}
-                      onChange={() => setSelectedClassType("private")}
+                      value="Personal"
+                      checked={selectedClassType === "Personal"}
+                      onChange={() => setSelectedClassType("Personal")}
                     />
-                    <span className="ml-2 text-black">Private Class</span>
+                    <span className="ml-2 text-black">Personal Class</span>
                   </label>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Suggestions</label>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Preferred Time</label>
+                <input
+                  type="datetime-local"
+                  name="time"
+                  value={formData.time}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Suggestions</label>
                 <textarea
                   name="suggestions"
                   value={formData.suggestions}
