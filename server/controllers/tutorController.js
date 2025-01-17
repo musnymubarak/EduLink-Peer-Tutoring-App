@@ -50,3 +50,39 @@ exports.assignTutorToCourse = async (req, res) => {
         });
     }
 };
+
+exports.getTutorById = async (req, res) => {
+    const { tutorId } = req.params; // Extract tutorId from the URL
+
+    if (!tutorId) {
+        return res.status(400).json({ success: false, message: "Tutor ID is required." });
+    }
+
+    try {
+        // Find the tutor by their ID
+        const tutor = await User.findById(tutorId);
+
+        if (!tutor) {
+            return res.status(404).json({ success: false, message: "Tutor not found." });
+        }
+
+        // Return the tutor details
+        return res.status(200).json({
+            success: true,
+            data: {
+                _id: tutor._id,
+                firstName: tutor.firstName,
+                lastName: tutor.lastName,
+                email: tutor.email,
+                createdAt: tutor.createdAt,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching tutor details.",
+            error: error.message,
+        });
+    }
+};
