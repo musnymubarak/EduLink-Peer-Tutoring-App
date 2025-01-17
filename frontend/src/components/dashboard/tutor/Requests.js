@@ -1,25 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Sidebar from "../Sidebar";
 
 export default function Requests() {
-  const [selectedRequest, setSelectedRequest] = useState(null); // Tracks the request to view
-  const [requests, setRequests] = useState([
-    { id: 1, student: "Alice Johnson", topic: "Control Structures", date: "2024-12-08", time:"12.00 p.m.", status: "Pending", isNew: true },
-    { id: 2, student: "Bob Smith", topic: "OOP Basics", date: "2024-12-07", time:"12.00 p.m.", status: "Accepted", isNew: false },
-    { id: 3, student: "Charlie Brown", topic: "Loops", date: "2024-12-06", time:"12.00 p.m.", status: "Declined", isNew: false },
-    { id: 4, student: "David Lee", topic: "Functions in C", date: "2024-12-05", time:"12.00 p.m.", status: "Pending", isNew: true },
-  ]);
-  const [showZoomModal, setShowZoomModal] = useState(false); // Tracks the Zoom link modal state
-  const [zoomLink, setZoomLink] = useState(""); // Stores the Zoom link
+  const [requests, setRequests] = useState([]);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showZoomModal, setShowZoomModal] = useState(false);
+  const [zoomLink, setZoomLink] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAction = (id, action) => {
-    setRequests((prevRequests) =>
-      prevRequests.map((req) =>
-        req.id === id ? { ...req, status: action, isNew: false } : req
-      )
-    );
-    setSelectedRequest(null); // Close modal if open
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Get token from local storage
+        const response = await axios.get("http://localhost:4000/api/v1/classes/class-requests", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass token in Authorization header
+          },
+        });
+        const data = response.data.classRequests.map((req) => ({
+          id: req._id,
+          student: req.student.email,
+          topic: req.course._id,
+          date: new Date(req.time).toLocaleDateString(),
+          time: new Date(req.time).toLocaleTimeString(),
+          status: req.status,
+          isNew: req.status === "Pending",
+        }));
+        setRequests(data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch class requests. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  const handleAction = async (id, action) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:4000/api/v1/classes/handle-request/${id}`,
+        { status: action },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === id ? { ...req, status: action, isNew: false } : req
+        )
+      );
+    } catch (err) {
+      alert("Failed to update request status. Please try again.");
+    }
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -32,7 +75,6 @@ export default function Requests() {
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Requests</h1>
 
-        {/* Requests List */}
         <div className="bg-white rounded-lg shadow p-6">
           {requests.length > 0 ? (
             <ul className="space-y-4">
@@ -46,7 +88,10 @@ export default function Requests() {
                   <div>
                     <p className="text-gray-800 font-semibold">{request.student}</p>
                     <p className="text-gray-600 text-sm">
-                      Topic: {request.topic} | Date: {request.date}{ request.status === "Accepted" && (<> | Scheduled Time: {request.time}</>)}
+                      Topic: {request.topic} | Date: {request.date}
+                      {request.status === "Accepted" && (
+                        <> | Scheduled Time: {request.time}</>
+                      )}
                     </p>
                     <p
                       className={`mt-1 text-sm font-medium ${
@@ -68,16 +113,13 @@ export default function Requests() {
                       View Request
                     </button>
                     {request.status === "Accepted" && (
-                      <>
-                        <button
-                          onClick={() => setShowZoomModal(true)}
-                          className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700"
-                        >
-                          Add Zoom Link
-                        </button>
-                      </>
+                      <button
+                        onClick={() => setShowZoomModal(true)}
+                        className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700"
+                      >
+                        Add Zoom Link
+                      </button>
                     )}
-
                     {request.status === "Pending" && (
                       <>
                         <button
@@ -107,13 +149,21 @@ export default function Requests() {
       {/* View Request Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Request Details</h2>
-            <p className="mb-2"><strong>Student:</strong> {selectedRequest.student}</p>
-            <p className="mb-2"><strong>Topic:</strong> {selectedRequest.topic}</p>
-            <p className="mb-2"><strong>Date:</strong> {selectedRequest.date}</p>
-            <p className="mb-4"><strong>Status:</strong> {selectedRequest.status}</p>
-            <div className="text-right space-x-2">
+            <p className="mb-2">
+              <strong>Student:</strong> {selectedRequest.student}
+            </p>
+            <p className="mb-2">
+              <strong>Topic:</strong> {selectedRequest.topic}
+            </p>
+            <p className="mb-2">
+              <strong>Date:</strong> {selectedRequest.date}
+            </p>
+            <p className="mb-4">
+              <strong>Status:</strong> {selectedRequest.status}
+            </p>
+            <div className="text-right">
               <button
                 onClick={() => setSelectedRequest(null)}
                 className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700"
