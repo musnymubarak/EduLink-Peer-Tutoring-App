@@ -85,7 +85,8 @@ exports.sendClassRequest = async (req, res) => {
 // Function to handle tutor's decision on a class request
 exports.handleClassRequest = async (req, res) => {
     try {
-        const { requestId, status } = req.body;
+        const { requestId } = req.params; // Extract requestId from URL params
+        const { status } = req.body; // Extract status from request body
 
         // Find the class request
         const classRequest = await ClassRequest.findById(requestId);
@@ -105,11 +106,9 @@ exports.handleClassRequest = async (req, res) => {
             const { student, tutor, course, type, time } = classRequest;
 
             if (type === "Personal") {
-                // Create a new personal class
                 const newClass = new Class({ student, tutor, course, type, time });
                 await newClass.save();
 
-                // Notify student about the acceptance
                 const notification = new Notification({
                     user: studentId,
                     type: "ClassRequestHandled",
@@ -123,17 +122,14 @@ exports.handleClassRequest = async (req, res) => {
                     newClass,
                 });
             } else if (type === "Group") {
-                // Check if there's an existing group class for the course
                 let groupClass = await Class.findOne({ course, type: "Group" });
 
                 if (groupClass) {
-                    // Add the student to the participants array
                     if (!groupClass.participants.includes(student.toString())) {
                         groupClass.participants.push(student);
                         await groupClass.save();
                     }
 
-                    // Notify student about the acceptance
                     const notification = new Notification({
                         user: studentId,
                         type: "ClassRequestHandled",
@@ -147,7 +143,6 @@ exports.handleClassRequest = async (req, res) => {
                         groupClass,
                     });
                 } else {
-                    // Create a new group class if none exists
                     groupClass = new Class({
                         participants: [student],
                         tutor,
@@ -157,7 +152,6 @@ exports.handleClassRequest = async (req, res) => {
                     });
                     await groupClass.save();
 
-                    // Notify student about the creation of the group class
                     const notification = new Notification({
                         user: studentId,
                         type: "ClassRequestHandled",
@@ -173,7 +167,6 @@ exports.handleClassRequest = async (req, res) => {
                 }
             }
         } else if (status === "Rejected") {
-            // Notify student about the rejection
             const notification = new Notification({
                 user: studentId,
                 type: "ClassRequestHandled",
