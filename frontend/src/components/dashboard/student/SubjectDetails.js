@@ -11,14 +11,12 @@ export default function SubjectDetails() {
   const [ratingsAndReviews, setRatingsAndReviews] = useState([]); // Store ratings and reviews data
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassType, setSelectedClassType] = useState("group");
-  const [selectedClassId, setSelectedClassId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    studentAge: "",
-    educationBackground: "",
-    preferredTimes: [],
+    time: "",
     suggestions: "",
   });
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
 
   useEffect(() => {
     // Fetch course details
@@ -33,7 +31,15 @@ export default function SubjectDetails() {
       }
     };
 
-    // Fetch reviews for the course
+    const fetchTutor = async (tutorId) => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}`);
+        setTutor(response.data.data);
+      } catch (error) {
+        console.error("Error fetching tutor details:", error);
+      }
+    };
+
     const fetchRatingsAndReviews = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/v1/rating/${id}`);
@@ -43,24 +49,44 @@ export default function SubjectDetails() {
       }
     };
 
-    // Fetch tutor details
-    const fetchTutor = async (tutorId) => {
+    const checkEnrollment = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}`);
-        setTutor(response.data.data);
-        
+        setIsCheckingEnrollment(true);
+        const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const userCourses = response.data.courses.map((course) => course._id || course.$oid); // Ensure IDs match
+        setIsEnrolled(userCourses.includes(id));
       } catch (error) {
-        console.error("Error fetching tutor details:", error);
+        console.error("Error checking enrollment status:", error);
+      } finally {
+        setIsCheckingEnrollment(false);
       }
     };
 
     fetchCourse();
     fetchRatingsAndReviews();
+    checkEnrollment();
   }, [id]);
 
-  if (!course) {
-    return <div className="p-8 text-center text-xl text-gray-700">Loading course details...</div>;
-  }
+  const handleEnroll = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/v1/enrollment/enroll/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      alert("Enrolled successfully!");
+      setIsEnrolled(true);
+    } catch (error) {
+      console.error("Error enrolling:", error.response?.data || error);
+      alert(error.response?.data?.message || "An error occurred.");
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,8 +150,8 @@ export default function SubjectDetails() {
           </ul>
         </section>
 
-                {/* Tutor Section */}
-                <section className="mb-8">
+        {/* Tutor Section */}
+        <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor</h2>
           {tutor ? (
             <div className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition">
@@ -146,32 +172,41 @@ export default function SubjectDetails() {
                 ))}
               </div>
             </div>
-          
           ) : (
             <p className="text-gray-600">No tutor assigned to this course.</p>
           )}
         </section>
 
-
-
-
-
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Enrolled Students</h2>
           <ul className="list-disc list-inside text-gray-600">
-            {studentsEnrolled.map((student, index) => (
-              <li key={index}>{student}</li>
-            ))}
+
           </ul>
         </section>
 
         <div className="text-right">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            Request to Class
-          </button>
+          {isCheckingEnrollment ? (
+            <button
+              disabled
+              className="px-6 py-3 bg-gray-400 text-white font-bold rounded-lg shadow"
+            >
+              Checking Enrollment...
+            </button>
+          ) : isEnrolled ? (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700"
+            >
+              Request to Class
+            </button>
+          ) : (
+            <button
+              onClick={handleEnroll}
+              className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
+            >
+              Enroll
+            </button>
+          )}
         </div>
       </div>
 
