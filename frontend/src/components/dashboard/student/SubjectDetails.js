@@ -7,9 +7,11 @@ export default function SubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
+  const [tutor, setTutor] = useState(null); // Store tutor details
+  const [ratingsAndReviews, setRatingsAndReviews] = useState([]); // Store ratings and reviews data
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedClassType, setSelectedClassType] = useState("group"); // group or private
-  const [selectedClassId, setSelectedClassId] = useState(null); // Selected group class ID
+  const [selectedClassType, setSelectedClassType] = useState("group");
+  const [selectedClassId, setSelectedClassId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     studentAge: "",
@@ -18,31 +20,42 @@ export default function SubjectDetails() {
     suggestions: "",
   });
 
-  // Dummy data for tutors
-  const tutors = [
-    {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      rating: 4.8,
-      classesConducted: 20,
-      availableClasses: [
-        { id: "class1", type: "Group", currentStudents: 5, maxStudents: 10 },
-        { id: "class2", type: "Group", currentStudents: 8, maxStudents: 10 },
-      ],
-    }
-  ];
-
   useEffect(() => {
+    // Fetch course details
     const fetchCourse = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${id}`);
-        setCourse(response.data.data); // Set the fetched course data
+        setCourse(response.data.data);
+          const tutorId = response.data.data.tutor._id
+          fetchTutor(tutorId);
       } catch (error) {
         console.error("Error fetching course:", error);
       }
     };
 
+    // Fetch reviews for the course
+    const fetchRatingsAndReviews = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/v1/rating/${id}`);
+        setRatingsAndReviews(response.data.data);
+      } catch (error) {
+        console.error("Error fetching ratings and reviews:", error);
+      }
+    };
+
+    // Fetch tutor details
+    const fetchTutor = async (tutorId) => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}`);
+        setTutor(response.data.data);
+        
+      } catch (error) {
+        console.error("Error fetching tutor details:", error);
+      }
+    };
+
     fetchCourse();
+    fetchRatingsAndReviews();
   }, [id]);
 
   if (!course) {
@@ -64,7 +77,6 @@ export default function SubjectDetails() {
     setIsModalOpen(false);
   };
 
-  // Ensure `category` is a string or fallback to "Uncategorized"
   const category =
     typeof course.category === "string"
       ? course.category
@@ -72,7 +84,6 @@ export default function SubjectDetails() {
       ? course.category.name
       : "Uncategorized";
 
-  // Ensure `studentsEnrolled` is an array of strings or use a fallback
   const studentsEnrolled = Array.isArray(course.studentsEnrolled)
     ? course.studentsEnrolled.map((student) => (typeof student === "string" ? student : JSON.stringify(student)))
     : [];
@@ -89,7 +100,7 @@ export default function SubjectDetails() {
 
       <div className="relative">
         <img
-          src={course.thumbnail} // Dynamic thumbnail
+          src={course.thumbnail}
           alt={`${course.courseName} thumbnail`}
           className="w-full h-96 object-cover rounded-lg shadow-lg"
         />
@@ -99,7 +110,6 @@ export default function SubjectDetails() {
       </div>
 
       <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-        {/* Existing course sections */}
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Description</h2>
           <p className="text-gray-600">{course.courseDescription}</p>
@@ -114,34 +124,37 @@ export default function SubjectDetails() {
           </ul>
         </section>
 
-
-        {/* Tutor Section */}
-        <section className="mb-8">
+                {/* Tutor Section */}
+                <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {tutors.map((tutor, index) => (
-              <div
-                key={index}
-                className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition"
-              >
-                <h3 className="text-xl font-bold text-gray-700">{tutor.name}</h3>
-                <p className="text-gray-600"><strong>Email:</strong> {tutor.email}</p>
-                <p className="text-gray-600"><strong>Rating:</strong> {tutor.rating}/5</p>
-                <p className="text-gray-600">
-                  <strong>Classes Conducted:</strong> {tutor.classesConducted}
-                </p>
-                <p className="text-gray-600"><strong>Available Classes:</strong></p>
-                <ul className="list-disc list-inside text-gray-600">
-                  {tutor.availableClasses.map((cls) => (
-                    <li key={cls.id}>
-                      {cls.type} - {cls.currentStudents}/{cls.maxStudents} students
-                    </li>
-                  ))}
-                </ul>
+          {tutor ? (
+            <div className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition">
+              <h3 className="text-xl font-bold text-gray-700">
+                {tutor.firstName} {tutor.lastName}
+              </h3>
+              <p className="text-gray-600"><strong>Email:</strong> {tutor.email}</p>
+              <h2 className="text-2xl font-semibold text-blue-700 mb-4">Ratings and Reviews</h2>
+              <div className="space-y-6">
+                {ratingsAndReviews.map((review, index) => (
+                  <div key={index} className="bg-gray-100 p-4 rounded-lg shadow ">
+                    <h3 className="text-xl font-bold text-gray-700">
+                      {review.user.firstName} {review.user.lastName}
+                    </h3>
+                    <p className="text-gray-600"><strong>Rating:</strong> {review.rating}</p>
+                    <p className="text-gray-600"><strong>Review:</strong> {review.review}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          
+          ) : (
+            <p className="text-gray-600">No tutor assigned to this course.</p>
+          )}
         </section>
+
+
+
+
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Enrolled Students</h2>
@@ -194,27 +207,6 @@ export default function SubjectDetails() {
                 </div>
               </div>
 
-              {selectedClassType === "group" && (
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Available Group Classes</label>
-                  <select
-                    value={selectedClassId}
-                    onChange={(e) => setSelectedClassId(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-2"
-                  >
-                    <option value="">Select a group class</option>
-                    {tutors.flatMap((tutor) =>
-                      tutor.availableClasses.map((cls) => (
-                        <option key={cls.id} value={cls.id}>
-                          {tutor.name}'s {cls.type} - {cls.currentStudents}/{cls.maxStudents} slots
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-              )}
-
-              {/* Suggestions */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Suggestions</label>
                 <textarea
