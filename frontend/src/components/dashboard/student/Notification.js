@@ -1,34 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../Sidebar";
+import axios from "axios";
 
-export default function Notification() {
-  // Sample notifications data
-  const notifications = [
-    {
-      id: 1,
-      courseName: "C++ Programming",
-      tutorName: "John Doe",
-      email: "john.doe@example.com",
-      scheduledTime: "10:30 AM",
-      scheduledDate: "2025-01-10",
-    },
-    {
-      id: 2,
-      courseName: "Java OOP Concepts",
-      tutorName: "Jane Smith",
-      email: "jane.smith@example.com",
-      scheduledTime: "2:00 PM",
-      scheduledDate: "2025-01-12",
-    },
-    {
-      id: 3,
-      courseName: "HTML Basics",
-      tutorName: "David Brown",
-      email: "david.brown@example.com",
-      scheduledTime: "4:15 PM",
-      scheduledDate: "2025-01-15",
-    },
-  ];
+export default function TNotification() {
+  // State to hold the fetched notifications
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch notifications from the API
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Get token from local storage
+        if (!token) {
+          setError("Unauthorized: No token found.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(
+          "http://localhost:4000/api/v1/notifications/",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Include token in request header
+            },
+          }
+        );
+        setNotifications(response.data.notifications); // Adjust based on API response structure
+      } catch (err) {
+        setError("Failed to fetch notifications. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -41,31 +49,45 @@ export default function Notification() {
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Notifications</h1>
 
-        {/* Notifications Section */}
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
-            >
-              <h2 className="text-lg font-semibold text-gray-800">
-                {notification.courseName}
-              </h2>
-              <p className="text-gray-600">
-                <strong>Tutor:</strong> {notification.tutorName}
-              </p>
-              <p className="text-gray-600">
-                <strong>Email:</strong> {notification.email}
-              </p>
-              <p className="text-gray-600">
-                <strong>Scheduled Time:</strong> {notification.scheduledTime}
-              </p>
-              <p className="text-gray-600">
-                <strong>Scheduled Date:</strong> {notification.scheduledDate}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* Loading and Error States */}
+        {loading ? (
+          <p className="text-gray-600">Loading notifications...</p>
+        ) : error ? (
+          <p className="text-red-600">{error}</p>
+        ) : notifications.length === 0 ? (
+          <p className="text-gray-600">No notifications available.</p>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <div
+                key={notification._id}
+                className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 ${
+                  notification.status === "unread"
+                    ? "border-l-4 border-blue-500"
+                    : "border-l-4 border-gray-300"
+                }`}
+              >
+                <p className="text-gray-800 font-medium">{notification.message}</p>
+                <p className="text-gray-600">
+                  <strong>Status:</strong>{" "}
+                  <span
+                    className={`${
+                      notification.status === "unread"
+                        ? "text-blue-500"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {notification.status}
+                  </span>
+                </p>
+                <p className="text-gray-600">
+                  <strong>Created At:</strong>{" "}
+                  {new Date(notification.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

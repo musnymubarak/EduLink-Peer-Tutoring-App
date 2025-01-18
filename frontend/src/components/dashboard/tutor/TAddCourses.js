@@ -33,9 +33,15 @@ export default function TAddCourses() {
         return;
       }
 
+      // Decode the token payload to get the userId
+      const base64Url = token.split(".")[1]; // Extract the payload part of the JWT
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
+      const payload = JSON.parse(atob(base64)); // Decode Base64 and parse JSON
+      const userId = payload.id; // Extract the userId (adjust if your payload uses a different key)
+
       const response = await axios.post(
         "http://localhost:4000/api/v1/courses/add",
-        formData,
+        { ...formData, tutor: userId },
         {
           headers: {
             Authorization: `Bearer ${token}`, // Add the token to the Authorization header
