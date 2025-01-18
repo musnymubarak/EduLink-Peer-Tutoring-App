@@ -1,5 +1,6 @@
 const Course = require("../models/Course");
 const User = require("../models/User");
+const RatingAndReview = require("../models/RatingAndReview");
 
 // Utility functions
 const findCourseById = async (courseId) => {
@@ -90,5 +91,53 @@ exports.unenrollFromCourse = async (req, res) => {
     } catch (error) {
         console.error("Error unenrolling:", error.message, error.stack);
         return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get Enrolled Courses for a User with Average Rating
+exports.getEnrolledCourses = async (req, res) => {
+    try {
+        const userId = req.user._id; // Assuming `userId` is available from the auth middleware
+
+        // Fetch the courses where the user is enrolled
+        const enrolledCourses = await Course.find({ studentsEnrolled: userId })
+            .populate({
+                path: "tutor",
+                select: "firstName lastName email", // Fetch Tutor's details
+            })
+            .select("courseName courseDescription tutor");
+
+        // Enhance each course with average rating
+        const coursesWithAvgRating = await Promise.all(
+            enrolledCourses.map(async (course) => {
+                // Get all ratings for the course
+                const ratings = await RatingAndReview.find({ course: course._id }).select("rating");
+
+                // Calculate the average rating and round it
+                const totalRatings = ratings.reduce((sum, review) => sum + review.rating, 0);
+                const averageRating = ratings.length > 0 ? Math.round(totalRatings / ratings.length) : 0;
+
+                return {
+                    courseId: course._id,
+                    courseName: course.courseName,
+                    courseDescription: course.courseDescription,
+                    tutor: course.tutor,
+                    averageRating, // Add the calculated average rating
+                };
+            })
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Enrolled courses retrieved successfully.",
+            data: coursesWithAvgRating,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve enrolled courses.",
+            error: error.message,
+        });
     }
 };
