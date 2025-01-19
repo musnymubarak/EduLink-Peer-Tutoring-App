@@ -1,6 +1,7 @@
 const Course = require("../models/Course");
 const User = require("../models/User");
 const RatingAndReview = require("../models/RatingAndReview");
+const mongoose = require("mongoose");
 
 // Utility functions
 const findCourseById = async (courseId) => {
@@ -97,32 +98,40 @@ exports.unenrollFromCourse = async (req, res) => {
 // Get Enrolled Courses for a User with Average Rating
 exports.getEnrolledCourses = async (req, res) => {
     try {
-        const userId = req.user._id; // Assuming `userId` is available from the auth middleware
+        const userId = req.user._id;
 
         // Fetch the courses where the user is enrolled
         const enrolledCourses = await Course.find({ studentsEnrolled: userId })
             .populate({
                 path: "tutor",
-                select: "firstName lastName email", // Fetch Tutor's details
+                select: "firstName lastName email",
             })
             .select("courseName courseDescription tutor");
 
         // Enhance each course with average rating
         const coursesWithAvgRating = await Promise.all(
             enrolledCourses.map(async (course) => {
-                // Get all ratings for the course
-                const ratings = await RatingAndReview.find({ course: course._id }).select("rating");
+                // Use aggregation to calculate average rating
+                const ratingsData = await RatingAndReview.aggregate([
+                    {
+                        $match: { course: new mongoose.Types.ObjectId(course._id) },
+                    },
+                    {
+                        $group: {
+                            _id: "$course",
+                            averageRating: { $avg: "$rating" },
+                        },
+                    },
+                ]);
 
-                // Calculate the average rating and round it
-                const totalRatings = ratings.reduce((sum, review) => sum + review.rating, 0);
-                const averageRating = ratings.length > 0 ? Math.round(totalRatings / ratings.length) : 0;
+                const averageRating = ratingsData.length > 0 ? Math.round(ratingsData[0].averageRating) : 0;
 
                 return {
                     courseId: course._id,
                     courseName: course.courseName,
                     courseDescription: course.courseDescription,
                     tutor: course.tutor,
-                    averageRating, // Add the calculated average rating
+                    averageRating,
                 };
             })
         );

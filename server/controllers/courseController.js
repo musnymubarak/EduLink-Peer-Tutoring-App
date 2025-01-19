@@ -112,7 +112,6 @@ exports.updateCourseById = async (req, res) => {
 
         const { courseId } = req.params; // Get courseId from request parameters
         const {
-            courseName,
             courseDescription,
             availableInstructors,
             whatYouWillLearn,
@@ -126,24 +125,10 @@ exports.updateCourseById = async (req, res) => {
         } = req.body;
 
         // Validate mandatory fields
-        if (!courseName) {
+        if (tag && !category) {
             return res.status(400).json({
                 success: false,
-                message: "Course name is required.",
-            });
-        }
-
-        if (!tag) {
-            return res.status(400).json({
-                success: false,
-                message: "Tag is required.",
-            });
-        }
-
-        if (!category) {
-            return res.status(400).json({
-                success: false,
-                message: "Category is required.",
+                message: "Category is required when tag is provided.",
             });
         }
 
@@ -177,20 +162,19 @@ exports.updateCourseById = async (req, res) => {
 
         // Check if category exists, if not, create a new category
         let categoryObj = await Category.findOne({ name: category });
-        if (!categoryObj) {
+        if (category && !categoryObj) {
             categoryObj = await Category.create({ name: category });
         }
 
         // Update the course with new values or retain existing ones if not provided
-        existingCourse.courseName = courseName;
         existingCourse.courseDescription = courseDescription || existingCourse.courseDescription;
         existingCourse.availableInstructors = availableInstructors || existingCourse.availableInstructors;
         existingCourse.whatYouWillLearn = whatYouWillLearn || existingCourse.whatYouWillLearn;
         existingCourse.courseContent = courseContent || existingCourse.courseContent;
         existingCourse.price = price || existingCourse.price;
         existingCourse.thumbnail = thumbnail || existingCourse.thumbnail;
-        existingCourse.tag = tag;
-        existingCourse.category = categoryObj._id;
+        existingCourse.tag = tag || existingCourse.tag;
+        existingCourse.category = categoryObj ? categoryObj._id : existingCourse.category;
         existingCourse.instructions = instructions || existingCourse.instructions;
         existingCourse.status = status || existingCourse.status;
 
@@ -198,8 +182,14 @@ exports.updateCourseById = async (req, res) => {
         await existingCourse.save();
 
         // If a category is provided, add the course to the category's courses array
-        categoryObj.courses.push(existingCourse._id);
-        await categoryObj.save();
+        if (categoryObj && !existingCourse.category.equals(categoryObj._id)) {
+            const oldCategory = await Category.findById(existingCourse.category);
+            oldCategory.courses.pull(existingCourse._id);
+            await oldCategory.save();
+
+            categoryObj.courses.push(existingCourse._id);
+            await categoryObj.save();
+        }
 
         return res.status(200).json({
             success: true,
