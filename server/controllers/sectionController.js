@@ -85,10 +85,11 @@ exports.getSectionsByCourseId = async (req, res) => {
 };
 
 // Get Sections by Tutor ID
-exports.getSectionsByTutorId = async (req, res) => {
+exports.getSectionsByTutor = async (req, res) => {
     try {
-        const { tutorId } = req.params;
+        const tutorId = req.user._id;  // Get the tutorId from the authenticated user
 
+        // Fetch sections where the tutorId matches the signed-in tutor
         const sections = await Section.find({ tutorId })
             .populate("tutorId", "name email")
             .populate("courseIds", "courseName");
@@ -108,7 +109,7 @@ exports.getSectionsByTutorId = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error occurred while fetching sections by tutor ID.",
+            message: "Error occurred while fetching sections for the tutor.",
             error: error.message,
         });
     }
