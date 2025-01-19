@@ -54,10 +54,21 @@ exports.addSection = async (req, res) => {
     }
 };
 
-// Get All Sections (Accessible to Tutors and Admins)
-exports.getAllSections = async (req, res) => {
+// Get Sections by Course ID
+exports.getSectionsByCourseId = async (req, res) => {
     try {
-        const sections = await Section.find().populate("tutorId", "name email").populate("courseIds", "courseName");
+        const { courseId } = req.params;
+
+        const sections = await Section.find({ courseIds: courseId })
+            .populate("tutorId", "name email")
+            .populate("courseIds", "courseName");
+
+        if (sections.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No sections found for this course.",
+            });
+        }
 
         return res.status(200).json({
             success: true,
@@ -67,35 +78,37 @@ exports.getAllSections = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error occurred while fetching sections.",
+            message: "Error occurred while fetching sections by course ID.",
             error: error.message,
         });
     }
 };
 
-// Get a Section by ID
-exports.getSectionById = async (req, res) => {
+// Get Sections by Tutor ID
+exports.getSectionsByTutorId = async (req, res) => {
     try {
-        const { sectionId } = req.params;
+        const { tutorId } = req.params;
 
-        const section = await Section.findById(sectionId).populate("tutorId", "name email").populate("courseIds", "courseName");
+        const sections = await Section.find({ tutorId })
+            .populate("tutorId", "name email")
+            .populate("courseIds", "courseName");
 
-        if (!section) {
+        if (sections.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: "Section not found.",
+                message: "No sections found for this tutor.",
             });
         }
 
         return res.status(200).json({
             success: true,
-            message: "Section fetched successfully.",
-            data: section,
+            message: "Sections fetched successfully.",
+            data: sections,
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error occurred while fetching the section.",
+            message: "Error occurred while fetching sections by tutor ID.",
             error: error.message,
         });
     }
