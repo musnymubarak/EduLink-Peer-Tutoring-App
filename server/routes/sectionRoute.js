@@ -3,17 +3,18 @@ const router = express.Router();
 const { auth, isTutor } = require("../middlewares/authMiddleware");
 const {
     addSection,
-    getAllSections,
-    getSectionById,
     updateSectionById,
     deleteSectionById,
+    getSectionsByCourseId,  
+    getSectionsByTutorId,   
 } = require("../controllers/sectionController");
 
-// Public: Get All Sections
-router.get("/", getAllSections);
 
-// Public: Get Section by ID
-router.get("/:sectionId", getSectionById);
+// Public: Get Sections by Course ID
+router.get("/course/:courseId", getSectionsByCourseId); 
+
+// Public: Get Sections by Tutor ID
+router.get("/tutor/:tutorId", getSectionsByTutorId); 
 
 // Admin-only: Add Section
 router.post("/add", auth, isTutor, addSection);
