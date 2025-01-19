@@ -33,6 +33,17 @@ const sectionSchema = new mongoose.Schema({
       type: questionSchema, // Embedding the question schema for the quiz
     },
   ],
+  tutorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Reference to the User model (assumed to represent tutors)
+    required: true,
+  },
+  courseIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course", // Reference to the Course model
+    },
+  ],
 });
 
 module.exports = mongoose.model("Section", sectionSchema);
