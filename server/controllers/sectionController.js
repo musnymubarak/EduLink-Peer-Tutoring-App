@@ -1,18 +1,18 @@
 const Section = require("../models/Section");
 
-// Add a New Section
+// Add a New Section (Only Tutor)
 exports.addSection = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can add sections.",
+                message: "Only Tutors can add sections.",
             });
         }
 
         // Extract section details from the request body
-        const { sectionName, videoFile, quiz } = req.body;
+        const { sectionName, videoFile, quiz, courseIds } = req.body;
 
         // Validate mandatory fields
         if (!sectionName || !videoFile) {
@@ -22,12 +22,12 @@ exports.addSection = async (req, res) => {
             });
         }
 
-        // Check if the section name is unique
-        const existingSection = await Section.findOne({ sectionName });
+        // Check if the section name is unique for the tutor
+        const existingSection = await Section.findOne({ sectionName, tutorId: req.user._id });
         if (existingSection) {
             return res.status(400).json({
                 success: false,
-                message: "A section with this name already exists.",
+                message: "A section with this name already exists for this tutor.",
             });
         }
 
@@ -36,6 +36,8 @@ exports.addSection = async (req, res) => {
             sectionName,
             videoFile,
             quiz: quiz || [],
+            tutorId: req.user._id, // Assign the current tutor as the section owner
+            courseIds: courseIds || [], // Associate the section with courses if provided
         });
 
         return res.status(201).json({
@@ -52,10 +54,10 @@ exports.addSection = async (req, res) => {
     }
 };
 
-// Get All Sections
+// Get All Sections (Accessible to Tutors and Admins)
 exports.getAllSections = async (req, res) => {
     try {
-        const sections = await Section.find();
+        const sections = await Section.find().populate("tutorId", "name email").populate("courseIds", "courseName");
 
         return res.status(200).json({
             success: true,
@@ -76,7 +78,7 @@ exports.getSectionById = async (req, res) => {
     try {
         const { sectionId } = req.params;
 
-        const section = await Section.findById(sectionId);
+        const section = await Section.findById(sectionId).populate("tutorId", "name email").populate("courseIds", "courseName");
 
         if (!section) {
             return res.status(404).json({
@@ -99,33 +101,32 @@ exports.getSectionById = async (req, res) => {
     }
 };
 
-// Update a Section by ID (Only Admin)
+// Update a Section by ID (Only Tutor who owns the section)
 exports.updateSectionById = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can update sections.",
+                message: "Only Tutors can update sections.",
             });
         }
 
         const { sectionId } = req.params;
         const updatedData = req.body;
 
-        // Find and update the section
-        const updatedSection = await Section.findByIdAndUpdate(
-            sectionId,
-            updatedData,
-            { new: true }
-        );
+        // Find the section and ensure the tutor owns it
+        const section = await Section.findOne({ _id: sectionId, tutorId: req.user._id });
 
-        if (!updatedSection) {
+        if (!section) {
             return res.status(404).json({
                 success: false,
-                message: "Section not found.",
+                message: "Section not found or you do not have permission to update it.",
             });
         }
+
+        // Update the section
+        const updatedSection = await Section.findByIdAndUpdate(sectionId, updatedData, { new: true });
 
         return res.status(200).json({
             success: true,
@@ -141,28 +142,31 @@ exports.updateSectionById = async (req, res) => {
     }
 };
 
-// Delete a Section by ID (Only Admin)
+// Delete a Section by ID (Only Tutor who owns the section)
 exports.deleteSectionById = async (req, res) => {
     try {
-        // Verify that the user is an Admin
-        if (req.user.accountType !== "Admin") {
+        // Verify that the user is a Tutor
+        if (req.user.accountType !== "Tutor") {
             return res.status(401).json({
                 success: false,
-                message: "Only Admins can delete sections.",
+                message: "Only Tutors can delete sections.",
             });
         }
 
         const { sectionId } = req.params;
 
-        // Find and delete the section
-        const deletedSection = await Section.findByIdAndDelete(sectionId);
+        // Find the section and ensure the tutor owns it
+        const section = await Section.findOne({ _id: sectionId, tutorId: req.user._id });
 
-        if (!deletedSection) {
+        if (!section) {
             return res.status(404).json({
                 success: false,
-                message: "Section not found.",
+                message: "Section not found or you do not have permission to delete it.",
             });
         }
+
+        // Delete the section
+        await Section.findByIdAndDelete(sectionId);
 
         return res.status(200).json({
             success: true,
