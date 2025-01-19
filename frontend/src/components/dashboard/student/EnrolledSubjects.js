@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([]);
@@ -13,6 +14,8 @@ export default function EnrolledSubjects() {
     rating: "",
     feedback: "",
   });
+
+  const navigate = useNavigate(); // Initialize navigate hook
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
@@ -66,6 +69,10 @@ export default function EnrolledSubjects() {
   const handleCloseModal = () => {
     setModal({ isOpen: false, categoryIndex: null, subjectIndex: null });
     setForm({ rating: "", feedback: "" });
+  };
+
+  const handleNavigateToCourse = (courseId) => {
+    navigate(`/dashboard/student/subject/${courseId}`); // Redirect to the course page
   };
 
   const handleSubmit = async (e) => {
@@ -147,8 +154,9 @@ export default function EnrolledSubjects() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {category.subjects.map((subject, subjectIndex) => (
                     <div
-                      className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
+                      className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 cursor-pointer"
                       key={subject.id}
+                      onClick={() => handleNavigateToCourse(subject.id)} // Add click handler
                     >
                       <h3 className="text-lg font-semibold text-gray-800">
                         {subject.title}
@@ -156,9 +164,6 @@ export default function EnrolledSubjects() {
                       <p className="text-gray-600">{subject.description}</p>
                       <p className="text-gray-500 text-sm">
                         <strong>By:</strong> {subject.author}
-                      </p>
-                      <p className="text-gray-500 text-sm">
-                        <strong>Likes:</strong> {subject.likes}
                       </p>
                       <p className="text-yellow-500">
                         <strong>Rating:</strong>{" "}
@@ -182,7 +187,10 @@ export default function EnrolledSubjects() {
 
                       <button
                         className="mt-4 bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
-                        onClick={() => handleOpenModal(categoryIndex, subjectIndex)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent click bubbling to parent
+                          handleOpenModal(categoryIndex, subjectIndex);
+                        }}
                       >
                         Rate
                       </button>
@@ -194,65 +202,6 @@ export default function EnrolledSubjects() {
           )}
         </div>
       </div>
-
-      {modal.isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-96 p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Provide Feedback
-            </h3>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="rating" className="block text-sm text-gray-600">
-                  Rating (1-5):
-                </label>
-                <input
-                  type="number"
-                  name="rating"
-                  id="rating"
-                  min="1"
-                  max="5"
-                  value={form.rating}
-                  onChange={(e) => setForm({ ...form, rating: e.target.value })}
-                  required
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="feedback" className="block text-sm text-gray-600">
-                  Feedback:
-                </label>
-                <textarea
-                  name="feedback"
-                  id="feedback"
-                  rows="3"
-                  value={form.feedback}
-                  onChange={(e) =>
-                    setForm({ ...form, feedback: e.target.value })
-                  }
-                  required
-                  className="w-full border border-gray-300 rounded p-2"
-                ></textarea>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="bg-gray-500 text-white rounded px-4 py-2 mr-2"
-                  onClick={handleCloseModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white rounded px-4 py-2"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
