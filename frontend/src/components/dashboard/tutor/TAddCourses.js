@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Sidebar from "../Sidebar";
 
 export default function TAddCourses() {
@@ -14,6 +15,7 @@ export default function TAddCourses() {
     status: "Draft",
   });
   const [message, setMessage] = useState(null);
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +71,11 @@ export default function TAddCourses() {
     }
   };
 
+  const handleRedirect = () => {
+    // Redirect to the AddSection page
+    navigate("/dashboard/tutor/add-section"); // Adjust the route if necessary
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -83,9 +90,8 @@ export default function TAddCourses() {
         {/* Feedback Message */}
         {message && (
           <div
-            className={`p-4 mb-4 rounded ${
-              message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-            }`}
+            className={`p-4 mb-4 rounded ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              }`}
           >
             {message.text}
           </div>
@@ -177,6 +183,13 @@ export default function TAddCourses() {
             />
           </div>
 
+          <button
+            onClick={handleRedirect}
+            className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Add Sections
+          </button>
+
           {/* Status */}
           <div>
             <label className="block text-gray-700 font-bold mb-2">Status</label>
@@ -199,6 +212,9 @@ export default function TAddCourses() {
             Create Course
           </button>
         </form>
+
+
+
       </div>
     </div>
   );
