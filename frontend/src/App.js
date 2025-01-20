@@ -41,6 +41,7 @@ import ExploreSingleCourse from './components/ExploreSingleCourse';
 import TAddCourses from './components/dashboard/tutor/TAddCourses';
 import Notification from './components/dashboard/student/Notification';
 import TAddSection from './components/dashboard/tutor/TAddSection';
+import TAddNewSection from './components/dashboard/tutor/TAddNewSection';
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
         <Route path='/dashboard/tutor/add-course' element={<TAddCourses/>}/>
         <Route path='/dashboard/tutor/noti' element={<Notification/>}/>
         <Route path="/dashboard/tutor/add-section" element={<TAddSection />} />
+        <Route path="/dashboard/tutor/add-new-section" element={<TAddNewSection />} />
 
         {/* admin */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />

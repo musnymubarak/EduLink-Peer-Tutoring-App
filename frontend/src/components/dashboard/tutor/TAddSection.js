@@ -47,7 +47,7 @@ export default function TAddSection() {
   }, []);
 
   const handleAddSectionClick = () => {
-    navigate("/add-section"); // Redirect to the add-section page
+    navigate("/dashboard/tutor/add-new-section"); // Redirect to the add-section page
   };
 
   return (
