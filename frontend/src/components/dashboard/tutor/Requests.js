@@ -4,6 +4,8 @@ import Sidebar from "../Sidebar";
 
 export default function Requests() {
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]); // State for filtered requests
+  const [searchQuery, setSearchQuery] = useState(""); // State for search input
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [zoomLink, setZoomLink] = useState("");
@@ -19,16 +21,33 @@ export default function Requests() {
             Authorization: `Bearer ${token}`, // Pass token in Authorization header
           },
         });
-        const data = response.data.classRequests.map((req) => ({
-          id: req._id,
-          student: req.student.email,
-          topic: req.course._id,
-          date: new Date(req.time).toLocaleDateString(),
-          time: new Date(req.time).toLocaleTimeString(),
-          status: req.status,
-          isNew: req.status === "Pending",
-        }));
-        setRequests(data);
+
+        const requestsWithCourses = await Promise.all(
+          response.data.classRequests.map(async (req) => {
+            // Fetch course name for each course ID
+            const courseResponse = await axios.get(
+              `http://localhost:4000/api/v1/courses/${req.course._id}`, // Assuming course._id is available
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const courseName = courseResponse.data.data.courseName || "Unknown Course";
+            return {
+              id: req._id,
+              student: req.student.email,
+              topic: courseName,
+              date: new Date(req.time).toLocaleDateString(),
+              time: new Date(req.time).toLocaleTimeString(),
+              status: req.status,
+              isNew: req.status === "Pending",
+            };
+          })
+        );
+
+        setRequests(requestsWithCourses);
+        setFilteredRequests(requestsWithCourses); // Set initial filtered requests
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch class requests. Please try again.");
@@ -38,6 +57,20 @@ export default function Requests() {
 
     fetchRequests();
   }, []);
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter requests based on student email or topic
+    setFilteredRequests(
+      requests.filter(
+        (req) =>
+          req.student.toLowerCase().includes(query) ||
+          req.topic.toLowerCase().includes(query)
+      )
+    );
+  };
 
   const handleAction = async (id, action) => {
     try {
@@ -52,6 +85,11 @@ export default function Requests() {
         }
       );
       setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === id ? { ...req, status: action, isNew: false } : req
+        )
+      );
+      setFilteredRequests((prevRequests) =>
         prevRequests.map((req) =>
           req.id === id ? { ...req, status: action, isNew: false } : req
         )
@@ -75,10 +113,21 @@ export default function Requests() {
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Requests</h1>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search by student or topic..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+          />
+        </div>
+
         <div className="bg-white rounded-lg shadow p-6">
-          {requests.length > 0 ? (
+          {filteredRequests.length > 0 ? (
             <ul className="space-y-4">
-              {requests.map((request) => (
+              {filteredRequests.map((request) => (
                 <li
                   key={request.id}
                   className={`flex items-center justify-between border-b pb-2 ${
@@ -145,7 +194,6 @@ export default function Requests() {
           )}
         </div>
       </div>
-
       {/* View Request Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
