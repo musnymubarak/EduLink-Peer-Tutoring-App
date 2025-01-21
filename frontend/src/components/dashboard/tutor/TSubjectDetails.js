@@ -20,6 +20,11 @@ export default function TSubjectDetails() {
 
     fetchCourse();
   }, [id]);
+  
+  const handleRedirect = () => {
+    // Redirect to the AddSection page
+    navigate("/dashboard/tutor/add-section"); // Adjust the route if necessary
+  };
 
   if (!course) {
     return <div className="p-8 text-center text-xl text-gray-700">Loading course details...</div>;
@@ -38,75 +43,75 @@ export default function TSubjectDetails() {
 
       <div className="relative">
         <img
-          src={course.thumbnail} // Dynamic thumbnail
-          alt={`${course.courseName} thumbnail`}
+          src={course.thumbnail || "https://via.placeholder.com/150"}
+          alt={`${course.courseName || "Course"} thumbnail`}
           className="w-full h-96 object-cover rounded-lg shadow-lg"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-4">
-          <h1 className="text-4xl font-bold text-white">{course.courseName}</h1>
+          <h1 className="text-4xl font-bold text-white">{course.courseName || "Untitled Course"}</h1>
         </div>
       </div>
 
       <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-      <section className="mb-8">
+        <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Description</h2>
-          <p className="text-gray-600">{course.courseDescription}</p>
+          <p className="text-gray-600">{course.courseDescription || "No description available."}</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Category</h2>
+          <p className="text-gray-600">
+            {course.category?.name || "No category assigned."}
+          </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">What You Will Learn</h2>
-          <p className="text-gray-600">{course.whatYouWillLearn}</p>
+          <p className="text-gray-600">{course.whatYouWillLearn || "No details provided."}</p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Instructions</h2>
           <ul className="list-disc list-inside text-gray-600">
-            {course.instructions.map((instruction, index) => (
-              <li key={index}>{instruction}</li>
-            ))}
+            {course.instructions?.length > 0 ? (
+              course.instructions.map((instruction, index) => <li key={index}>{instruction}</li>)
+            ) : (
+              <li>No instructions available.</li>
+            )}
           </ul>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tags</h2>
           <div className="flex flex-wrap gap-2">
-            {course.tag.map((tag, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
-              >
-                {tag}
-              </span>
-            ))}
+            {course.tag?.length > 0 ? (
+              course.tag.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-600">No tags available.</span>
+            )}
           </div>
         </section>
-
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Additional Details</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            <li><strong>Status:</strong> {course.status}</li>
-            <li><strong>Category ID:</strong> {course.category}</li>
-            <li><strong>Created At:</strong> {new Date(course.createdAt).toLocaleString()}</li>
-          </ul>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Number of students enrolled: 
+            <span className="text-gray-600">{course.studentsEnrolled?.length > 0
+                ? ` ${course.studentsEnrolled.length}`
+                : "No students enrolled."}
+            </span>
+          </h2>
         </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor </h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {course.availableInstructors.map((instructor, index) => (
-              <li key={index}>{instructor}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Enrolled Students</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {course.studentsEnrolled.map((student, index) => (
-              <li key={index}>{student}</li>
-            ))}
-          </ul>
-        </section>
+        <button
+            onClick={handleRedirect}
+            className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Add Sections
+          </button>
       </div>
     </div>
   );
