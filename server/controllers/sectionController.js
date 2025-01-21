@@ -1,4 +1,5 @@
 const Section = require("../models/Section");
+const cloudinary = require("../config/cloudinaryConfig");
 
 // Add a New Section (Only Tutor)
 exports.addSection = async (req, res) => {
