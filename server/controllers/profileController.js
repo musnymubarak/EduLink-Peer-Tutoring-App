@@ -224,5 +224,37 @@ const changeTutorPassword = async (req, res) => {
   }
 };
 
+const updateProfileImage = async (req, res) => {
+  try {
+    // Extract user ID from the authenticated request
+    const userId = req.user.id; // Assuming req.user is set after authentication
 
-module.exports = { getStudentProfile, updateStudentProfile, changePassword, getTutorProfile,updateTutorProfile,changeTutorPassword };
+    // Extract the new image URL from the request body
+    const { image } = req.body;
+
+    // Validate input
+    if (!image) {
+      return res.status(400).json({ message: "Image URL is required" });
+    }
+
+    // Find and update the user's image
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.image = image;
+    await user.save();
+
+    // Respond with the updated image
+    res.status(200).json({
+      message: "Profile image updated successfully",
+      image: user.image,
+    });
+  } catch (error) {
+    console.error("Error updating profile image:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { getStudentProfile, updateStudentProfile, changePassword, getTutorProfile,updateTutorProfile,changeTutorPassword,updateProfileImage };
