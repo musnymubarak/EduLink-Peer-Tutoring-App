@@ -5,6 +5,7 @@ import Sidebar from "../Sidebar";
 
 export default function Subject() {
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // Search query state
 
   useEffect(() => {
     // Fetch courses from the backend
@@ -51,6 +52,19 @@ export default function Subject() {
 
     fetchCourses();
   }, []);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filterSubjects = (subjects) =>
+    subjects.filter(
+      (subject) =>
+        subject.title.toLowerCase().includes(searchQuery) ||
+        subject.description.toLowerCase().includes(searchQuery) ||
+        subject.tags.some((tag) => tag.toLowerCase().includes(searchQuery))
+    );
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -61,6 +75,18 @@ export default function Subject() {
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Courses</h1>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search for a subject by title, description, or tags..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+          />
+        </div>
+
         <div className="space-y-8">
           {categories.map((category, index) => (
             <div key={index}>
@@ -71,7 +97,10 @@ export default function Subject() {
   
               {/* Courses */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.subjects.map((subject, i) => (
+                {category.subjects.map((subject, i) =>  {
+                const filteredSubjects = filterSubjects(category.subjects);
+                return (
+                  filteredSubjects.length > 0 && (
                   <Link
                     to={`/dashboard/student/subject/${subject.id}`}
                     key={i}
@@ -104,7 +133,9 @@ export default function Subject() {
                       />
                     )}
                   </Link>
-                ))}
+                )
+                );
+                })}
               </div>
             </div>
           ))}

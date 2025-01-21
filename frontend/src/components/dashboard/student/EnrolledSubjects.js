@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // Added search state
   const [modal, setModal] = useState({
     isOpen: false,
     categoryIndex: null,
@@ -38,7 +39,6 @@ export default function EnrolledSubjects() {
         if (response.data.success) {
           const mappedCategories = [
             {
-              title: "Enrolled Courses",
               subjects: response.data.data.map((course) => ({
                 id: course.courseId,
                 title: course.courseName,
@@ -61,6 +61,10 @@ export default function EnrolledSubjects() {
 
     fetchEnrolledCourses();
   }, []);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
 
   const handleOpenModal = (categoryIndex, subjectIndex) => {
     setModal({ isOpen: true, categoryIndex, subjectIndex });
@@ -141,6 +145,17 @@ export default function EnrolledSubjects() {
 
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Enrolled Courses</h1>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search for a course by title, description, or author..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+          />
+        </div>
 
         <div className="space-y-8">
           {categories.length === 0 ? (
