@@ -3,7 +3,7 @@ import axios from "axios";
 
 const TAddNewSection = () => {
   const [sectionName, setSectionName] = useState("");
-  const [videoFile, setVideoFile] = useState("");
+  const [videoURL, setVideoURL] = useState("");
   const [quiz, setQuiz] = useState([
     {
       questionText: "",
@@ -18,21 +18,18 @@ const TAddNewSection = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Handle changes in question text
   const handleQuizChange = (index, field, value) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[index][field] = value;
     setQuiz(updatedQuiz);
   };
 
-  // Handle changes in option text
   const handleOptionChange = (quizIndex, optionIndex, field, value) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[quizIndex].options[optionIndex][field] = value;
     setQuiz(updatedQuiz);
   };
 
-  // Handle change in isCorrect flag for options
   const handleCorrectOptionChange = (quizIndex, optionIndex) => {
     const updatedQuiz = [...quiz];
     const selectedOption = updatedQuiz[quizIndex].options[optionIndex];
@@ -40,7 +37,6 @@ const TAddNewSection = () => {
     setQuiz(updatedQuiz);
   };
 
-  // Add a new question
   const addQuestion = () => {
     setQuiz([
       ...quiz,
@@ -56,33 +52,32 @@ const TAddNewSection = () => {
     ]);
   };
 
-  // Remove a question
   const removeQuestion = (index) => {
     const updatedQuiz = quiz.filter((_, i) => i !== index);
     setQuiz(updatedQuiz);
   };
 
-  // Add an option to a question
   const addOption = (quizIndex) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[quizIndex].options.push({ optionText: "", isCorrect: false });
     setQuiz(updatedQuiz);
   };
 
-  // Remove an option from a question
   const removeOption = (quizIndex, optionIndex) => {
     const updatedQuiz = [...quiz];
     updatedQuiz[quizIndex].options = updatedQuiz[quizIndex].options.filter((_, i) => i !== optionIndex);
     setQuiz(updatedQuiz);
   };
 
-  // Form submission handler
+  const handleVideoURLChange = (e) => {
+    setVideoURL(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    // Validate that each question has at least one correct option
     const isValid = quiz.every((question) =>
       question.options.some((option) => option.isCorrect)
     );
@@ -94,20 +89,23 @@ const TAddNewSection = () => {
     }
 
     try {
-      const sectionData = { sectionName, videoFile, quiz };
+      const formData = {
+        sectionName,
+        videoFile: videoURL,
+        quiz,
+      };
 
       const response = await axios.post(
         "http://localhost:4000/api/v1/sections/add",
-        sectionData,
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
 
-      setMessage(response.data.message); // Show success message
+      setMessage(response.data.message);
     } catch (error) {
       setMessage(error.response?.data?.message || "An error occurred.");
     } finally {
@@ -142,14 +140,14 @@ const TAddNewSection = () => {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="videoFile" className="text-gray-600 text-sm mb-1">
+                <label htmlFor="videoURL" className="text-gray-600 text-sm mb-1">
                   Video URL (Required)
                 </label>
                 <input
                   type="url"
-                  id="videoFile"
-                  value={videoFile}
-                  onChange={(e) => setVideoFile(e.target.value)}
+                  id="videoURL"
+                  value={videoURL}
+                  onChange={handleVideoURLChange}
                   placeholder="Enter video URL"
                   className="border border-gray-300 rounded-lg p-2"
                   required
