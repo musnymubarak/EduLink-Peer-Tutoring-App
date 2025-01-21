@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const TAddNewSection = () => {
   const [sectionName, setSectionName] = useState("");
-  const [videoURL, setVideoURL] = useState("");
+  const [videoFile, setVideoFile] = useState(null);
+  const navigate = useNavigate();
   const [quiz, setQuiz] = useState([
     {
       questionText: "",
@@ -69,8 +72,32 @@ const TAddNewSection = () => {
     setQuiz(updatedQuiz);
   };
 
-  const handleVideoURLChange = (e) => {
-    setVideoURL(e.target.value);
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLoading(true);
+      setMessage("");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "edulink_uploads");
+      formData.append("cloud_name", "dhgyagjqw");
+      formData.append("folder", "videos");
+
+      try {
+        const response = await axios.post(
+          "https://api.cloudinary.com/v1_1/dhgyagjqw/video/upload",
+          formData
+        );
+        setVideoFile(response.data.secure_url); // Set the video URL from Cloudinary
+        setMessage("Video uploaded successfully!");
+      } catch (error) {
+        setMessage("Failed to upload video. Please try again.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +118,7 @@ const TAddNewSection = () => {
     try {
       const formData = {
         sectionName,
-        videoFile: videoURL,
+        videoFile, // Use the uploaded video URL
         quiz,
       };
 
@@ -118,6 +145,14 @@ const TAddNewSection = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-4">
           <div className="container mx-auto max-w-7xl">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
+            >
+              <IoArrowBack className="mr-2 text-2xl" />
+              Back
+            </button>
             <div className="mb-6">
               <h1 className="text-2xl font-semibold">Add New Section</h1>
               <p className="text-sm text-gray-600">Fill in the form below to add a new section.</p>
@@ -140,18 +175,20 @@ const TAddNewSection = () => {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="videoURL" className="text-gray-600 text-sm mb-1">
-                  Video URL (Required)
+                <label htmlFor="videoFile" className="text-gray-600 text-sm mb-1">
+                  Upload Video File
                 </label>
                 <input
-                  type="url"
-                  id="videoURL"
-                  value={videoURL}
-                  onChange={handleVideoURLChange}
-                  placeholder="Enter video URL"
+                  type="file"
+                  id="videoFile"
+                  accept="video/*"
+                  onChange={handleVideoUpload}
                   className="border border-gray-300 rounded-lg p-2"
                   required
                 />
+                {videoFile && (
+                  <p className="text-sm text-green-600">Video uploaded successfully!</p>
+                )}
               </div>
 
               {quiz.map((question, quizIndex) => (
@@ -226,7 +263,7 @@ const TAddNewSection = () => {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !videoFile}
                 className="w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600"
               >
                 {loading ? "Adding Section..." : "Add Section"}

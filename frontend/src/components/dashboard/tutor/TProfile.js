@@ -96,7 +96,7 @@ const [loading, setLoading] = useState(false); // Loading state
 
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "profile_pictures");
+    data.append("upload_preset", "edulink_uploads");
     data.append("cloud_name", "dhgyagjqw");
     data.append("folder", "profile_pictures_tutor"); // Specify the folder in Cloudinary
 
