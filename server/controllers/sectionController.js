@@ -195,3 +195,37 @@ exports.deleteSectionById = async (req, res) => {
         });
     }
 };
+
+// Get a Section by ID
+exports.getSectionById = async (req, res) => {
+    try {
+        const { sectionId } = req.params;
+
+        // Find the section by ID
+        const section = await Section.findById(sectionId)
+            .populate("tutorId", "name email") // Populate tutor details
+            .populate("courseIds", "courseName"); // Populate associated course details
+
+        // If section not found
+        if (!section) {
+            return res.status(404).json({
+                success: false,
+                message: "Section not found.",
+            });
+        }
+
+        // Return the section details
+        return res.status(200).json({
+            success: true,
+            message: "Section fetched successfully.",
+            data: section,
+        });
+    } catch (error) {
+        // Handle errors
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching the section.",
+            error: error.message,
+        });
+    }
+};

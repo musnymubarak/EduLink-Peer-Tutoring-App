@@ -8,25 +8,28 @@ const {
     deleteSectionById,
     getSectionsByCourseId,  
     getSectionsByTutor,
-    uploadVideoToCloudinary   
+    uploadVideoToCloudinary,
+    getSectionById   
 } = require("../controllers/sectionController");
 
 // Public: Get Sections by Course ID
 router.get("/course/:courseId", getSectionsByCourseId); 
 
 // Public: Get Sections by Tutor ID
-router.get("/tutor", auth, getSectionsByTutor); 
+router.get("/tutor", auth, getSectionsByTutor);
 
-// Admin-only: Add Section
+router.get("/:sectionId", getSectionById); 
+
+// Add Section
 router.post("/add", auth, isTutor, addSection);
 
-// Admin-only: Update Section by ID
+//Update Section by ID
 router.put("/:sectionId", auth, isTutor, updateSectionById);
 
-// Admin-only: Delete Section by ID
+// Delete Section by ID
 router.delete("/:sectionId", auth, isTutor, deleteSectionById);
 
-// Admin-only: Upload Video to Cloudinary
+// Upload Video to Cloudinary
 router.post("/upload-video", auth, isTutor, upload.single("video"), async (req, res) => {
     try {
       if (!req.file) {
