@@ -8,11 +8,10 @@ export default function TAddSection() {
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch sections for the current user
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+        const token = localStorage.getItem("token");
         if (!token) {
           setMessage({
             type: "error",
@@ -21,22 +20,19 @@ export default function TAddSection() {
           return;
         }
 
-        // Fetch sections from the API
         const response = await axios.get(
           "http://localhost:4000/api/v1/sections/tutor",
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Corrected the syntax
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
         if (response.status === 200) {
-          console.log("Fetched sections:", response.data.data); // Debugging the response
-          setSections(response.data.data); // Access sections from `data` key
+          setSections(response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching sections:", error);
         const errorMessage =
           error.response?.data?.message || "An error occurred.";
         setMessage({ type: "error", text: errorMessage });
@@ -47,7 +43,11 @@ export default function TAddSection() {
   }, []);
 
   const handleAddSectionClick = () => {
-    navigate("/dashboard/tutor/add-new-section"); // Redirect to the add-section page
+    navigate("/dashboard/tutor/add-new-section");
+  };
+
+  const handleViewSectionClick = (sectionId) => {
+    navigate(`/dashboard/tutor/section/${sectionId}`);
   };
 
   return (
@@ -89,6 +89,12 @@ export default function TAddSection() {
                 <p className="text-sm text-gray-500">
                   Status: {section.status || "N/A"}
                 </p>
+                <button
+                  onClick={() => handleViewSectionClick(section._id)}
+                  className="px-4 py-2 mt-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  View
+                </button>
               </div>
             ))
           ) : (
