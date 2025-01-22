@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 export default function TAddSection() {
   const [sections, setSections] = useState([]);
   const [message, setMessage] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null); // To store fetched section details
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,12 +43,41 @@ export default function TAddSection() {
     fetchSections();
   }, []);
 
-  const handleAddSectionClick = () => {
-    navigate("/dashboard/tutor/add-new-section");
+  const handleViewSectionClick = async (sectionId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setMessage({
+          type: "error",
+          text: "Authentication token is missing. Please log in.",
+        });
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/sections/${sectionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setSelectedSection(response.data.data);
+        navigate(`/dashboard/tutor/section/${sectionId}`, {
+          state: { section: response.data.data }, // Pass section data through navigation
+        });
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch section details.";
+      setMessage({ type: "error", text: errorMessage });
+    }
   };
 
-  const handleViewSectionClick = (sectionId) => {
-    navigate(`/dashboard/tutor/section/${sectionId}`);
+  const handleAddSectionClick = () => {
+    navigate("/dashboard/tutor/add-new-section");
   };
 
   return (
