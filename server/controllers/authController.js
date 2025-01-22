@@ -7,9 +7,9 @@ const path = require('path');
 // Controller for user signup
 exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, accountType } = req.body;
+    const { firstName, lastName, email, password, accountType,resumePath } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !accountType) {
+    if (!firstName || !lastName || !email || !password || !accountType || !resumePath ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -31,15 +31,6 @@ exports.signup = async (req, res) => {
       });
     }
 
-    let resumePath;
-    if (accountType === "Tutor" && req.files && req.files.resume) {
-      const file = req.files.resume;
-      const uniqueFileName = `${Date.now()}_${file.name}`;
-      const uploadPath = path.join(__dirname, "../uploads/cvs", uniqueFileName); // Unique file name
-      await file.mv(uploadPath);
-      resumePath = `/uploads/cvs/${uniqueFileName}`;
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -48,13 +39,13 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       accountType,
-      resumePath,
+      resumePath
     });
 
     return res.status(201).json({
       success: true,
       message: `${accountType} account registered successfully`,
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, accountType: user.accountType },
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, accountType: user.accountType,resumePath: user.resumePath },
     });
   } catch (error) {
     console.error("Error during signup:", error);
