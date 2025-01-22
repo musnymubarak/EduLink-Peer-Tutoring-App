@@ -26,7 +26,7 @@ export default function SignUp() {
     email: "",
     password: "",
     confirmPassword: "",
-    resume: null,
+    resumePath: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -43,6 +43,55 @@ export default function SignUp() {
     }));
   };
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setError("Please select a file to upload.");
+      return;
+    }
+
+    // Ensure the selected file is a PDF
+    if (file.type !== "application/pdf") {
+      setError("Only PDF files are allowed.");
+      return;
+    }
+
+    setError(null); // Clear previous errors
+    setLoading(true);
+
+    try {
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "edulink_uploads"); // Cloudinary-specific upload preset
+      formData.append("cloud_name", "dhgyagjqw"); // Cloudinary cloud name
+      formData.append("folder", "tutor_resumes"); // Folder for uploaded resumes
+
+      // Upload file to Cloudinary
+      const res = await fetch("https://api.cloudinary.com/v1_1/dhgyagjqw/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadedFile = await res.json();
+      console.log(uploadedFile)
+      if (uploadedFile.url) {
+        // Update formData with the uploaded file URL
+        setFormData((prev) => ({
+          ...prev,
+          resumePath: uploadedFile.url,
+        }));
+      } else {
+        throw new Error("Failed to upload the file. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setError(error.message || "An error occurred during the file upload.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -54,7 +103,7 @@ export default function SignUp() {
       setError("Passwords do not match.");
       return;
     }
-    if (field === "Tutor" && !formData.resume) {
+    if (field === "Tutor" && !formData.resumePath) {
       setError("Resume is required for Tutor accounts.");
       return;
     }
@@ -65,8 +114,8 @@ export default function SignUp() {
     payload.append("email", formData.email);
     payload.append("password", formData.password);
     payload.append("accountType", field);
-    if (formData.resume && field === "Tutor") {
-      payload.append("resume", formData.resume);
+    if (formData.resumePath && field === "Tutor") {
+      payload.append("resumePath", formData.resumePath);
     }
 
     try {
@@ -205,11 +254,12 @@ export default function SignUp() {
                 <input
                   required
                   type="file"
-                  name="resume"
+                  name="resumePath"
                   accept="application/pdf"
-                  onChange={handleChange}
+                  onChange={handleFileChange}
                   className="w-full rounded-lg p-[14px] border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all"
                 />
+                {error && <span className="text-red-500 text-sm">{error}</span>}
               </label>
             )}
 

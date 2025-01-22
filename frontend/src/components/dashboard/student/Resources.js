@@ -30,6 +30,7 @@ export default function Community() {
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [messageContent, setMessageContent] = useState("");
   const [messages, setMessages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   const handleSelectCommunity = (community) => {
     setSelectedCommunity(community);
@@ -44,6 +45,14 @@ export default function Community() {
     setMessageContent("");
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filteredCommunities = communities.filter((community) =>
+    community.name.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -55,11 +64,22 @@ export default function Community() {
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-4xl font-bold text-gray-800 mb-6">Community</h1>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search communities..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+          />
+        </div>
+
         {/* Community List */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Communities</h2>
           <ul>
-            {communities.map((community) => (
+            {filteredCommunities.map((community) => (
               <li
                 key={community.id}
                 className="bg-gray-100 p-4 mb-4 rounded cursor-pointer hover:bg-blue-100"

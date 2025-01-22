@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Sidebar from "../Sidebar";
 
 export default function TAddCourses() {
@@ -14,6 +15,8 @@ export default function TAddCourses() {
     status: "Draft",
   });
   const [message, setMessage] = useState(null);
+  const [uploading, setUploading] = useState(false); // State for upload status
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,6 +24,39 @@ export default function TAddCourses() {
       ...prevFormData,
       [name]: value,
     }));
+  };
+
+  const uploadThumbnail = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "edulink_uploads");
+    data.append("cloud_name", "dhgyagjqw");
+    data.append("folder", "course_thumbnails");
+
+    setUploading(true); // Show loading state during upload
+
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dhgyagjqw/image/upload", {
+        method: "POST",
+        body: data,
+      });
+
+      const uploadedImage = await res.json();
+      console.log(uploadedImage)
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        thumbnail: uploadedImage.url,
+      }));
+      setMessage({ type: "success", text: "Thumbnail uploaded successfully!" });
+    } catch (error) {
+      console.error("Error uploading thumbnail:", error);
+      setMessage({ type: "error", text: "Failed to upload thumbnail. Please try again." });
+    } finally {
+      setUploading(false); // Reset loading state
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -69,6 +105,11 @@ export default function TAddCourses() {
     }
   };
 
+  const handleRedirect = () => {
+    // Redirect to the AddSection page
+    navigate("/dashboard/tutor/add-section"); // Adjust the route if necessary
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -83,9 +124,8 @@ export default function TAddCourses() {
         {/* Feedback Message */}
         {message && (
           <div
-            className={`p-4 mb-4 rounded ${
-              message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-            }`}
+            className={`p-4 mb-4 rounded ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              }`}
           >
             {message.text}
           </div>
@@ -143,14 +183,23 @@ export default function TAddCourses() {
 
           {/* Thumbnail */}
           <div>
-            <label className="block text-gray-700 font-bold mb-2">Thumbnail URL</label>
+            <label className="block text-gray-700 font-bold mb-2">Thumbnail</label>
             <input
-              type="text"
-              name="thumbnail"
-              value={formData.thumbnail}
-              onChange={handleChange}
+              type="file"
+              accept="image/*"
+              onChange={uploadThumbnail}
               className="w-full border border-gray-300 rounded-lg p-3"
             />
+            {uploading && <p className="text-gray-600">Uploading...</p>}
+            {formData.thumbnail && (
+              <div className="mt-4">
+                <img
+                  src={formData.thumbnail}
+                  alt="Thumbnail Preview"
+                  className="w-32 h-32 object-cover rounded-lg"
+                />
+              </div>
+            )}
           </div>
 
           {/* Tags */}
@@ -176,6 +225,13 @@ export default function TAddCourses() {
               className="w-full border border-gray-300 rounded-lg p-3"
             />
           </div>
+
+          <button
+            onClick={handleRedirect}
+            className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Add Sections
+          </button>
 
           {/* Status */}
           <div>

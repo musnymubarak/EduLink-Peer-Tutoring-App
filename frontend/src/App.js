@@ -40,6 +40,10 @@ import ExploreCourses from './components/ExploreCourses';
 import ExploreSingleCourse from './components/ExploreSingleCourse';
 import TAddCourses from './components/dashboard/tutor/TAddCourses';
 import Notification from './components/dashboard/student/Notification';
+import TAddSection from './components/dashboard/tutor/TAddSection';
+import TAddNewSection from './components/dashboard/tutor/TAddNewSection';
+import TNotification from './components/dashboard/tutor/TNotification';
+import TSection from './components/dashboard/tutor/TSection'
 
 function App() {
   return (
@@ -85,7 +89,10 @@ function App() {
           element={<YourSubjects />}
         />
         <Route path='/dashboard/tutor/add-course' element={<TAddCourses/>}/>
-        <Route path='/dashboard/tutor/noti' element={<Notification/>}/>
+        <Route path="/dashboard/tutor/noti" element={<TNotification/>}/>
+        <Route path="/dashboard/tutor/add-section" element={<TAddSection />} />
+        <Route path="/dashboard/tutor/add-new-section" element={<TAddNewSection />} />
+        <Route path="/dashboard/tutor/section/:sectionId" element={<TSection />} />
 
         {/* admin */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />

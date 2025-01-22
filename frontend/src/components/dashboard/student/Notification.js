@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
 
-export default function TNotification() {
+export default function Notification() {
   // State to hold the fetched notifications
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   // Fetch notifications from the API
   useEffect(() => {
@@ -38,6 +39,18 @@ export default function TNotification() {
     fetchNotifications();
   }, []);
 
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  // Filter notifications based on the search query
+  const filteredNotifications = notifications.filter(
+    (notification) =>
+      notification.message.toLowerCase().includes(searchQuery) ||
+      notification.status.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -49,16 +62,27 @@ export default function TNotification() {
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Notifications</h1>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search notifications by message or status..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+          />
+        </div>
+
         {/* Loading and Error States */}
         {loading ? (
           <p className="text-gray-600">Loading notifications...</p>
         ) : error ? (
           <p className="text-red-600">{error}</p>
-        ) : notifications.length === 0 ? (
-          <p className="text-gray-600">No notifications available.</p>
+        ) : filteredNotifications.length === 0 ? (
+          <p className="text-gray-600">No notifications match your search.</p>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification) => (
+            {filteredNotifications.map((notification) => (
               <div
                 key={notification._id}
                 className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 ${

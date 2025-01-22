@@ -15,10 +15,11 @@ export default function Profile() {
     newPassword: "",
     confirmPassword: "",
   });
-  const [imageData, setImageData] = useState(null); // State for new image file
+  const [loading, setLoading] = useState(false); // Loading state
 
   // Fetch profile data
   const fetchProfile = async () => {
+    setLoading(true);
     try {
       const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -32,12 +33,15 @@ export default function Profile() {
       });
     } catch (error) {
       console.error("Error fetching profile data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Update profile data
   const updateProfile = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.put(
         "http://localhost:4000/api/v1/profile/student",
@@ -51,43 +55,21 @@ export default function Profile() {
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile. Please try again.");
-    }
-  };
-
-  // Upload profile picture
-  const uploadProfilePicture = async () => {
-    if (!imageData) {
-      alert("Please select an image to upload.");
-      return;
-    }
-    try {
-      const formDataObj = new FormData();
-      formDataObj.append("image", imageData);
-
-      const response = await axios.put(
-        "http://localhost:4000/api/v1/profile/pic",
-        formDataObj,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      alert("Profile picture updated successfully!");
-      setProfileData({ ...profileData, image: response.data.image }); // Update profile image
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      alert("Failed to upload profile picture. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Update password
   const updatePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
+    setLoading(true);
     try {
       const response = await axios.put(
-        "http://localhost:4000/api/v1/profile/change-password",
+        "http://localhost:4000/api/v1/profile/change-student-password",
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
@@ -102,6 +84,53 @@ export default function Profile() {
     } catch (error) {
       console.error("Error updating password:", error);
       alert("Failed to update password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Upload profile picture
+  const uploadProfilePicture = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "edulink_uploads");
+    data.append("cloud_name", "dhgyagjqw");
+    data.append("folder", "profile_pictures_student");
+
+    try {
+      // Upload the image to Cloudinary
+      const res = await fetch("https://api.cloudinary.com/v1_1/dhgyagjqw/image/upload", {
+        method: "POST",
+        body: data,
+      });
+
+      const uploadedImage = await res.json();
+      const uploadedImageURL = uploadedImage.url;
+      console.log(uploadedImageURL);
+
+      // Send the image URL to the backend to update the profile image
+      const backendResponse = await fetch("http://localhost:4000/api/v1/profile/update-image", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ image: uploadedImageURL }),
+      });
+
+      const result = await backendResponse.json();
+
+      if (backendResponse.ok) {
+        console.log("Profile image updated successfully:", result);
+        window.location.reload();
+      } else {
+        console.error("Error updating profile image:", result.message);
+      }
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
     }
   };
 
@@ -119,7 +148,8 @@ export default function Profile() {
       {/* Profile Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Profile</h1>
-        {profileData && (
+        {loading && <div className="text-center">Loading...</div>}
+        {!loading && profileData && (
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
               Hi, {profileData.name}
@@ -131,27 +161,18 @@ export default function Profile() {
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover border-2 border-richblue-800"
               />
-              <label
-                htmlFor="image-upload"
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Upload Image
+              <br/>
+              <label className="text-black bg-slate-500 p-2 border border-black rounded shadow-lg hover:shadow-2xl">
+                Upload Profile Picture
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input"
+                  onChange={uploadProfilePicture}
+                  style={{ display: "none" }}
+                />
               </label>
-              <input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => setImageData(e.target.files[0])}
-              />
-              <button
-                onClick={uploadProfilePicture}
-                className="mt-4 bg-green-600 text-white px-6 py-2 rounded-md shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                Save Picture
-              </button>
             </div>
-
             {/* Profile Update Form */}
             <form onSubmit={updateProfile}>
               {/* Name */}
