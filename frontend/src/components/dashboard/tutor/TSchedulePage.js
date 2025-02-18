@@ -54,7 +54,7 @@ export default function TSchedulePage() {
   const generateMeetLink = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/generate-meet-link", {
+      const response = await fetch("http://localhost:5000/api/meet/generate-meet-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
