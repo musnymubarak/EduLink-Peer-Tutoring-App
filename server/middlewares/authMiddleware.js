@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { google } = require("googleapis");
 require("dotenv").config();
 
 // Authentication Middleware
@@ -106,3 +107,24 @@ exports.isAdmin = async (req, res, next) => {
         });
     }
 };
+
+// google meet Middleware
+const authenticateGoogle = async (req, res, next) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      process.env.REDIRECT_URI
+    );
+
+    oauth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+    req.authClient = oauth2Client;
+    next();
+  } catch (error) {
+    res.status(500).json({ error: "Authentication failed" });
+  }
+};
+
+module.exports = authenticateGoogle;
+
+
