@@ -7,12 +7,19 @@ const path = require('path');
 // Controller for user signup
 exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, accountType,resumePath } = req.body;
+    const { firstName, lastName, email, password, accountType, resumePath } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !accountType || !resumePath ) {
+    if (!firstName || !lastName || !email || !password || !accountType) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "First name, last name, email, password, and account type are required",
+      });
+    }
+
+    if (accountType === "Tutor" && !resumePath) {
+      return res.status(400).json({
+        success: false,
+        message: "Resume is required for Tutor accounts",
       });
     }
 
@@ -39,7 +46,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       accountType,
-      resumePath
+      resumePath: accountType === "Tutor" ? resumePath : null,
     });
 
     return res.status(201).json({
