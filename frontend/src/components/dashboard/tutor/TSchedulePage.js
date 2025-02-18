@@ -22,14 +22,15 @@ export default function TSchedulePage() {
     title: "",
     start: "",
     end: "",
-    description: ""
+    description: "",
+    meetLink: "",
   });
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
 
   const addEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) {
+    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.description || !newEvent.meetLink) {
       alert("Please fill in all required fields.");
       return;
     }
