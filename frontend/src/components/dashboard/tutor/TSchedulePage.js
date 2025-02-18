@@ -384,22 +384,22 @@ export default function TSchedulePage() {
                 >
                   Meeting Link
                 </label>
-                <textarea
+                <input
+                  type="text"
                   id="meetLink"
                   value={newEvent.meetLink}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, meetLink: e.target.value })
-                  }
+                  readOnly
                   className="w-full px-4 py-2 border rounded-lg"
                 />
                 <button
                   onClick={generateMeetLink}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
+                  className="px-4 py-2 bg-green-500 text-white rounded mt-2"
                   disabled={loading}
                 >
                   {loading ? "Generating..." : "Generate Meeting Link"}
                 </button>
               </div>
+
               <div className="flex justify-between">
                 <button
                   onClick={addEvent}
