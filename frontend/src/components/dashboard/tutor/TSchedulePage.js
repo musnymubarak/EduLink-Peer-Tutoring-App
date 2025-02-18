@@ -50,10 +50,31 @@ export default function TSchedulePage() {
     });
   };
 
-  const generateMeetLink = () => {
+  const generateMeetLink = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/generate-meet-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEvent.title,
+          start: newEvent.start,
+          end: newEvent.end,
+          description: newEvent.description,
+        }),
+      });
 
+      const data = await response.json();
+      if (data.meetLink) {
+        setNewEvent((prev) => ({ ...prev, meetLink: data.meetLink }));
+      } else {
+        alert("Failed to generate Google Meet link");
+      }
+    } catch (error) {
+      console.error("Error generating Meet link:", error);
+      alert("Failed to generate Google Meet link");
+    }
   };
-  
+
   const deleteEvent = (eventId) => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
   };
