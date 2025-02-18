@@ -1,6 +1,6 @@
 const express = require("express");
 const { generateMeetLink } = require("../controllers/meetController");
-const authenticateGoogle = require("../middlewares/authMiddleware");
+const {authenticateGoogle} = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 

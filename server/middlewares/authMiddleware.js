@@ -109,7 +109,7 @@ exports.isAdmin = async (req, res, next) => {
 };
 
 // google meet Middleware
-const authenticateGoogle = async (req, res, next) => {
+exports.authenticateGoogle = async (req, res, next) => {
   try {
     const oauth2Client = new google.auth.OAuth2(
       process.env.CLIENT_ID,
@@ -124,7 +124,3 @@ const authenticateGoogle = async (req, res, next) => {
     res.status(500).json({ error: "Authentication failed" });
   }
 };
-
-module.exports = authenticateGoogle;
-
-
