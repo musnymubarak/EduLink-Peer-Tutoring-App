@@ -50,6 +50,10 @@ export default function TSchedulePage() {
     });
   };
 
+  const generateMeetLink = () => {
+
+  };
+  
   const deleteEvent = (eventId) => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
   };
@@ -364,6 +368,12 @@ export default function TSchedulePage() {
                   }
                   className="w-full px-4 py-2 border rounded-lg"
                 />
+                <button
+                  onClick={generateMeetLink}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Generate
+                </button>
               </div>
               <div className="flex justify-between">
                 <button
