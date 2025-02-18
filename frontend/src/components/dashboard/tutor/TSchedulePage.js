@@ -28,6 +28,7 @@ export default function TSchedulePage() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
+  const [loading, setLoading] = useState(false); 
 
   const addEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.description || !newEvent.meetLink) {
@@ -51,15 +52,16 @@ export default function TSchedulePage() {
   };
 
   const generateMeetLink = async () => {
+    setLoading(true);
     try {
       const response = await fetch("http://localhost:3000/generate-meet-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: newEvent.title,
+          description: newEvent.description,
           start: newEvent.start,
           end: newEvent.end,
-          description: newEvent.description,
         }),
       });
 
@@ -71,7 +73,8 @@ export default function TSchedulePage() {
       }
     } catch (error) {
       console.error("Error generating Meet link:", error);
-      alert("Failed to generate Google Meet link");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -391,9 +394,10 @@ export default function TSchedulePage() {
                 />
                 <button
                   onClick={generateMeetLink}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  className="px-4 py-2 bg-green-500 text-white rounded"
+                  disabled={loading}
                 >
-                  Generate
+                  {loading ? "Generating..." : "Generate Meeting Link"}
                 </button>
               </div>
               <div className="flex justify-between">
