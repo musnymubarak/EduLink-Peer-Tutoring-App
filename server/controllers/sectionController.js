@@ -1,5 +1,6 @@
 const Section = require("../models/Section");
 const cloudinary = require("../config/cloudinaryConfig");
+const mongoose = require("mongoose"); // Import mongoose for ObjectId validation
 
 // Add a New Section (Only Tutor)
 exports.addSection = async (req, res) => {
@@ -60,6 +61,14 @@ exports.getSectionsByCourseId = async (req, res) => {
     try {
         const { courseId } = req.params;
 
+        // Validate the courseId format
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid course ID format.",
+            });
+        }
+
         const sections = await Section.find({ courseIds: courseId })
             .populate("tutorId", "name email")
             .populate("courseIds", "courseName");
@@ -77,6 +86,7 @@ exports.getSectionsByCourseId = async (req, res) => {
             data: sections,
         });
     } catch (error) {
+        console.error("Error fetching sections by course ID:", error); // Log the error
         return res.status(500).json({
             success: false,
             message: "Error occurred while fetching sections by course ID.",
