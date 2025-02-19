@@ -103,7 +103,6 @@ export default function Requests() {
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="flex min-h-screen bg-gray-100">

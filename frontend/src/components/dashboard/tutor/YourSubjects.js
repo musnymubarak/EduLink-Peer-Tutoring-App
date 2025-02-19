@@ -6,33 +6,31 @@ import Footer from "../Footer";
 
 export default function YourSubjects() {
   const [courses, setCourses] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Added search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+        const token = localStorage.getItem("token");
         if (!token) {
           alert("Authentication token is missing. Please log in.");
           return;
         }
 
+        // Decode the token to get tutorId
         const base64Url = token.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
         const tutorId = payload.id; // Extract tutor ID from token
 
-        const response = await axios.get(
-          `http://localhost:4000/api/v1/courses?tutorId=${tutorId}`, // Pass tutorId as a query parameter
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Add token in headers
-            },
-          }
-        );
-
+        const response = await axios.get("http://localhost:4000/api/v1/courses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log(tutorId)
         if (response.data.success) {
-          setCourses(response.data.data);
+          const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
+          setCourses(tutorCourses || []); // Ensure courses is always an array
+
         } else {
           alert("Failed to load courses");
         }
@@ -51,7 +49,7 @@ export default function YourSubjects() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Header/>
+      <Header />
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
@@ -63,7 +61,7 @@ export default function YourSubjects() {
         <div className="mb-6">
           <input
             type="text"
-            placeholder="Search for a course by title, description, or author..."
+            placeholder="Search for a course..."
             value={searchQuery}
             onChange={handleSearchChange}
             className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
@@ -80,24 +78,16 @@ export default function YourSubjects() {
                   course.courseName.toLowerCase().includes(searchQuery) ||
                   course.courseDescription.toLowerCase().includes(searchQuery)
               )
-              .map((course, index) => (
-                <div key={index}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-                    <div
-                      className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 cursor-pointer"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        {course.courseName}
-                      </h3>
-                      <p className="text-gray-600">{course.courseDescription}</p>
-                    </div>
-                  </div>
+              .map((course) => (
+                <div key={course._id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 w-64 max-w-sm">
+                  <h3 className="text-lg font-semibold text-gray-800">{course.courseName}</h3>
+                  <p className="text-gray-600">{course.courseDescription}</p>
                 </div>
               ))
           )}
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
