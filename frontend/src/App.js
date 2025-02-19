@@ -29,6 +29,7 @@ import ManageSubjects from './components/dashboard/admin/Pages/AddSubject';
 import ManageStudents from './components/dashboard/admin/Pages/AddStudent';
 import ManageTutors from './components/dashboard/admin/Pages/AddTutor';
 import NotificationPage from './components/dashboard/admin/Pages/NotificationPage';
+import CourseSection from './components/dashboard/student/CourseSection';
 
 import AddStudent from './components/dashboard/admin/Pages/AddStudent';
 import ListStudent from './components/dashboard/admin/Pages/ListStudent';
@@ -72,6 +73,7 @@ function App() {
           element={<SubjectDetails />}
         />
         <Route path='/dashboard/student/noti' element={<Notification/>}/>
+        <Route path='/dashboard/student/section/:sectionId' element={<CourseSection/>}/>
 
         {/*tutor*/}
         <Route path="/explore-subjects" element={<ExploreSubjects />} />

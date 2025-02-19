@@ -193,7 +193,9 @@ export default function SubjectDetails() {
           {sections.length > 0 ? (
             <ul className="list-disc list-inside text-gray-600">
               {sections.map((section) => (
-                <li key={section._id}>{section.sectionName}</li> // Displaying section names
+               <li key={section._id} className="cursor-pointer hover:text-blue-500" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
+               {section.sectionName}
+             </li> // Displaying section names
               ))}
             </ul>
           ) : (
