@@ -53,6 +53,7 @@ export default function Requests() {
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch class requests. Please try again.");
+      } finally {
         setLoading(false);
       }
     };
@@ -128,7 +129,15 @@ export default function Requests() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          {filteredRequests.length > 0 ? (
+        {/* Loading and Error States */}
+        {loading ? (
+          <p className="text-gray-600">Loading requests...</p>
+        ) : error ? (
+          <p className="text-red-600">{error}</p>
+        ) : filteredRequests.length === 0 ? (
+          <p className="text-gray-600">No requests available.</p>
+        ) : (
+          filteredRequests.length > 0 ? (
             <ul className="space-y-4">
               {filteredRequests.map((request) => (
                 <li
@@ -194,7 +203,8 @@ export default function Requests() {
             </ul>
           ) : (
             <p className="text-gray-600">No requests available.</p>
-          )}
+          )
+        )}
         </div>
       </div>
       {/* View Request Modal */}
