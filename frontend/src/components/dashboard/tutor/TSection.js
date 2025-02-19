@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import Header from "../Header";
 
 export default function TSection() {
   const { sectionId } = useParams(); // Get section ID from URL
@@ -44,6 +45,7 @@ export default function TSection() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <Header/>
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function YourSubjects() {
   const [courses, setCourses] = useState([]);
@@ -49,6 +51,7 @@ export default function YourSubjects() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
@@ -94,6 +97,7 @@ export default function YourSubjects() {
           )}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

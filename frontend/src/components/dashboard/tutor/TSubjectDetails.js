@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
+import Header from "../Header";
 
 export default function TSubjectDetails() {
   const { id } = useParams();
@@ -32,6 +33,7 @@ export default function TSubjectDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <Header/>
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}

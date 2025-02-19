@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function Subject() {
   const [categories, setCategories] = useState([]);
@@ -67,6 +69,7 @@ export default function Subject() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
@@ -141,6 +144,7 @@ export default function Subject() {
           ))}
         </div>
       </div>
+      <Footer/>
     </div>
   );
   

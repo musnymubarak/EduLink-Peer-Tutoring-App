@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function Requests() {
   const [requests, setRequests] = useState([]);
@@ -104,6 +106,7 @@ export default function Requests() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
@@ -255,6 +258,7 @@ export default function Requests() {
           </div>
         </div>
       )}
+      <Footer/>
     </div>
   );
 }

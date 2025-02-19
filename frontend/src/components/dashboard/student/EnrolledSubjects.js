@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([]);
@@ -139,6 +141,7 @@ export default function EnrolledSubjects() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
@@ -217,6 +220,7 @@ export default function EnrolledSubjects() {
           )}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

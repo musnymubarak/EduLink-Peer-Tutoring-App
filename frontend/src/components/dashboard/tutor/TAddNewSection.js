@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import Header from "../Header";
+import Footer from "../Footer";
 
 const TAddNewSection = () => {
   const [sectionName, setSectionName] = useState("");
@@ -144,6 +146,7 @@ const TAddNewSection = () => {
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-4">
+        <Header/>
           <div className="container mx-auto max-w-7xl">
             {/* Back Button */}
             <button
@@ -274,6 +277,7 @@ const TAddNewSection = () => {
           </div>
         </main>
       </div>
+      <Footer/>
     </div>
   );
 };

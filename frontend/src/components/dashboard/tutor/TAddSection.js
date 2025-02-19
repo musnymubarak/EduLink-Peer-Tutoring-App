@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar";
 import { useNavigate } from "react-router-dom";
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function TAddSection() {
   const [sections, setSections] = useState([]);
@@ -78,6 +80,7 @@ export default function TAddSection() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
@@ -149,6 +152,7 @@ export default function TAddSection() {
           Confirm Selection
         </button>
       </div>
+      <Footer/>
     </div>
   );
 }
