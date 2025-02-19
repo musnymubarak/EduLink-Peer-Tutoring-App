@@ -7,8 +7,9 @@ export default function SubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
-  const [tutor, setTutor] = useState(null); // Store tutor details
-  const [ratingsAndReviews, setRatingsAndReviews] = useState([]); // Store ratings and reviews data
+  const [tutor, setTutor] = useState(null);
+  const [ratingsAndReviews, setRatingsAndReviews] = useState([]);
+  const [sections, setSections] = useState([]); // State for course sections
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassType, setSelectedClassType] = useState("group");
   const [formData, setFormData] = useState({
@@ -19,13 +20,13 @@ export default function SubjectDetails() {
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
 
   useEffect(() => {
-    // Fetch course details
     const fetchCourse = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${id}`);
         setCourse(response.data.data);
-          const tutorId = response.data.data.tutor._id
-          fetchTutor(tutorId);
+        const tutorId = response.data.data.tutor._id;
+        fetchTutor(tutorId);
+        fetchSections(id); // Fetch sections when the course is fetched
       } catch (error) {
         console.error("Error fetching course:", error);
       }
@@ -37,6 +38,15 @@ export default function SubjectDetails() {
         setTutor(response.data.data);
       } catch (error) {
         console.error("Error fetching tutor details:", error);
+      }
+    };
+
+    const fetchSections = async (courseId) => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/v1/sections/course/${courseId}`);
+        setSections(response.data.data); // Assuming the API returns an array of sections
+      } catch (error) {
+        console.error("Error fetching sections:", error);
       }
     };
 
@@ -55,7 +65,7 @@ export default function SubjectDetails() {
         const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        const userCourses = response.data.courses.map((course) => course._id || course.$oid); // Ensure IDs match
+        const userCourses = response.data.courses.map((course) => course._id || course.$oid);
         setIsEnrolled(userCourses.includes(id));
       } catch (error) {
         console.error("Error checking enrollment status:", error);
@@ -171,29 +181,44 @@ export default function SubjectDetails() {
                 {tutor.firstName} {tutor.lastName}
               </h3>
               <p className="text-gray-600"><strong>Email:</strong> {tutor.email}</p>
-              <h2 className="text-2xl font-semibold text-blue-700 mb-4">Ratings and Reviews</h2>
-              <div className="space-y-6">
-                {ratingsAndReviews.map((review, index) => (
-                  <div key={index} className="bg-gray-100 p-4 rounded-lg shadow ">
-                    <h3 className="text-xl font-bold text-gray-700">
-                      {review.user.firstName} {review.user.lastName}
-                    </h3>
-                    <p className="text-gray-600"><strong>Rating:</strong> {review.rating}</p>
-                    <p className="text-gray-600"><strong>Review:</strong> {review.review}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           ) : (
             <p className="text-gray-600">No tutor assigned to this course.</p>
           )}
         </section>
 
+        {/* Course Sections Section */}
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Enrolled Students</h2>
-          <ul className="list-disc list-inside text-gray-600">
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Sections</h2>
+          {sections.length > 0 ? (
+            <ul className="list-disc list-inside text-gray-600">
+              {sections.map((section) => (
+                <li key={section._id}>{section.sectionName}</li> // Displaying section names
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600">No sections available for this course.</p>
+          )}
+        </section>
 
-          </ul>
+        {/* Ratings and Reviews Section */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Ratings and Reviews</h2>
+          <div className="space-y-6">
+            {ratingsAndReviews.length > 0 ? (
+              ratingsAndReviews.map((review, index) => (
+                <div key={index} className="bg-gray-100 p-4 rounded-lg shadow">
+                  <h3 className="text-xl font-bold text-gray-700">
+                    {review.user.firstName} {review.user.lastName}
+                  </h3>
+                  <p className="text-gray-600"><strong>Rating:</strong> {review.rating}</p>
+                  <p className="text-gray-600"><strong>Review:</strong> {review.review}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-600">No ratings or reviews available for this course.</p>
+            )}
+          </div>
         </section>
 
         <div className="text-right">
@@ -225,70 +250,55 @@ export default function SubjectDetails() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Request a Class</h2>
+            <h2 className="text-2xl font-semibold mb-4">Request Class</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Class Type</label>
-                <div>
-                  <label className="mr-4">
-                    <input
-                      type="radio"
-                      name="classType"
-                      value="Group"
-                      checked={selectedClassType === "Group"}
-                      onChange={() => setSelectedClassType("Group")}
-                    />
-                    <span className="ml-2 text-black">Group Class</span>
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="classType"
-                      value="Personal"
-                      checked={selectedClassType === "Personal"}
-                      onChange={() => setSelectedClassType("Personal")}
-                    />
-                    <span className="ml-2 text-black">Personal Class</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Preferred Time</label>
+                <label className="block text-gray-700" htmlFor="time">Preferred Time</label>
                 <input
-                  type="datetime-local"
+                  type="text"
+                  id="time"
                   name="time"
                   value={formData.time}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 rounded-lg w-full p-2"
                   required
                 />
               </div>
-
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Suggestions</label>
+                <label className="block text-gray-700" htmlFor="suggestions">Suggestions</label>
                 <textarea
+                  id="suggestions"
                   name="suggestions"
                   value={formData.suggestions}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  rows="4"
-                />
+                  className="border border-gray-300 rounded-lg w-full p-2"
+                  required
+                ></textarea>
               </div>
-
-              <div className="text-right">
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
+              <div className="mb-4">
+                <label className="block text-gray-700">Class Type</label>
+                <select
+                  value={selectedClassType}
+                  onChange={(e) => setSelectedClassType(e.target.value)}
+                  className="border border-gray-300 rounded-lg w-full p-2"
                 >
-                  Send Request to Teacher
-                </button>
+                  <option value="group">Group</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
+              <div className="flex justify-between">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="ml-4 px-6 py-3 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-red-700"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                >
+                  Submit
                 </button>
               </div>
             </form>
