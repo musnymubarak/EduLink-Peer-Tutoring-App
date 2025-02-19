@@ -22,14 +22,16 @@ export default function TSchedulePage() {
     title: "",
     start: "",
     end: "",
-    description: ""
+    description: "",
+    meetLink: "",
   });
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
+  const [loading, setLoading] = useState(false); 
 
   const addEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) {
+    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.description || !newEvent.meetLink) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -40,7 +42,40 @@ export default function TSchedulePage() {
     };
 
     setEvents(prevEvents => [...prevEvents, eventToAdd]);
-    setNewEvent({ title: "", start: "", end: "", description: "" });
+    setNewEvent({
+      title: "",
+      start: "",
+      end: "",
+      description: "",
+      meetLink: "",
+    });
+  };
+
+  const generateMeetLink = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/meet/generate-meet-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description,
+          start: newEvent.start,
+          end: newEvent.end,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.meetLink) {
+        setNewEvent((prev) => ({ ...prev, meetLink: data.meetLink }));
+      } else {
+        alert("Failed to generate Google Meet link");
+      }
+    } catch (error) {
+      console.error("Error generating Meet link:", error);
+    } finally {
+      setLoading(false); 
+    }
   };
 
   const deleteEvent = (eventId) => {
@@ -211,7 +246,7 @@ export default function TSchedulePage() {
             Class Schedule
           </h1>
 
-          <button 
+          <button
             onClick={() => setIsAddEventModalOpen(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
           >
@@ -221,37 +256,46 @@ export default function TSchedulePage() {
 
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-2">
-            <button 
-              onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded flex items-center ${viewMode === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            <button
+              onClick={() => setViewMode("month")}
+              className={`px-4 py-2 rounded flex items-center ${
+                viewMode === "month" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
             >
               Month
             </button>
-            <button 
-              onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded flex items-center ${viewMode === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            <button
+              onClick={() => setViewMode("week")}
+              className={`px-4 py-2 rounded flex items-center ${
+                viewMode === "week" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
             >
               Week
             </button>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button 
+            <button
               onClick={goToToday}
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
               Today
             </button>
-            <button 
+            <button
               onClick={() => changeDate(-1)}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Previous
             </button>
             <h2 className="text-2xl font-bold">
-              {viewMode === 'month' ? selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : selectedDate.toDateString()}
+              {viewMode === "month"
+                ? selectedDate.toLocaleString("default", {
+                    month: "long",
+                    year: "numeric",
+                  })
+                : selectedDate.toDateString()}
             </h2>
-            <button 
+            <button
               onClick={() => changeDate(1)}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
@@ -267,53 +311,104 @@ export default function TSchedulePage() {
             <div className="bg-white rounded-lg shadow-lg w-96 p-6">
               <h2 className="text-2xl font-bold mb-4">Add New Event</h2>
               <div className="mb-4">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                <input 
-                  type="text" 
-                  id="title" 
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
                   value={newEvent.title}
-                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, title: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="start" className="block text-sm font-medium text-gray-700">Start</label>
-                <input 
-                  type="datetime-local" 
-                  id="start" 
+                <label
+                  htmlFor="start"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Start
+                </label>
+                <input
+                  type="datetime-local"
+                  id="start"
                   value={newEvent.start}
-                  onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, start: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="end" className="block text-sm font-medium text-gray-700">End</label>
-                <input 
-                  type="datetime-local" 
-                  id="end" 
+                <label
+                  htmlFor="end"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  End
+                </label>
+                <input
+                  type="datetime-local"
+                  id="end"
                   value={newEvent.end}
-                  onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, end: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea 
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
                   id="description"
                   value={newEvent.description}
-                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, description: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="meetLink"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Meeting Link
+                </label>
+                <input
+                  type="text"
+                  id="meetLink"
+                  value={newEvent.meetLink}
+                  readOnly
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+                <button
+                  onClick={generateMeetLink}
+                  className="px-4 py-2 bg-green-500 text-white rounded mt-2"
+                  disabled={loading}
+                >
+                  {loading ? "Generating..." : "Generate Meeting Link"}
+                </button>
+              </div>
+
               <div className="flex justify-between">
-                <button 
-                  onClick={addEvent} 
+                <button
+                  onClick={addEvent}
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Add Event
                 </button>
-                <button 
-                  onClick={() => setIsAddEventModalOpen(false)} 
+                <button
+                  onClick={() => setIsAddEventModalOpen(false)}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Cancel
