@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function TAddSection() {
   const [sections, setSections] = useState([]);
+  const [filteredSections, setFilteredSections] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSection, setSelectedSection] = useState(null);
   const [message, setMessage] = useState(null);
-  const [selectedSection, setSelectedSection] = useState(null); // To store fetched section details
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +34,7 @@ export default function TAddSection() {
 
         if (response.status === 200) {
           setSections(response.data.data);
+          setFilteredSections(response.data.data);
         }
       } catch (error) {
         const errorMessage =
@@ -43,41 +46,32 @@ export default function TAddSection() {
     fetchSections();
   }, []);
 
-  const handleViewSectionClick = async (sectionId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setMessage({
-          type: "error",
-          text: "Authentication token is missing. Please log in.",
-        });
-        return;
-      }
-
-      const response = await axios.get(
-        `http://localhost:4000/api/v1/sections/${sectionId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        setSelectedSection(response.data.data);
-        navigate(`/dashboard/tutor/section/${sectionId}`, {
-          state: { section: response.data.data }, // Pass section data through navigation
-        });
-      }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch section details.";
-      setMessage({ type: "error", text: errorMessage });
-    }
+  // Handle section selection
+  const handleSelectSection = (sectionId) => {
+    setSelectedSection(sectionId);
   };
 
-  const handleAddSectionClick = () => {
-    navigate("/dashboard/tutor/add-new-section");
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value.toLowerCase();
+    setSearchTerm(searchValue);
+
+    const filtered = sections.filter((section) =>
+      section.sectionName.toLowerCase().includes(searchValue)
+    );
+    setFilteredSections(filtered);
+  };
+
+  // Handle confirm button click
+  const handleConfirmSelection = () => {
+    if (!selectedSection) {
+      setMessage({ type: "error", text: "Please select a section first." });
+      return;
+    }
+
+    navigate(`/dashboard/tutor/add-course`, {
+      state: { sectionId: selectedSection },
+    });
   };
 
   return (
@@ -90,6 +84,15 @@ export default function TAddSection() {
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Your Sections</h1>
+
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search for a section..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full mb-4 p-2 border border-gray-300 rounded-lg"
+        />
 
         {/* Feedback Message */}
         {message && (
@@ -106,11 +109,16 @@ export default function TAddSection() {
 
         {/* Sections List */}
         <div className="space-y-4">
-          {sections.length > 0 ? (
-            sections.map((section) => (
+          {filteredSections.length > 0 ? (
+            filteredSections.map((section) => (
               <div
                 key={section._id}
-                className="bg-white p-4 rounded-lg shadow-md"
+                className={`p-4 rounded-lg shadow-md cursor-pointer ${
+                  selectedSection === section._id
+                    ? "bg-blue-200 border border-blue-500"
+                    : "bg-white"
+                }`}
+                onClick={() => handleSelectSection(section._id)}
               >
                 <h2 className="text-xl font-bold text-gray-800">
                   {section.sectionName}
@@ -119,12 +127,6 @@ export default function TAddSection() {
                 <p className="text-sm text-gray-500">
                   Status: {section.status || "N/A"}
                 </p>
-                <button
-                  onClick={() => handleViewSectionClick(section._id)}
-                  className="px-4 py-2 mt-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                  View
-                </button>
               </div>
             ))
           ) : (
@@ -132,12 +134,17 @@ export default function TAddSection() {
           )}
         </div>
 
-        {/* Add Section Button */}
+        {/* Confirm Button */}
         <button
-          onClick={handleAddSectionClick}
-          className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none mt-8"
+          onClick={handleConfirmSelection}
+          disabled={!selectedSection}
+          className={`px-6 py-3 mt-6 font-bold rounded-lg shadow focus:ring-2 focus:outline-none ${
+            selectedSection
+              ? "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
+              : "bg-gray-400 text-gray-700 cursor-not-allowed"
+          }`}
         >
-          Add New Section
+          Confirm Selection
         </button>
       </div>
     </div>
