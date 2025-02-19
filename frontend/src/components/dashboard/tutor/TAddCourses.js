@@ -9,6 +9,8 @@ export default function TAddCourses() {
   // Retrieve stored form data or initialize default values
   const [formData, setFormData] = useState(() => {
     const savedData = localStorage.getItem("courseFormData");
+    const selectedSection = localStorage.getItem("selectedSection");
+    
     return savedData
       ? JSON.parse(savedData)
       : {
@@ -20,6 +22,7 @@ export default function TAddCourses() {
           tag: "",
           instructions: "",
           status: "Draft",
+          courseContent: selectedSection ? [JSON.parse(selectedSection)] : [],
         };
   });
 
@@ -95,7 +98,8 @@ export default function TAddCourses() {
 
       if (response.status === 201) {
         setMessage({ type: "success", text: "Course added successfully!" });
-        localStorage.removeItem("courseFormData"); // Clear stored form data after submission
+        localStorage.removeItem("courseFormData");
+        localStorage.removeItem("selectedSection"); 
         setFormData({
           courseName: "",
           category: "",

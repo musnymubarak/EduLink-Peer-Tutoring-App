@@ -69,6 +69,8 @@ export default function TAddSection() {
       return;
     }
 
+    localStorage.setItem("selectedSection", JSON.stringify(selectedSection));
+
     navigate(`/dashboard/tutor/add-course`, {
       state: { sectionId: selectedSection },
     });
