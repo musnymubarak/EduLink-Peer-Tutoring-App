@@ -4,6 +4,32 @@ import { VscSignOut } from "react-icons/vsc";
 import { FaUserCircle } from "react-icons/fa";
 
 const Header = () => {
+    const navigate = useNavigate();
+    const [accountType, setAccountType] = useState(null);
+  
+    useEffect(() => {
+      // Get account type from localStorage (ensure it's lowercase)
+      const storedAccountType = localStorage.getItem("accountType");
+      if (storedAccountType) {
+        setAccountType(storedAccountType.toLowerCase());
+      }
+    }, []);
+  
+    const handleLogout = () => {
+      localStorage.removeItem("token"); // Clear authentication data
+      localStorage.removeItem("accountType"); // Clear stored account type
+      navigate("/login"); // Redirect to login page
+    };
+  
+    const handleProfileClick = () => {
+      if (accountType === "student") {
+        navigate("/dashboard/student/profile");
+      } else if (accountType === "tutor") {
+        navigate("/dashboard/tutor/profile");
+      } else {
+        navigate("/login"); // Default case (redirect to login)
+      }
+    };  
 
   return (
     <header className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center fixed top-0 left-0 z-50">
