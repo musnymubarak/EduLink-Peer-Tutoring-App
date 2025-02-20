@@ -86,3 +86,36 @@ exports.getTutorById = async (req, res) => {
         });
     }
 };
+
+exports.getTotalEnrolledStudents = async (req, res) => {
+    const { tutorId } = req.params; // Extract tutorId from URL
+
+    if (!tutorId) {
+        return res.status(400).json({ success: false, message: "Tutor ID is required." });
+    }
+
+    try {
+        // Find all courses where the tutor is assigned
+        const courses = await Course.find({ tutor: tutorId }).populate('studentsEnrolled');
+
+        if (!courses || courses.length === 0) {
+            return res.status(404).json({ success: false, message: "No courses found for this tutor." });
+        }
+
+        // Calculate the total number of enrolled students across all courses
+        const totalStudents = courses.reduce((acc, course) => acc + course.studentsEnrolled.length, 0);
+
+        return res.status(200).json({
+            success: true,
+            tutorId,
+            totalStudentsEnrolled: totalStudents,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching enrolled students count.",
+            error: error.message,
+        });
+    }
+};
