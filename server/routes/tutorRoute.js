@@ -9,6 +9,6 @@ router.post('/assign/:courseId', auth, isTutor, assignTutorToCourse);
 // Route to get tutor details by ID
 router.get('/:tutorId', getTutorById);
 
-router.get('/:tutorId/enrolled-students', getTotalEnrolledStudents);
+router.get('/:tutorId/enrolled-students', auth, isTutor, getTotalEnrolledStudents);
 
 module.exports = router;
