@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Navbar from './Navbar';
+import aboutbanner from '../assets/aboutbanner.mp4';
 
 const AboutUs = () => {
   return (
@@ -13,7 +14,7 @@ const AboutUs = () => {
       <Navbar />
       <div style={styles.videoSection}>
         <video
-          src="https://www.w3schools.com/html/mov_bbb.mp4" 
+          src={aboutbanner} 
           autoPlay
           loop
           muted
