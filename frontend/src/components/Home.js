@@ -32,7 +32,7 @@ const Home = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight"
         >
-          Welcome to Our Website
+          Welcome Edu-Link 
         </motion.h1>
         
         <motion.p
