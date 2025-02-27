@@ -80,17 +80,9 @@ export default function Login() {
       let role = "student"; // Default role
 
       if (!userSnap.exists()) {
-        // Assign role dynamically based on email
+        // Only check for admin email in Google login
         if (user.email.includes("@admin.com")) {
           role = "admin";
-          // admin mail - edu@admin.com
-          // admin pass - admin@123
-        } else if (user.email.includes("@tutor.com")) {
-          // tutor mail - edu@tutor.com
-          // tutor pass - tutor@123
-          role = "tutor";
-        } else if( user.email.includes("@gmail.com")){
-          role = "student";
         }
 
         // Store user in Firestore
@@ -101,7 +93,6 @@ export default function Login() {
           role: role,
         });
       } else {
-        // If user exists, get their role
         role = userSnap.data().role;
       }
 
@@ -111,10 +102,8 @@ export default function Login() {
       // Redirect based on role
       if (role === "admin") {
         navigate("/admin-dashboard");
-      } else if (role === "tutor") {
-        navigate("/tutor-dashboard");
-      } else if (role === "student") {
-        navigate("/student-dashboard");
+      } else {
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Google Login Failed", error);
