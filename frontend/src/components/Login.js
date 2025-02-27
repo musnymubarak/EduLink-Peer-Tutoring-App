@@ -114,7 +114,6 @@ export default function Login() {
     }
   };
 
-
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
