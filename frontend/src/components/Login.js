@@ -78,11 +78,13 @@ export default function Login() {
 
       let role = "student"; // Default role
 
+      // Check if user exists in the database; if not, set their role as admin or student
       if (!userSnap.exists()) {
         if (user.email.includes("@admin.com")) {
           role = "admin";
         }
 
+        // Add the user to Firestore with the role
         await setDoc(userRef, {
           uid: user.uid,
           name: user.displayName,
@@ -98,7 +100,7 @@ export default function Login() {
       localStorage.setItem("token", user.accessToken);
       localStorage.setItem("role", role);
 
-      // Delay to ensure storage updates before navigating
+      // Redirect user based on their role
       setTimeout(() => {
         console.log(
           "Navigating to:",
