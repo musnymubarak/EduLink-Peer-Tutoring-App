@@ -3,14 +3,15 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-};
+/*const firebaseConfig = {
+  apiKey: "AIzaSyBD6dvTxgAUymfFpuWQirMi2PvY-uYkXqA",
+  authDomain: "edulink-4b013.firebaseapp.com",
+  projectId: "edulink-4b013",
+  storageBucket: "edulink-4b013.firebasestorage.app",
+  messagingSenderId: "987278684191",
+  appId: "1:987278684191:web:01fc174f0d41854ad7a52a",
+  measurementId: "G-RVP1EW7DWT",
+};*/
 
 
 const app = initializeApp(firebaseConfig);
