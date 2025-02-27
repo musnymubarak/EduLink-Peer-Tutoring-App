@@ -13,7 +13,7 @@ import {
 } from "../../src/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import "./css/Login.css";
-import {googlelogo} from "../assets/google.png";
+//import {googlelogo} from "../assets/google.png";
 
 export default function Login() {
   const { setAccountType } = useAccountType();
@@ -183,7 +183,7 @@ export default function Login() {
               className="google-login-btn mt-4 w-full max-w-md py-3 flex items-center justify-center rounded-lg border border-transparent bg-blue-500 text-white"
             >
               <img
-                src={{ googlelogo }}
+                src="../assets/google.png"
                 alt="Google Logo"
                 style={{ width: 20, marginRight: 10 }}
               />
