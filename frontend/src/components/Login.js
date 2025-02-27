@@ -73,19 +73,16 @@ export default function Login() {
 
       console.log("User:", user);
 
-      // Check if user already exists in Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
       let role = "student"; // Default role
 
       if (!userSnap.exists()) {
-        // Only check for admin email in Google login
         if (user.email.includes("@admin.com")) {
           role = "admin";
         }
 
-        // Store user in Firestore
         await setDoc(userRef, {
           uid: user.uid,
           name: user.displayName,
@@ -96,19 +93,25 @@ export default function Login() {
         role = userSnap.data().role;
       }
 
+      console.log("User role from Firestore:", role);
+
       localStorage.setItem("token", user.accessToken);
       localStorage.setItem("role", role);
 
-      // Redirect based on role
-      if (role === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      // Delay to ensure storage updates before navigating
+      setTimeout(() => {
+        console.log(
+          "Navigating to:",
+          role === "admin" ? "/admin-dashboard" : "/dashboard"
+        );
+        navigate(role === "admin" ? "/admin-dashboard" : "/dashboard");
+      }, 1000);
     } catch (error) {
       console.error("Google Login Failed", error);
+      alert("Google Login Failed: " + error.message);
     }
   };
+
 
   return (
     <motion.div
