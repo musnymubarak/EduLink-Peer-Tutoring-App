@@ -85,6 +85,8 @@ export default function Login() {
           role = "admin";
         } else if (user.email.includes("@tutor.com")) {
           role = "tutor";
+        } else if( user.email.includes("@gmail.com")){
+          role = "student";
         }
 
         // Store user in Firestore
@@ -107,7 +109,7 @@ export default function Login() {
         navigate("/admin-dashboard");
       } else if (role === "tutor") {
         navigate("/tutor-dashboard");
-      } else {
+      } else if (role === "student") {
         navigate("/student-dashboard");
       }
     } catch (error) {
