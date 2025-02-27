@@ -83,7 +83,11 @@ export default function Login() {
         // Assign role dynamically based on email
         if (user.email.includes("@admin.com")) {
           role = "admin";
+          // admin mail - edu@admin.com
+          // admin pass - admin@123
         } else if (user.email.includes("@tutor.com")) {
+          // tutor mail - edu@tutor.com
+          // tutor pass - tutor@123
           role = "tutor";
         } else if( user.email.includes("@gmail.com")){
           role = "student";
