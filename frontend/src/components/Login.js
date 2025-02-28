@@ -76,7 +76,7 @@ export default function Login() {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
-      let role = "student"; // Default role
+      let role = field; // Default role
 
       // Check if user exists in the database; if not, set their role as admin or student
       if (!userSnap.exists()) {
@@ -89,7 +89,7 @@ export default function Login() {
           uid: user.uid,
           name: user.displayName,
           email: user.email,
-          role: role,
+          role: field,
         });
       } else {
         role = userSnap.data().role;
@@ -99,14 +99,15 @@ export default function Login() {
 
       localStorage.setItem("token", user.accessToken);
       localStorage.setItem("role", role);
+      setAccountType(role);
 
       // Redirect user based on their role
       setTimeout(() => {
         console.log(
           "Navigating to:",
-          role === "admin" ? "/admin-dashboard" : "/dashboard"
+          role === "admin" ? "/admin-dashboard" : `/dashboard/${role.toLowerCase()}/subjects`
         );
-        navigate(role === "admin" ? "/admin-dashboard" : "/dashboard");
+        navigate(role === "admin" ? "/admin-dashboard" : `/dashboard/${role.toLowerCase()}/subjects`);
       }, 1000);
     } catch (error) {
       console.error("Google Login Failed", error);
