@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Sidebar from "../Sidebar";
 import Header from "../Header";
 import Footer from "../Footer";
+import { useNavigate } from "react-router-dom";
 
 export default function TDashboard() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [classRequests, setClassRequests] = useState([]);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const tutorExtraDetails = {
     rating: 4.8,
     experience: "5 years",    
@@ -17,20 +22,109 @@ export default function TDashboard() {
     ],
   };
 
-  // Fetch class requests
+  // Debug function
+  const logRequestData = (data) => {
+    console.log("Request data structure:", JSON.stringify(data, null, 2));
+  };
+
+  // Fetch class requests with course details
   const fetchClassRequests = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/v1/classes/tutor-class-requests", {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setError("Authentication token is missing. Please log in.");
+        return;
+      }
+      
+      const response = await axios.get("http://localhost:4000/api/v1/classes/class-requests", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      const data = await response.json();
-      if (data.success) {
-        setClassRequests(data.classRequests);
+
+      // Check if classRequests exists in the response
+      if (response.data && response.data.classRequests) {
+        // Simply set the requests first to ensure they appear
+        setClassRequests(response.data.classRequests);
+        
+        // Then try to enrich them with course details if possible
+        try {
+          const requestsWithCourses = await Promise.all(
+            response.data.classRequests.map(async (req) => {
+              try {
+                // Check if course ID exists before making the second request
+                if (req.course && req.course._id) {
+                  const courseResponse = await axios.get(
+                    `http://localhost:4000/api/v1/courses/${req.course._id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  
+                  if (courseResponse.data && courseResponse.data.data) {
+                    const courseName = courseResponse.data.data.courseName || "Unknown Course";
+                    return {
+                      ...req,
+                      course: {
+                        ...req.course,
+                        title: courseName
+                      }
+                    };
+                  }
+                }
+                // If we couldn't get course details, just ensure the title exists
+                return {
+                  ...req,
+                  course: {
+                    ...req.course,
+                    title: req.course?.title || "Course"
+                  }
+                };
+              } catch (err) {
+                console.error("Error fetching course details:", err);
+                // Return the original request with a fallback title
+                return {
+                  ...req,
+                  course: {
+                    ...req.course,
+                    title: req.course?.title || "Course"
+                  }
+                };
+              }
+            })
+          );
+          
+          // Sort requests by time (newest first)
+          const sortedRequests = requestsWithCourses.sort((a, b) => {
+            const timeA = a.time ? new Date(a.time).getTime() : 0;
+            const timeB = b.time ? new Date(b.time).getTime() : 0;
+            return timeB - timeA; // descending order (newest first)
+          });
+          
+          setClassRequests(sortedRequests);
+        } catch (err) {
+          console.error("Error enriching request data:", err);
+          // Keep the original requests if enrichment fails, but still sort them
+          const sortedRequests = [...response.data.classRequests].sort((a, b) => {
+            const timeA = a.time ? new Date(a.time).getTime() : 0;
+            const timeB = b.time ? new Date(b.time).getTime() : 0;
+            return timeB - timeA; // descending order (newest first)
+          });
+          setClassRequests(sortedRequests);
+        }
+      } else {
+        console.error("Unexpected response format:", response.data);
+        setError("Unexpected response format from the server");
       }
-    } catch (error) {
-      console.error("Error fetching class requests:", error);
+    } catch (err) {
+      console.error("Error fetching class requests:", err);
+      setError("Failed to fetch class requests. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +133,7 @@ export default function TDashboard() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Authentication token is missing. Please log in.");
+        setError("Authentication token is missing. Please log in.");
         return;
       }
 
@@ -49,38 +143,56 @@ export default function TDashboard() {
       const payload = JSON.parse(atob(base64));
       const tutorId = payload.id; // Extract tutor ID from token
       
-      const response = await fetch(`http://localhost:4000/api/v1/tutor/${tutorId}/enrolled-students`, {
+      const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}/enrolled-students`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      const data = await response.json();
-      if (data.success) {
-        setTotalStudents(data.totalStudentsEnrolled);
+      
+      if (response.data.success) {
+        setTotalStudents(response.data.totalStudentsEnrolled);
       }
-    } catch (error) {
-      console.error("Error fetching total students:", error);
+    } catch (err) {
+      console.error("Error fetching total students:", err);
+      setError("Failed to fetch student count. Please try again.");
     }
   };
 
   // Handle request actions
   const handleRequestAction = async (requestId, status) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/classes/handle-request/${requestId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ status }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        fetchClassRequests(); // Refresh the requests list
-        handleCloseModal();
+      // Close modal first
+      setIsModalOpen(false);
+      
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Authentication token is missing. Please log in.");
+        return;
       }
-    } catch (error) {
-      console.error("Error handling request:", error);
+      
+      // Make the API request
+      await axios.post(
+        `http://localhost:4000/api/v1/classes/handle-request/${requestId}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      // If we get here without an error being thrown, refresh the page
+      window.location.reload();
+      
+    } catch (err) {
+      console.error("Error handling request:", err);
+      
+      // Show alert with more detailed error information if available
+      const errorMessage = err.response?.data?.message || "Failed to update request status. Please try again.";
+      alert(errorMessage);
+      
+      // Re-open the modal in case of error
+      setIsModalOpen(true);
     }
   };
 
@@ -95,17 +207,45 @@ export default function TDashboard() {
   };
 
   const handleAccept = () => {
-    handleRequestAction(selectedRequest._id, "Accepted");
+    if (selectedRequest && selectedRequest._id) {
+      handleRequestAction(selectedRequest._id, "Accepted");
+    } else {
+      console.error("No request selected or missing ID");
+      alert("Error: Cannot process request. Missing request ID.");
+    }
   };
 
   const handleDecline = () => {
-    handleRequestAction(selectedRequest._id, "Rejected");
+    if (selectedRequest && selectedRequest._id) {
+      handleRequestAction(selectedRequest._id, "Rejected");
+    } else {
+      console.error("No request selected or missing ID");
+      alert("Error: Cannot process request. Missing request ID.");
+    }
+  };
+
+  const navigateToRequestsPage = () => {
+    navigate("/dashboard/tutor/requests"); // Navigate to requests page
   };
 
   useEffect(() => {
     fetchClassRequests();
     fetchTotalStudents();
   }, []);
+
+  // Helper function to safely access nested properties
+  const safelyAccess = (obj, path, fallback = "") => {
+    try {
+      const keys = path.split('.');
+      return keys.reduce((o, key) => (o || {})[key], obj) || fallback;
+    } catch (err) {
+      return fallback;
+    }
+  };
+
+  // Get only the 3 latest requests (already sorted by time in fetchClassRequests)
+  const latestRequests = classRequests.slice(0, 3);
+  const hasMoreRequests = classRequests.length > 3;
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -134,23 +274,41 @@ export default function TDashboard() {
 
         {/* Recent Requests Section */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-4">Recent Requests</h2>
-          {classRequests.length > 0 ? (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-blue-700">Recent Requests</h2>
+            {hasMoreRequests && (
+              <button 
+                onClick={navigateToRequestsPage}
+                className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                View More
+              </button>
+            )}
+          </div>
+          
+          {loading ? (
+            <p className="text-gray-600">Loading requests...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : latestRequests && latestRequests.length > 0 ? (
             <ul className="space-y-4">
-              {classRequests.map((request) => (
+              {latestRequests.map((request) => (
                 <li
-                  key={request._id}
+                  key={request._id || Math.random().toString()}
                   className="flex items-center justify-between border-b pb-2"
                 >
                   <div>
                     <p className="text-gray-800 font-semibold">
-                      {request.student.name}
+                      {safelyAccess(request, 'student.name') || 
+                       safelyAccess(request, 'student.email') || 
+                       "Student"}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      {request.course.title} - {request.type} Class
+                      {safelyAccess(request, 'course.title', 'Course')} - 
+                      {safelyAccess(request, 'type', 'Class')} Class
                     </p>
                     <p className="text-gray-600 text-sm">
-                      {new Date(request.time).toLocaleString()}
+                      {request.time ? new Date(request.time).toLocaleString() : "Scheduled time not available"}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -159,9 +317,9 @@ export default function TDashboard() {
                       request.status === "Accepted" ? "bg-green-100 text-green-800" :
                       "bg-red-100 text-red-800"
                     }`}>
-                      {request.status}
+                      {request.status || "Status unknown"}
                     </span>
-                    {request.status === "Pending" && (
+                    {(!request.status || request.status === "Pending") && (
                       <button
                         onClick={() => handleViewRequest(request)}
                         className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -174,7 +332,7 @@ export default function TDashboard() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">No recent requests.</p>
+            <p className="text-gray-600">No recent requests available.</p>
           )}
         </div>
 
@@ -209,16 +367,18 @@ export default function TDashboard() {
           <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Request Details</h2>
             <p className="text-gray-600">
-              <strong>Student:</strong> {selectedRequest.student.name}
+              <strong>Student:</strong> {safelyAccess(selectedRequest, 'student.name') || 
+                                        safelyAccess(selectedRequest, 'student.email') || 
+                                        "Student"}
             </p>
             <p className="text-gray-600">
-              <strong>Course:</strong> {selectedRequest.course.title}
+              <strong>Course:</strong> {safelyAccess(selectedRequest, 'course.title', 'Course')}
             </p>
             <p className="text-gray-600">
-              <strong>Type:</strong> {selectedRequest.type}
+              <strong>Type:</strong> {selectedRequest.type || "Class"}
             </p>
             <p className="text-gray-600">
-              <strong>Time:</strong> {new Date(selectedRequest.time).toLocaleString()}
+              <strong>Time:</strong> {selectedRequest.time ? new Date(selectedRequest.time).toLocaleString() : "Not specified"}
             </p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
