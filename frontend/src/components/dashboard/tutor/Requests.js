@@ -3,6 +3,7 @@ import axios from "axios";
 import Sidebar from "../Sidebar";
 import Header from "../Header";
 import Footer from "../Footer";
+import { useNavigate } from "react-router-dom";
 
 export default function Requests() {
   const [requests, setRequests] = useState([]);
@@ -13,6 +14,7 @@ export default function Requests() {
   const [zoomLink, setZoomLink] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -102,6 +104,10 @@ export default function Requests() {
     }
   };
 
+  const gotoSchedule=()=>{
+    navigate("/dashboard/tutor/schedule");
+  }
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -157,7 +163,7 @@ export default function Requests() {
                       className={`mt-1 text-sm font-medium ${
                         request.status === "Accepted"
                           ? "text-green-600"
-                          : request.status === "Declined"
+                          : request.status === "Rejected"
                           ? "text-red-600"
                           : "text-yellow-600"
                       }`}
@@ -174,10 +180,10 @@ export default function Requests() {
                     </button>
                     {request.status === "Accepted" && (
                       <button
-                        onClick={() => setShowZoomModal(true)}
+                        onClick={gotoSchedule}
                         className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700"
                       >
-                        Add Zoom Link
+                        Go To Schedule
                       </button>
                     )}
                     {request.status === "Pending" && (
@@ -189,7 +195,7 @@ export default function Requests() {
                           Accept
                         </button>
                         <button
-                          onClick={() => handleAction(request.id, "Declined")}
+                          onClick={() => handleAction(request.id, "Rejected")}
                           className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700"
                         >
                           Decline
