@@ -131,7 +131,17 @@ exports.login = async (req, res) => {
 
 exports.googleLogin = async (req, res) => {
   try{
+ const { uid, name, email, role, accessToken } = req.body;
 
+ let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      firstName: name,
+      email,
+      accountType: role,
+    });
+  }
   }catch(error){
     console.error("Google Login Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
