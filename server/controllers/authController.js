@@ -147,7 +147,13 @@ exports.googleLogin = async (req, res) => {
     await user.save();
   }
 
-  
+   const token = jwt.sign(
+     { userId: user._id, role: user.accountType },
+     process.env.JWT_SECRET,
+     { expiresIn: "7d" }
+   );
+
+   res.status(200).json({ success: true, token, role: user.accountType });
 
   }catch(error){
     console.error("Google Login Error:", error);
