@@ -128,3 +128,12 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.googleLogin = async (req, res) => {
+  try{
+
+  }catch(error){
+    console.error("Google Login Error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
