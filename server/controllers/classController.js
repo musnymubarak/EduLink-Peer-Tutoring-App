@@ -82,40 +82,108 @@ exports.handleClassRequest = async (req, res) => {
         const { requestId } = req.params;
         const { status, classLink } = req.body;
 
-        const classRequest = await ClassRequest.findById(requestId);
+        console.log("Received Request Details:", {
+            requestId,
+            status,
+            classLink
+        });
+
+        const classRequest = await ClassRequest.findById(requestId)
+            .populate('student')
+            .populate('tutor')
+            .populate('course');
+
         if (!classRequest) {
+            console.error("Class request not found for ID:", requestId);
             return res.status(404).json({ error: "Class request not found." });
+        }
+
+        console.log("Full Class Request Object:", JSON.stringify(classRequest, null, 2));
+
+        // Validate essential fields
+        if (!classRequest.student) {
+            console.error("No student found in class request");
+            return res.status(400).json({ error: "Student information is missing" });
+        }
+
+        if (!classRequest.tutor) {
+            console.error("No tutor found in class request");
+            return res.status(400).json({ error: "Tutor information is missing" });
+        }
+
+        if (!classRequest.course) {
+            console.error("No course found in class request");
+            return res.status(400).json({ error: "Course information is missing" });
         }
 
         classRequest.status = status;
         await classRequest.save();
 
-        const studentId = classRequest.student;
-        const course = await Course.findById(classRequest.course);
-
         if (status === "Accepted") {
-            const { student, tutor, course, type, time } = classRequest;
+            try {
+                if (classRequest.type === "Personal") {
+                    console.log("Creating Personal Class");
+                    const newClass = new Class({
+                        student: classRequest.student._id,
+                        tutor: classRequest.tutor._id,
+                        course: classRequest.course._id,
+                        type: "Personal",
+                        time: classRequest.time,
+                        classLink: classLink || "", // Allow empty link
+                        status: "Accepted"
+                    });
 
-            if (type === "Personal") {
-                const newClass = new Class({ student, tutor, course, type, time, classLink });
-                await newClass.save();
-            } else {
-                let groupClass = await Class.findOne({ course, type: "Group" });
-                if (!groupClass) {
-                    groupClass = new Class({ participants: [student], tutor, course, type: "Group", time, classLink });
-                    await groupClass.save();
-                } else {
-                    if (!groupClass.participants.includes(student.toString())) {
-                        groupClass.participants.push(student);
-                        await groupClass.save();
+                    console.log("New Class Object:", JSON.stringify(newClass, null, 2));
+
+                    await newClass.save();
+                    console.log("Personal Class Created Successfully");
+                } else if (classRequest.type === "Group") {
+                    console.log("Creating/Updating Group Class");
+                    let groupClass = await Class.findOne({ 
+                        course: classRequest.course._id, 
+                        type: "Group" 
+                    });
+
+                    if (!groupClass) {
+                        groupClass = new Class({
+                            participants: [classRequest.student._id],
+                            tutor: classRequest.tutor._id,
+                            course: classRequest.course._id,
+                            type: "Group",
+                            time: classRequest.time,
+                            classLink: classLink || "",
+                            status: "Accepted"
+                        });
+                    } else {
+                        if (!groupClass.participants.includes(classRequest.student._id.toString())) {
+                            groupClass.participants.push(classRequest.student._id);
+                        }
+                        groupClass.classLink = classLink || groupClass.classLink;
                     }
+
+                    await groupClass.save();
+                    console.log("Group Class Created/Updated Successfully");
                 }
+            } catch (classCreationError) {
+                console.error("Error in class creation:", classCreationError);
+                return res.status(500).json({ 
+                    error: "Failed to create class", 
+                    details: classCreationError.message 
+                });
             }
         }
 
-        return res.status(200).json({ message: `Class request ${status.toLowerCase()}.` });
+        return res.status(200).json({ 
+            message: `Class request ${status.toLowerCase()} successfully.`,
+            type: classRequest.type
+        });
+
     } catch (error) {
-        return res.status(500).json({ error: "An error occurred while handling the class request." });
+        console.error("Comprehensive Error in handleClassRequest:", error);
+        return res.status(500).json({ 
+            error: "An error occurred while handling the class request.", 
+            details: error.message 
+        });
     }
 };
 
