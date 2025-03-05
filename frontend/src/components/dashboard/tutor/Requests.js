@@ -30,19 +30,17 @@ export default function Requests() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const token = localStorage.getItem("token"); // Get token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:4000/api/v1/classes/class-requests", {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass token in Authorization header
+            Authorization: `Bearer ${token}`,
           },
         });
-        
 
         const requestsWithCourses = await Promise.all(
           response.data.classRequests.map(async (req) => {
-            // Fetch course name for each course ID
             const courseResponse = await axios.get(
-              `http://localhost:4000/api/v1/courses/${req.course._id}`, // Assuming course._id is available
+              `http://localhost:4000/api/v1/courses/${req.course._id}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -54,20 +52,21 @@ export default function Requests() {
               id: req._id,
               student: req.student.email,
               topic: courseName,
+              courseId: req.course._id,
               date: new Date(req.time).toLocaleDateString(),
               time: new Date(req.time).toLocaleTimeString(),
               status: req.status,
-              type:req.type,
+              type: req.type,
               isNew: req.status === "Pending",
             };
           })
         );
         setRequests(requestsWithCourses);
-        setFilteredRequests(requestsWithCourses); // Set initial filtered requests
+        setFilteredRequests(requestsWithCourses);
         setLoading(false);
       } catch (err) {
+        console.error("Error fetching requests:", err);
         setError("Failed to fetch class requests. Please try again.");
-      } finally {
         setLoading(false);
       }
     };
@@ -79,7 +78,6 @@ export default function Requests() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    // Filter requests based on student email or topic
     setFilteredRequests(
       requests.filter(
         (req) =>
@@ -91,12 +89,6 @@ export default function Requests() {
 
   const handleDeclineAction = async (id, action) => {
     try {
-        /*setClassDetailsModal({
-          show: true,
-          type: request.type,
-          requestId: request.id,
-          courseId: request.courseId
-        });*/
       const token = localStorage.getItem("token");
       await axios.post(
         `http://localhost:4000/api/v1/classes/handle-request/${id}`,
@@ -118,46 +110,124 @@ export default function Requests() {
         )
       );
     } catch (err) {
+      console.error("Error declining request:", err);
       alert("Failed to update request status. Please try again.");
     }
   };
 
   const handleAcceptAction = async (request, action) => {
     try {
+      if (request.type === "Personal") {
+        const requestDetails = requests.find(r => r.id === request.id);
+        setClassDetails({
+          date: requestDetails.date,
+          time: requestDetails.time,
+          classLink: ""
+        });
         setClassDetailsModal({
           show: true,
           type: request.type,
           requestId: request.id,
           courseId: request.courseId
         });
-        /*
+      } else if (request.type === "Group") {
+        // Handle group request logic
+        console.log("Group request handling not implemented");
+      }
+    } catch (err) {
+      console.error("Error in accept action:", err);
+      alert("Failed to process request. Please try again.");
+    }
+  };
+  
+  const handleCreateClass = async () => {
+    try {
+      // Validate Zoom link
+      if (!classDetails.classLink) {
+        alert("Please enter a Zoom link");
+        return;
+      }
+
+      //const zoomLinkRegex = /^(https?:\/\/)?(zoom\.us\/j\/\d+|meet\.google\.com\/[a-z-]+)$/i;
+      //if (!zoomLinkRegex.test(classDetails.classLink)) {
+      //  alert("Please enter a valid Zoom or Google Meet link");
+      //  return;
+      //}
+  
       const token = localStorage.getItem("token");
-      await axios.post(
-        `http://localhost:4000/api/v1/classes/handle-request/${request.id}`,
-        { status: action },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const requestId = classDetailsModal.requestId;
+  
+      // Ensure all required information is present
+      if (!requestId) {
+        alert("Request ID is missing. Please try again.");
+        return;
+      }
+  
+      const response = await axios.post(
+        `http://localhost:4000/api/v1/classes/handle-request/${requestId}`,
+        { 
+          status: "Accepted", 
+          classLink: classDetails.classLink 
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          } 
         }
       );
-      setRequests((prevRequests) =>
-        prevRequests.map((req) =>
-          req.id === id ? { ...req, status: action, isNew: false } : req
-        )
+  
+      console.log("Full Response:", response.data);
+  
+      // Specific handling for personal classes (if needed)
+      if (response.data.type === "Personal") {
+        // Additional personal class specific logic can be added here
+        console.log("Personal class created successfully");
+      }
+  
+      // Update local state
+      const updatedRequests = requests.map(req =>
+        req.id === requestId 
+          ? { ...req, status: "Accepted", isNew: false, classLink: classDetails.classLink } 
+          : req
       );
-      setFilteredRequests((prevRequests) =>
-        prevRequests.map((req) =>
-          req.id === id ? { ...req, status: action, isNew: false } : req
-        )
-      );*/
+  
+      setRequests(updatedRequests);
+      setFilteredRequests(updatedRequests);
+  
+      // Reset modals and details
+      setClassDetailsModal({ 
+        show: false, 
+        type: "", 
+        requestId: null, 
+        courseId: null 
+      });
+      setClassDetails({ 
+        date: "", 
+        time: "", 
+        classLink: "" 
+      });
+  
+      // Provide user feedback
+      alert("Class created successfully!");
+  
+      // Optional: Navigate to schedule or perform additional action
+      // navigate("/dashboard/tutor/schedule");
+  
     } catch (err) {
-      alert("Failed to update request status. Please try again.");
+      // More detailed error handling
+      console.error("Detailed Error:", err.response?.data || err.message);
+      
+      // Provide specific error message to user
+      const errorMessage = err.response?.data?.details || 
+                           err.response?.data?.error || 
+                           err.response?.data?.message || 
+                           'Failed to create class';
+      
+      alert(`Error: ${errorMessage}`);
     }
   };
 
-
-  const gotoSchedule=()=>{
+  const gotoSchedule = () => {
     navigate("/dashboard/tutor/schedule");
   }
 
@@ -166,16 +236,13 @@ export default function Requests() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Header/>
-      {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Requests</h1>
 
-        {/* Search Bar */}
         <div className="mb-6">
           <input
             type="text"
@@ -187,15 +254,13 @@ export default function Requests() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-        {/* Loading and Error States */}
-        {loading ? (
-          <p className="text-gray-600">Loading requests...</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : filteredRequests.length === 0 ? (
-          <p className="text-gray-600">No requests available.</p>
-        ) : (
-          filteredRequests.length > 0 ? (
+          {loading ? (
+            <p className="text-gray-600">Loading requests...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : filteredRequests.length === 0 ? (
+            <p className="text-gray-600">No requests available.</p>
+          ) : (
             <ul className="space-y-4">
               {filteredRequests.map((request) => (
                 <li
@@ -256,12 +321,10 @@ export default function Requests() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="text-gray-600">No requests available.</p>
-          )
-        )}
+          )}
         </div>
       </div>
+
       {/* View Request Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
@@ -291,67 +354,6 @@ export default function Requests() {
         </div>
       )}
 
-      {selectedRequest && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Request Details</h2>
-            <p className="mb-2">
-              <strong>Student:</strong> {selectedRequest.student}
-            </p>
-            <p className="mb-2">
-              <strong>Topic:</strong> {selectedRequest.topic}
-            </p>
-            <p className="mb-2">
-              <strong>Date:</strong> {selectedRequest.date}
-            </p>
-            <p className="mb-4">
-              <strong>Status:</strong> {selectedRequest.status}
-            </p>
-            <div className="text-right">
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Existing Zoom Link Modal */}
-      {showZoomModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Add Zoom Link</h2>
-            <input
-              type="text"
-              placeholder="Enter Zoom meeting link"
-              value={zoomLink}
-              onChange={(e) => setZoomLink(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-richblue-600 focus:border-richblue-600 mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowZoomModal(false)}
-                className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Zoom Link Saved: ${zoomLink}`);
-                  setShowZoomModal(false);
-                }}
-                className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* New Class Details Modal */}
       {classDetailsModal.show && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -366,13 +368,8 @@ export default function Requests() {
               <label className="block text-gray-700 font-bold mb-2">Class Date</label>
               <input
                 type="text"
-                value={classDetails.date || (
-                  requests.find(r => r.id === classDetailsModal.requestId)?.date || 
-                  new Date().toISOString().split('T')[0]
-                )}
-                onChange={(e) => setClassDetails(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
+                value={classDetails.date}
+                className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
                 disabled
               />
             </div>
@@ -381,13 +378,8 @@ export default function Requests() {
               <label className="block text-gray-700 font-bold mb-2">Class Time</label>
               <input
                 type="text"
-                value={classDetails.time || (
-                  requests.find(r => r.id === classDetailsModal.requestId)?.time || 
-                  new Date().toTimeString().slice(0,5)
-                )}
-                onChange={(e) => setClassDetails(prev => ({ ...prev, time: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
+                value={classDetails.time}
+                className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
                 disabled
               />
             </div>
@@ -412,6 +404,7 @@ export default function Requests() {
                 Cancel
               </button>
               <button
+                onClick={handleCreateClass}
                 className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700"
               >
                 Create Class
