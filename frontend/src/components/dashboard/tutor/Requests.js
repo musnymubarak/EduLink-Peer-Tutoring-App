@@ -7,14 +7,25 @@ import { useNavigate } from "react-router-dom";
 
 export default function Requests() {
   const [requests, setRequests] = useState([]);
-  const [filteredRequests, setFilteredRequests] = useState([]); // State for filtered requests
-  const [searchQuery, setSearchQuery] = useState(""); // State for search input
+  const [filteredRequests, setFilteredRequests] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [zoomLink, setZoomLink] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [classDetailsModal, setClassDetailsModal] = useState({
+    show: false,
+    type: "", 
+    requestId: null,
+    courseId: null
+  });
+  const [classDetails, setClassDetails] = useState({
+    date: "",
+    time: "",
+    classLink: ""
+  });
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -25,6 +36,7 @@ export default function Requests() {
             Authorization: `Bearer ${token}`, // Pass token in Authorization header
           },
         });
+        
 
         const requestsWithCourses = await Promise.all(
           response.data.classRequests.map(async (req) => {
@@ -45,11 +57,11 @@ export default function Requests() {
               date: new Date(req.time).toLocaleDateString(),
               time: new Date(req.time).toLocaleTimeString(),
               status: req.status,
+              type:req.type,
               isNew: req.status === "Pending",
             };
           })
         );
-
         setRequests(requestsWithCourses);
         setFilteredRequests(requestsWithCourses); // Set initial filtered requests
         setLoading(false);
@@ -77,8 +89,14 @@ export default function Requests() {
     );
   };
 
-  const handleAction = async (id, action) => {
+  const handleDeclineAction = async (id, action) => {
     try {
+        /*setClassDetailsModal({
+          show: true,
+          type: request.type,
+          requestId: request.id,
+          courseId: request.courseId
+        });*/
       const token = localStorage.getItem("token");
       await axios.post(
         `http://localhost:4000/api/v1/classes/handle-request/${id}`,
@@ -103,6 +121,41 @@ export default function Requests() {
       alert("Failed to update request status. Please try again.");
     }
   };
+
+  const handleAcceptAction = async (request, action) => {
+    try {
+        setClassDetailsModal({
+          show: true,
+          type: request.type,
+          requestId: request.id,
+          courseId: request.courseId
+        });
+        /*
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:4000/api/v1/classes/handle-request/${request.id}`,
+        { status: action },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === id ? { ...req, status: action, isNew: false } : req
+        )
+      );
+      setFilteredRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === id ? { ...req, status: action, isNew: false } : req
+        )
+      );*/
+    } catch (err) {
+      alert("Failed to update request status. Please try again.");
+    }
+  };
+
 
   const gotoSchedule=()=>{
     navigate("/dashboard/tutor/schedule");
@@ -154,10 +207,7 @@ export default function Requests() {
                   <div>
                     <p className="text-gray-800 font-semibold">{request.student}</p>
                     <p className="text-gray-600 text-sm">
-                      Topic: {request.topic} | Date: {request.date}
-                      {request.status === "Accepted" && (
-                        <> | Scheduled Time: {request.time}</>
-                      )}
+                      Topic: {request.topic} | Date: {request.date} | Time: {request.time} | Type: {request.type}
                     </p>
                     <p
                       className={`mt-1 text-sm font-medium ${
@@ -189,13 +239,13 @@ export default function Requests() {
                     {request.status === "Pending" && (
                       <>
                         <button
-                          onClick={() => handleAction(request.id, "Accepted")}
+                          onClick={() => handleAcceptAction(request, "Accepted")}
                           className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700"
                         >
                           Accept
                         </button>
                         <button
-                          onClick={() => handleAction(request.id, "Rejected")}
+                          onClick={() => handleDeclineAction(request.id, "Rejected")}
                           className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700"
                         >
                           Decline
@@ -241,7 +291,35 @@ export default function Requests() {
         </div>
       )}
 
-      {/* Add Zoom Link Modal */}
+      {selectedRequest && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Request Details</h2>
+            <p className="mb-2">
+              <strong>Student:</strong> {selectedRequest.student}
+            </p>
+            <p className="mb-2">
+              <strong>Topic:</strong> {selectedRequest.topic}
+            </p>
+            <p className="mb-2">
+              <strong>Date:</strong> {selectedRequest.date}
+            </p>
+            <p className="mb-4">
+              <strong>Status:</strong> {selectedRequest.status}
+            </p>
+            <div className="text-right">
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Existing Zoom Link Modal */}
       {showZoomModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
           <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
@@ -268,6 +346,75 @@ export default function Requests() {
                 className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700"
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Class Details Modal */}
+      {classDetailsModal.show && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              {classDetailsModal.type === "Personal" 
+                ? "Personal Class Details" 
+                : "Group Class Details"}
+            </h2>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2">Class Date</label>
+              <input
+                type="text"
+                value={classDetails.date || (
+                  requests.find(r => r.id === classDetailsModal.requestId)?.date || 
+                  new Date().toISOString().split('T')[0]
+                )}
+                onChange={(e) => setClassDetails(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+                disabled
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2">Class Time</label>
+              <input
+                type="text"
+                value={classDetails.time || (
+                  requests.find(r => r.id === classDetailsModal.requestId)?.time || 
+                  new Date().toTimeString().slice(0,5)
+                )}
+                onChange={(e) => setClassDetails(prev => ({ ...prev, time: e.target.value }))}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+                disabled
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2">Class Link</label>
+              <input
+                type="text"
+                placeholder="Enter Zoom/Meet link"
+                value={classDetails.classLink}
+                onChange={(e) => setClassDetails(prev => ({ ...prev, classLink: e.target.value }))}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setClassDetailsModal({ show: false, type: "", requestId: null, courseId: null })}
+                className="px-6 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700"
+              >
+                Create Class
               </button>
             </div>
           </div>
