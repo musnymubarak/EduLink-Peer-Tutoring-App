@@ -33,6 +33,15 @@ const classSchema = new mongoose.Schema({
         type: Date,  // Class time
         required: true,
     },
+    classLink: {
+        type: String,  // URL for the class link
+        validate: {
+            validator: function(v) {
+                return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(v);
+            },
+            message: props => `${props.value} is not a valid URL!`
+        },
+    },
     status: {
         type: String,
         enum: ["Pending", "Accepted", "Rejected"],  // Class status
