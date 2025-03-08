@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
 
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Added search state
+  const [searchQuery, setSearchQuery] = useState("");
   const [modal, setModal] = useState({
     isOpen: false,
     categoryIndex: null,
@@ -18,12 +18,12 @@ export default function EnrolledSubjects() {
     feedback: "",
   });
 
-  const navigate = useNavigate(); // Initialize navigate hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+        const token = localStorage.getItem("token");
         if (!token) {
           alert("Authentication token is missing. Please log in.");
           return;
@@ -33,7 +33,7 @@ export default function EnrolledSubjects() {
           "http://localhost:4000/api/v1/enrollment/enrolled-courses",
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Add token in headers
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -46,7 +46,7 @@ export default function EnrolledSubjects() {
                 title: course.courseName,
                 description: course.courseDescription,
                 author: `${course.tutor.firstName} ${course.tutor.lastName}`,
-                rating: course.averageRating || 0, // Ensure it's always a number
+                rating: course.averageRating || 0,
                 feedback: "",
               })),
             },
@@ -78,7 +78,7 @@ export default function EnrolledSubjects() {
   };
 
   const handleNavigateToCourse = (courseId) => {
-    navigate(`/dashboard/student/subject/${courseId}`); // Redirect to the course page
+    navigate(`/dashboard/student/subject/${courseId}`);
   };
 
   const handleSubmit = async (e) => {
@@ -140,87 +140,92 @@ export default function EnrolledSubjects() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Header/>
-      <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
-        <Sidebar />
-      </div>
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <Header />
 
-      <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Enrolled Courses</h1>
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search for a course by title, description, or author..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
-          />
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
+          <Sidebar />
         </div>
 
-        <div className="space-y-8">
-          {categories.length === 0 ? (
-            <p>No enrolled courses available.</p>
-          ) : (
-            categories.map((category, categoryIndex) => (
-              <div key={categoryIndex}>
-                <h2 className="text-2xl font-semibold text-richblue-700 mb-4">
-                  {category.title}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {category.subjects.map((subject, subjectIndex) => (
-                    <div
-                      className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 cursor-pointer"
-                      key={subject.id}
-                      onClick={() => handleNavigateToCourse(subject.id)} // Add click handler
-                    >
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        {subject.title}
-                      </h3>
-                      <p className="text-gray-600">{subject.description}</p>
-                      <p className="text-gray-500 text-sm">
-                        <strong>By:</strong> {subject.author}
-                      </p>
-                      <p className="text-yellow-500">
-                        <strong>Rating:</strong>{" "}
-                        {"⭐".repeat(Math.min(subject.rating, 5))}
-                      </p>
-                      {subject.feedback && (
-                        <p className="text-gray-500 text-sm mt-2">
-                          <strong>Feedback:</strong> {subject.feedback}
-                        </p>
-                      )}
+        {/* Main Content */}
+        <div className="flex-1 ml-64 p-8 overflow-y-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Enrolled Courses</h1>
 
-                      <div className="mt-4">
-                        <p className="text-gray-600">Progress</p>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div
-                            className="bg-blue-500 h-2.5 rounded-full"
-                            style={{ width: `${subject.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
+          {/* Search Bar */}
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Search for a course by title, description, or author..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+            />
+          </div>
 
-                      <button
-                        className="mt-4 bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent click bubbling to parent
-                          handleOpenModal(categoryIndex, subjectIndex);
-                        }}
+          <div className="space-y-8">
+            {categories.length === 0 ? (
+              <p>No enrolled courses available.</p>
+            ) : (
+              categories.map((category, categoryIndex) => (
+                <div key={categoryIndex}>
+                  <h2 className="text-2xl font-semibold text-richblue-700 mb-4">
+                    {category.title}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {category.subjects.map((subject, subjectIndex) => (
+                      <div
+                        className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 cursor-pointer"
+                        key={subject.id}
+                        onClick={() => handleNavigateToCourse(subject.id)}
                       >
-                        Rate
-                      </button>
-                    </div>
-                  ))}
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {subject.title}
+                        </h3>
+                        <p className="text-gray-600">{subject.description}</p>
+                        <p className="text-gray-500 text-sm">
+                          <strong>By:</strong> {subject.author}
+                        </p>
+                        <p className="text-yellow-500">
+                          <strong>Rating:</strong> {"⭐".repeat(Math.min(subject.rating, 5))}
+                        </p>
+                        {subject.feedback && (
+                          <p className="text-gray-500 text-sm mt-2">
+                            <strong>Feedback:</strong> {subject.feedback}
+                          </p>
+                        )}
+
+                        <div className="mt-4">
+                          <p className="text-gray-600">Progress</p>
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-blue-500 h-2.5 rounded-full"
+                              style={{ width: `${subject.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        <button
+                          className="mt-4 bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(categoryIndex, subjectIndex);
+                          }}
+                        >
+                          Rate
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
-      <Footer/>
+
+      <Footer />
     </div>
   );
 }
