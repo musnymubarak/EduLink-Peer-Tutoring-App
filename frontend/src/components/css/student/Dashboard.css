@@ -1,0 +1,166 @@
+/* Dashboard Page Styles */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f7fb; /* Softer light background */
+  }
+  
+  .dashboard-content {
+    flex: 1;
+    margin-left: 16rem; /* Sidebar width */
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: #ffffff;
+  }
+  
+  /* Dashboard Title */
+  .dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 2rem;
+    letter-spacing: 1px; /* Adds spacing between letters for a more elegant feel */
+    text-transform: capitalize; /* Keeps the title capitalized */
+  }
+  
+  /* Welcome Section */
+  .welcome-section {
+    background: #ffffff; /* Background changed to white */
+    color: #1f2937; /* Text color adjusted for better contrast */
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.12);
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+  }
+  
+  .welcome-section:hover {
+    box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.15); /* Enhanced hover effect */
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  
+  .welcome-text {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    font-style: italic;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  
+  /* Attendance Chart */
+  .chart-container {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.12);
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .chart-container:hover {
+    box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Overview Cards */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .overview-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .overview-card:hover {
+    transform: translateY(-8px); /* Slight lift on hover */
+    box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  .overview-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .overview-card p {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-top: 1rem;
+    letter-spacing: 1px;
+  }
+  
+  /* Notifications Section */
+  .notifications-container {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+  .notification-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  
+  .urgent {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  
+  .new {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  
+  /* General Styling Enhancements */
+  h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+  
+  p {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: #4b5563;
+    line-height: 1.6;
+  }
+  
+  a {
+    text-decoration: none;
+    color: #2563eb;
+    transition: color 0.2s ease;
+  }
+  
+  a:hover {
+    color: #1d4ed8; /* Slightly darker shade for hover effect */
+  }
+  
