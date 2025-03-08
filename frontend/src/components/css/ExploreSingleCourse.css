@@ -1,0 +1,118 @@
+/* Base styles */
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Container for the course page */
+.course-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 16px;
+}
+
+/* Banner Section */
+.course-banner {
+  position: relative;
+  width: 100%;
+  height: 24rem;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.course-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.course-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+.course-banner-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Course Details Section */
+.course-details {
+  margin-top: 2rem;
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1D4ED8;
+  margin-bottom: 1rem;
+}
+
+.section-content {
+  color: #4B5563;
+  margin-bottom: 1.5rem;
+}
+
+/* Button Styles */
+.button {
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  background-color: #1D4ED8;
+  color: white;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: #2563EB;
+}
+
+.button:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+.button-close {
+  background-color: #EF4444;
+}
+
+.button-close:hover {
+  background-color: #DC2626;
+}
+
+/* Login Message Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
