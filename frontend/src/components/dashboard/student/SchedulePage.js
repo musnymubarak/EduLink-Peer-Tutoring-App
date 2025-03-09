@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../css/student/SchedulePage.css';
 
 export default function SchedulePage() {
   const [events, setEvents] = useState([
@@ -27,6 +28,7 @@ export default function SchedulePage() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
 
   const addEvent = () => {
     if (!newEvent.title || !newEvent.start || !newEvent.end) {
@@ -130,27 +132,27 @@ export default function SchedulePage() {
     switch(viewMode) {
       case 'month':
         return (
-          <div className="grid grid-cols-7 gap-2 text-center">
+          <div className="grid-calendar">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="font-bold text-gray-600">{day}</div>
+              <div key={day} className="day-header">{day}</div>
             ))}
             {calendarData.map((day, index) => (
               <div 
                 key={index} 
-                className={`border p-2 min-h-[100px] ${day ? 'bg-white' : 'bg-gray-100'} ${day && isToday(day.date) ? 'bg-yellow-300' : ''}`}
+                className={`calendar-cell ${day ? 'cell-active' : 'cell-inactive'} ${day && isToday(day.date) ? 'cell-today' : ''}`}
               >
                 {day && (
                   <>
-                    <div className="text-sm text-gray-500">{day.date.getDate()}</div>
+                    <div className="date-number">{day.date.getDate()}</div>
                     {day.events.map(event => (
                       <div 
                         key={event.id} 
-                        className="bg-blue-100 text-blue-800 rounded p-1 mt-1 text-xs flex justify-between items-center"
+                        className="event-item"
                       >
                         <span>{event.title}</span>
                         <button 
                           onClick={() => deleteEvent(event.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="delete-btn"
                         >
                           ✖
                         </button>
@@ -164,27 +166,27 @@ export default function SchedulePage() {
         );
       case 'week':
         return (
-          <div className="grid grid-cols-7 gap-2 text-center h-full">
+          <div className="grid-calendar">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="font-bold text-gray-600">{day}</div>
+              <div key={day} className="day-header">{day}</div>
             ))}
             {calendarData.map((day, index) => (
               <div 
                 key={index} 
-                className={`border p-2 flex flex-col justify-between ${day ? 'bg-white h-full' : 'bg-gray-100'} ${day && isToday(day.date) ? 'bg-yellow-300' : ''}`}
+                className={`calendar-cell week-cell ${day ? 'cell-active' : 'cell-inactive'} ${day && isToday(day.date) ? 'cell-today' : ''}`}
               >
                 {day && (
                   <>
-                    <div className="text-sm text-gray-500">{day.date.getDate()}</div>
+                    <div className="date-number">{day.date.getDate()}</div>
                     {day.events.map(event => (
                       <div 
                         key={event.id} 
-                        className="bg-blue-100 text-blue-800 rounded p-1 mt-1 text-xs flex justify-between items-center"
+                        className="event-item"
                       >
                         <span>{event.title}</span>
                         <button 
                           onClick={() => deleteEvent(event.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="delete-btn"
                         >
                           ✖
                         </button>
@@ -201,52 +203,50 @@ export default function SchedulePage() {
     }
   };
 
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-800">
+    <div className="schedule-container">
+      <div className="schedule-content">
+        <div className="header-container">
+          <h1 className="main-title">
             Class Schedule
           </h1>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
+        <div className="controls-container">
+          <div className="view-toggle">
             <button 
               onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded flex items-center ${viewMode === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`toggle-btn ${viewMode === 'month' ? 'active-toggle' : ''}`}
             >
               Month
             </button>
             <button 
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded flex items-center ${viewMode === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`toggle-btn ${viewMode === 'week' ? 'active-toggle' : ''}`}
             >
               Week
             </button>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="navigation-controls">
             <button 
               onClick={goToToday}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="today-btn"
             >
               Today
             </button>
             <button 
               onClick={() => changeDate(-1)}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="nav-btn"
             >
               Previous
             </button>
-            <h2 className="text-2xl font-bold">
+            <h2 className="date-title">
               {viewMode === 'month' ? selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : selectedDate.toDateString()}
             </h2>
             <button 
               onClick={() => changeDate(1)}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="nav-btn"
             >
               Next
             </button>
@@ -255,59 +255,68 @@ export default function SchedulePage() {
 
         {renderView()}
 
+        <div className="add-event-btn-container">
+          <button 
+            onClick={() => setIsAddEventModalOpen(true)}
+            className="add-event-btn"
+          >
+            + Add Event
+          </button>
+        </div>
+
         {isAddEventModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg w-96 p-6">
-              <h2 className="text-2xl font-bold mb-4">Add New Event</h2>
-              <div className="mb-4">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <h2 className="modal-title">Add New Event</h2>
+              <div className="form-group">
+                <label htmlFor="title" className="form-label">Title</label>
                 <input 
                   type="text" 
                   id="title" 
                   value={newEvent.title}
                   onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="start" className="block text-sm font-medium text-gray-700">Start</label>
+              <div className="form-group">
+                <label htmlFor="start" className="form-label">Start</label>
                 <input 
                   type="datetime-local" 
                   id="start" 
                   value={newEvent.start}
                   onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="end" className="block text-sm font-medium text-gray-700">End</label>
+              <div className="form-group">
+                <label htmlFor="end" className="form-label">End</label>
                 <input 
                   type="datetime-local" 
                   id="end" 
                   value={newEvent.end}
                   onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+              <div className="form-group">
+                <label htmlFor="description" className="form-label">Description</label>
                 <textarea 
                   id="description"
                   value={newEvent.description}
                   onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="flex justify-between">
+              <div className="modal-actions">
                 <button 
                   onClick={addEvent} 
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="save-btn"
                 >
                   Add Event
                 </button>
                 <button 
                   onClick={() => setIsAddEventModalOpen(false)} 
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="cancel-btn"
                 >
                   Cancel
                 </button>
