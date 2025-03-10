@@ -19,31 +19,8 @@ export default function SchedulePage() {
     }
   ]);
 
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    start: "",
-    end: "",
-    description: ""
-  });
-
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-
-  const addEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    const eventToAdd = {
-      ...newEvent,
-      id: String(Date.now())
-    };
-
-    setEvents(prevEvents => [...prevEvents, eventToAdd]);
-    setNewEvent({ title: "", start: "", end: "", description: "" });
-  };
 
   const deleteEvent = (eventId) => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
@@ -255,75 +232,6 @@ export default function SchedulePage() {
 
         {renderView()}
 
-        <div className="add-event-btn-container">
-          <button 
-            onClick={() => setIsAddEventModalOpen(true)}
-            className="add-event-btn"
-          >
-            + Add Event
-          </button>
-        </div>
-
-        {isAddEventModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-container">
-              <h2 className="modal-title">Add New Event</h2>
-              <div className="form-group">
-                <label htmlFor="title" className="form-label">Title</label>
-                <input 
-                  type="text" 
-                  id="title" 
-                  value={newEvent.title}
-                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="start" className="form-label">Start</label>
-                <input 
-                  type="datetime-local" 
-                  id="start" 
-                  value={newEvent.start}
-                  onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="end" className="form-label">End</label>
-                <input 
-                  type="datetime-local" 
-                  id="end" 
-                  value={newEvent.end}
-                  onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="description" className="form-label">Description</label>
-                <textarea 
-                  id="description"
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-              <div className="modal-actions">
-                <button 
-                  onClick={addEvent} 
-                  className="save-btn"
-                >
-                  Add Event
-                </button>
-                <button 
-                  onClick={() => setIsAddEventModalOpen(false)} 
-                  className="cancel-btn"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
