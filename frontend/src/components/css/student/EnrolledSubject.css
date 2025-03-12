@@ -1,0 +1,164 @@
+/* Main Layout */
+.enrolled-subjects-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+/* Sidebar */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16rem; /* w-64 */
+  height: 100vh;
+  background-color: #ffffff; /* bg-richblue-800 */
+  border-right: 1px solid #2d3748; /* border-richblack-700 */
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  margin-left: 16rem; /* ml-64 */
+  padding: 2rem; /* p-8 */
+  overflow-y: auto;
+}
+
+/* Page Title */
+.page-title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+/* Search Bar */
+.search-bar {
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.75rem; /* p-3 */
+  color: #000000; /* text-black */
+}
+
+.search-input::placeholder {
+  color: #4b5563; /* placeholder-gray-600 */
+}
+
+/* Categories Container */
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* space-y-8 */
+}
+
+/* Category Title */
+.category-title {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 600; /* font-semibold */
+  color: #1e40af; /* text-richblue-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+/* Subjects Grid */
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem; /* gap-6 */
+}
+
+/* Media Queries for Responsive Grid */
+@media (min-width: 768px) {
+  .subjects-grid {
+    grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+  }
+}
+
+@media (min-width: 1024px) {
+  .subjects-grid {
+    grid-template-columns: repeat(3, 1fr); /* lg:grid-cols-3 */
+  }
+}
+
+/* Subject Card */
+.subject-card {
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); /* shadow */
+  padding: 1.5rem; /* p-6 */
+  cursor: pointer;
+  transition: box-shadow 0.2s; /* transition duration-200 */
+}
+
+.subject-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* hover:shadow-lg */
+}
+
+/* Subject Title */
+.subject-title {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600; /* font-semibold */
+  color: #1f2937; /* text-gray-800 */
+}
+
+/* Subject Description */
+.subject-description {
+  color: #4b5563; /* text-gray-600 */
+}
+
+/* Subject Author */
+.subject-author {
+  color: #6b7280; /* text-gray-500 */
+  font-size: 0.875rem; /* text-sm */
+}
+
+/* Subject Rating */
+.subject-rating {
+  color: #f59e0b; /* text-yellow-500 */
+}
+
+/* Subject Feedback */
+.subject-feedback {
+  color: #6b7280; /* text-gray-500 */
+  font-size: 0.875rem; /* text-sm */
+  margin-top: 0.5rem; /* mt-2 */
+}
+
+/* Progress Container */
+.progress-container {
+  margin-top: 1rem; /* mt-4 */
+}
+
+.progress-label {
+  color: #4b5563; /* text-gray-600 */
+}
+
+.progress-bg {
+  width: 100%;
+  background-color: #e5e7eb; /* bg-gray-200 */
+  border-radius: 9999px; /* rounded-full */
+  height: 0.625rem; /* h-2.5 */
+}
+
+.progress-bar {
+  background-color: #3b82f6; /* bg-blue-500 */
+  height: 0.625rem; /* h-2.5 */
+  border-radius: 9999px; /* rounded-full */
+}
+
+/* Rate Button */
+.rate-button {
+  margin-top: 1rem; /* mt-4 */
+  background-color: #3b82f6; /* bg-blue-500 */
+  color: white;
+  border-radius: 0.25rem; /* rounded */
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+}
+
+.rate-button:hover {
+  background-color: #2563eb; /* hover:bg-blue-600 */
+}
