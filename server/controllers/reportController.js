@@ -1,12 +1,19 @@
+const mongoose = require('mongoose');
 const Report = require('../models/Report');
-const Course = require('../models/Course'); // Assuming Course model exists
-const User = require('../models/User'); // Assuming User model exists
+const Course = require('../models/Course'); 
+const User = require('../models/User'); 
 
 // Create a new course report
 const createReport = async (req, res) => {
   try {
-    const { courseId, courseCreatorId, reason } = req.body;
-    const reportedBy = req.user.id; // Assuming you have user authentication and the ID is available in `req.user`
+    const { courseId } = req.params;  // Course ID comes from the URL
+    const { reason } = req.body;
+    const reportedBy = req.user.id;  // Assuming you have user authentication and the ID is available in `req.user`
+
+    // Ensure the courseId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: 'Invalid course ID' });
+    }
 
     // Check if the course exists
     const course = await Course.findById(courseId);
@@ -14,9 +21,9 @@ const createReport = async (req, res) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // Check if the course creator exists
-    const courseCreator = await User.findById(courseCreatorId);
-    if (!courseCreator) {
+    // Get the course creator (instructor) based on the courseId
+    const courseCreatorId = course.tutor;
+    if (!courseCreatorId) {
       return res.status(404).json({ message: 'Course creator not found' });
     }
 
@@ -42,10 +49,15 @@ const getReportsByCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
 
+    // Ensure the courseId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: 'Invalid course ID' });
+    }
+
     const reports = await Report.find({ courseId })
-      .populate('reportedBy', 'name email') // Populate user info for reportedBy
-      .populate('courseCreatorId', 'name email') // Populate user info for course creator
-      .populate('courseId', 'title description'); // Populate course details
+      .populate('reportedBy', 'name email')  // Populate user info for reportedBy
+      .populate('courseCreatorId', 'name email')  // Populate user info for course creator
+      .populate('courseId', 'title description');  // Populate course details
 
     if (!reports.length) {
       return res.status(404).json({ message: 'No reports found for this course' });
@@ -64,8 +76,8 @@ const getReportsByUser = async (req, res) => {
     const { userId } = req.params;
 
     const reports = await Report.find({ reportedBy: userId })
-      .populate('courseId', 'title description') // Populate course details
-      .populate('courseCreatorId', 'name email'); // Populate course creator details
+      .populate('courseId', 'title description')  // Populate course details
+      .populate('courseCreatorId', 'name email');  // Populate course creator details
 
     if (!reports.length) {
       return res.status(404).json({ message: 'No reports found for this user' });
