@@ -42,121 +42,123 @@ export default function ExploreSingleCourse() {
   };
 
   return (
-    <div className="course-container">
+    <div className="course-page-wrapper">
       <Navbar />
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
-      >
-        <IoArrowBack className="mr-2 text-2xl" />
-        Back
-      </button>
+      <div className="course-container">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
+        >
+          <IoArrowBack className="mr-2 text-2xl" />
+          Back
+        </button>
 
-      {/* Banner */}
-      {course.thumbnail && (
-        <div className="course-banner">
-          <img
-            src={course.thumbnail}
-            alt={`${course.courseName} banner`}
-          />
-          <div className="course-banner-overlay">
-            <h1 className="course-banner-title">{course.courseName}</h1>
+        {/* Banner */}
+        {course.thumbnail && (
+          <div className="course-banner">
+            <img
+              src={course.thumbnail}
+              alt={`${course.courseName} banner`}
+            />
+            <div className="course-banner-overlay">
+              <h1 className="course-banner-title">{course.courseName}</h1>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Course Details */}
-      <div className="course-details">
-        {/* Course Description */}
-        <section>
-          <h2 className="section-title">Course Description</h2>
-          <p className="section-content">{course.courseDescription || "No description available."}</p>
-        </section>
+        {/* Course Details */}
+        <div className="course-details">
+          {/* Course Description */}
+          <section>
+            <h2 className="section-title">Course Description</h2>
+            <p className="section-content">{course.courseDescription || "No description available."}</p>
+          </section>
 
-        {/* Category */}
-        <section>
-          <h2 className="section-title">Category</h2>
-          <p className="section-content">{course.category?.name || "No category available."}</p>
-        </section>
+          {/* Category */}
+          <section>
+            <h2 className="section-title">Category</h2>
+            <p className="section-content">{course.category?.name || "No category available."}</p>
+          </section>
 
-        {/* Instructor Details */}
-        <section>
-          <h2 className="section-title">Instructor(s)</h2>
-          {course.availableInstructors && course.availableInstructors.length > 0 ? (
-            course.availableInstructors.map((inst, idx) => (
-              <div key={idx}>
-                <p className="section-content"><strong>Name:</strong> {inst.firstName} {inst.lastName}</p>
-                <p className="section-content"><strong>Email:</strong> {inst.email}</p>
-                <p className="section-content"><strong>Experience:</strong> {inst.experience || "Not available"}</p>
-              </div>
-            ))
-          ) : (
-            <p className="section-content">No instructor details available.</p>
-          )}
-        </section>
+          {/* Instructor Details */}
+          <section>
+            <h2 className="section-title">Instructor(s)</h2>
+            {course.availableInstructors && course.availableInstructors.length > 0 ? (
+              course.availableInstructors.map((inst, idx) => (
+                <div key={idx}>
+                  <p className="section-content"><strong>Name:</strong> {inst.firstName} {inst.lastName}</p>
+                  <p className="section-content"><strong>Email:</strong> {inst.email}</p>
+                  <p className="section-content"><strong>Experience:</strong> {inst.experience || "Not available"}</p>
+                </div>
+              ))
+            ) : (
+              <p className="section-content">No instructor details available.</p>
+            )}
+          </section>
 
-        {/* Rating and Reviews */}
-        <section>
-          <h2 className="section-title">Ratings & Reviews</h2>
-          {course.ratingAndReviews && course.ratingAndReviews.length > 0 ? (
-            course.ratingAndReviews.map((review, idx) => (
-              <div key={idx}>
-                <p className="section-content"><strong>Rating:</strong> {review.rating || "No rating provided"}</p>
-                <p className="section-content"><strong>Review:</strong> {review.comment || "No review provided"}</p>
-              </div>
-            ))
-          ) : (
-            <p className="section-content">No ratings or reviews available.</p>
-          )}
-        </section>
+          {/* Rating and Reviews */}
+          <section>
+            <h2 className="section-title">Ratings & Reviews</h2>
+            {course.ratingAndReviews && course.ratingAndReviews.length > 0 ? (
+              course.ratingAndReviews.map((review, idx) => (
+                <div key={idx}>
+                  <p className="section-content"><strong>Rating:</strong> {review.rating || "No rating provided"}</p>
+                  <p className="section-content"><strong>Review:</strong> {review.comment || "No review provided"}</p>
+                </div>
+              ))
+            ) : (
+              <p className="section-content">No ratings or reviews available.</p>
+            )}
+          </section>
 
-        {/* Students Enrolled */}
-        <section>
-          <h2 className="section-title">Students Enrolled</h2>
-          <p className="section-content">{course.studentsEnrolled?.length || "No students enrolled."}</p>
-        </section>
+          {/* Students Enrolled */}
+          <section>
+            <h2 className="section-title">Students Enrolled</h2>
+            <p className="section-content">{course.studentsEnrolled?.length || "No students enrolled."}</p>
+          </section>
 
-        {/* Course Content */}
-        <section>
-          <h2 className="section-title">Course Content</h2>
-          {course.courseContent && course.courseContent.length > 0 ? (
-            course.courseContent.map((content, idx) => (
-              <div key={idx}>
-                <p className="section-content"><strong>Title:</strong> {content.title}</p>
-                <p className="section-content"><strong>Description:</strong> {content.description || "No description available"}</p>
-              </div>
-            ))
-          ) : (
-            <p className="section-content">No course content available.</p>
-          )}
-        </section>
+          {/* Course Content */}
+          <section>
+            <h2 className="section-title">Course Content</h2>
+            {course.courseContent && course.courseContent.length > 0 ? (
+              course.courseContent.map((content, idx) => (
+                <div key={idx}>
+                  <p className="section-content"><strong>Title:</strong> {content.title}</p>
+                  <p className="section-content"><strong>Description:</strong> {content.description || "No description available"}</p>
+                </div>
+              ))
+            ) : (
+              <p className="section-content">No course content available.</p>
+            )}
+          </section>
 
-        {/* Tags */}
-        <section>
-          <h2 className="section-title">Tags</h2>
-          <p className="section-content">{course.tag?.join(", ") || "No tags available."}</p>
-        </section>
+          {/* Tags */}
+          <section>
+            <h2 className="section-title">Tags</h2>
+            <p className="section-content">{course.tag?.join(", ") || "No tags available."}</p>
+          </section>
 
-        {/* Course Status */}
-        <section>
-          <h2 className="section-title">Status</h2>
-          <p className="section-content">{course.status || "No status available"}</p>
-        </section>
+          {/* Course Status */}
+          <section>
+            <h2 className="section-title">Status</h2>
+            <p className="section-content">{course.status || "No status available"}</p>
+          </section>
 
-        {/* Request Class Button */}
-        <div className="flex justify-end space-x-4">
-          <button
-            onClick={handleRequestClick}
-            className="button"
-          >
-            Request to Class
-          </button>
-          <button
-            onClick={handleEnrollClick}
-            className="button"
-          >
-            Enroll as a Tutor
-          </button>
+          {/* Request Class Button */}
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={handleRequestClick}
+              className="button"
+            >
+              Request to Class
+            </button>
+            <button
+              onClick={handleEnrollClick}
+              className="button"
+            >
+              Enroll as a Tutor
+            </button>
+          </div>
         </div>
       </div>
 
