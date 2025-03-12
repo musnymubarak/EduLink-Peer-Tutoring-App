@@ -13,15 +13,13 @@ exports.sendClassRequest = async (req, res) => {
             return res.status(400).json({ error: "Class type and time are required." });
         }
 
-        // Convert the time string to a Date object
         const classTime = new Date(time);
         if (isNaN(classTime.getTime())) {
             return res.status(400).json({ error: "Invalid time format." });
         }
 
-        // Convert the time to UTC for uniformity
         const startTime = new Date(classTime);
-        const endTime = new Date(classTime.getTime() + 60 * 60 * 1000); // 1 hour after the start time
+        const endTime = new Date(classTime.getTime() + 60 * 60 * 1000);
 
         const course = await Course.findById(courseId);
         if (!course) {
@@ -38,32 +36,29 @@ exports.sendClassRequest = async (req, res) => {
             return res.status(403).json({ error: "You are not enrolled in this course." });
         }
 
-        // Check if the student already has a request for this time or within the same hour
         const existingRequest = await ClassRequest.findOne({
             student: studentId,
             time: { 
                 $gte: startTime.toISOString(), 
                 $lt: endTime.toISOString() 
-            }, // Check for the same hour span
+            },
         });
 
         if (existingRequest) {
             return res.status(400).json({ error: "You have already made a request for this time or within the same hour." });
         }
 
-        // Proceed with creating the class request
         const classRequest = new ClassRequest({
             student: studentId,
             tutor: tutorId,
             course: courseId,
             type,
-            time: startTime, // Store the time in a standard format
+            time: startTime,
             status: "Pending",
         });
 
         await classRequest.save();
 
-        // Create a notification for the tutor
         const notification = new Notification({
             user: tutorId,
             type: "ClassRequestSent",
@@ -82,198 +77,160 @@ exports.sendClassRequest = async (req, res) => {
     }
 };
 
-// Function to handle tutor's decision on a class request
 exports.handleClassRequest = async (req, res) => {
     try {
-        const { requestId } = req.params; // Extract requestId from URL params
-        const { status } = req.body; // Extract status from request body
+        const { requestId } = req.params;
+        const { status, classLink } = req.body;
 
-        // Find the class request
-        const classRequest = await ClassRequest.findById(requestId);
+        console.log("Received Request Details:", {
+            requestId,
+            status,
+            classLink
+        });
+
+        const classRequest = await ClassRequest.findById(requestId)
+            .populate('student')
+            .populate('tutor')
+            .populate('course');
+
         if (!classRequest) {
+            console.error("Class request not found for ID:", requestId);
             return res.status(404).json({ error: "Class request not found." });
         }
 
-        // Update the request status
+        console.log("Full Class Request Object:", JSON.stringify(classRequest, null, 2));
+
+        // Validate essential fields
+        if (!classRequest.student) {
+            console.error("No student found in class request");
+            return res.status(400).json({ error: "Student information is missing" });
+        }
+
+        if (!classRequest.tutor) {
+            console.error("No tutor found in class request");
+            return res.status(400).json({ error: "Tutor information is missing" });
+        }
+
+        if (!classRequest.course) {
+            console.error("No course found in class request");
+            return res.status(400).json({ error: "Course information is missing" });
+        }
+
         classRequest.status = status;
         await classRequest.save();
 
-        // Create a notification for the student based on the status of the request
-        const studentId = classRequest.student;
-        const course = await Course.findById(classRequest.course);
-
         if (status === "Accepted") {
-            const { student, tutor, course, type, time } = classRequest;
+            try {
+                if (classRequest.type === "Personal") {
+                    console.log("Creating Personal Class");
+                    const newClass = new Class({
+                        student: classRequest.student._id,
+                        tutor: classRequest.tutor._id,
+                        course: classRequest.course._id,
+                        type: "Personal",
+                        time: classRequest.time,
+                        classLink: classLink || "", // Allow empty link
+                        status: "Accepted"
+                    });
 
-            if (type === "Personal") {
-                const newClass = new Class({ student, tutor, course, type, time });
-                await newClass.save();
+                    console.log("New Class Object:", JSON.stringify(newClass, null, 2));
 
-                const notification = new Notification({
-                    user: studentId,
-                    type: "ClassRequestHandled",
-                    message: `Your class request for the course "${course.title}" has been accepted. Personal class scheduled at ${time.toISOString()}.`,
-                });
+                    await newClass.save();
+                    console.log("Personal Class Created Successfully");
+                } else if (classRequest.type === "Group") {
+                    console.log("Creating/Updating Group Class");
+                    let groupClass = await Class.findOne({ 
+                        course: classRequest.course._id, 
+                        type: "Group" 
+                    });
 
-                await notification.save();
-
-                return res.status(201).json({
-                    message: "Personal class created successfully.",
-                    newClass,
-                });
-            } else if (type === "Group") {
-                let groupClass = await Class.findOne({ course, type: "Group" });
-
-                if (groupClass) {
-                    if (!groupClass.participants.includes(student.toString())) {
-                        groupClass.participants.push(student);
-                        await groupClass.save();
+                    if (!groupClass) {
+                        groupClass = new Class({
+                            participants: [classRequest.student._id],
+                            tutor: classRequest.tutor._id,
+                            course: classRequest.course._id,
+                            type: "Group",
+                            time: classRequest.time,
+                            classLink: classLink || "",
+                            status: "Accepted"
+                        });
+                    } else {
+                        if (!groupClass.participants.includes(classRequest.student._id.toString())) {
+                            groupClass.participants.push(classRequest.student._id);
+                        }
+                        groupClass.classLink = classLink || groupClass.classLink;
                     }
 
-                    const notification = new Notification({
-                        user: studentId,
-                        type: "ClassRequestHandled",
-                        message: `Your class request for the course "${course.title}" has been accepted. You are added to the group class at ${groupClass.time.toISOString()}.`,
-                    });
-
-                    await notification.save();
-
-                    return res.status(200).json({
-                        message: "Student added to the group class.",
-                        groupClass,
-                    });
-                } else {
-                    groupClass = new Class({
-                        participants: [student],
-                        tutor,
-                        course,
-                        type: "Group",
-                        time,
-                    });
                     await groupClass.save();
-
-                    const notification = new Notification({
-                        user: studentId,
-                        type: "ClassRequestHandled",
-                        message: `Your class request for the course "${course.title}" has been accepted. A new group class has been scheduled at ${groupClass.time.toISOString()}.`,
-                    });
-
-                    await notification.save();
-
-                    return res.status(201).json({
-                        message: "New group class created successfully.",
-                        groupClass,
-                    });
+                    console.log("Group Class Created/Updated Successfully");
                 }
+            } catch (classCreationError) {
+                console.error("Error in class creation:", classCreationError);
+                return res.status(500).json({ 
+                    error: "Failed to create class", 
+                    details: classCreationError.message 
+                });
             }
-        } else if (status === "Rejected") {
-            const notification = new Notification({
-                user: studentId,
-                type: "ClassRequestHandled",
-                message: `Your class request for the course "${course.title}" has been rejected by the tutor.`,
-            });
-
-            await notification.save();
         }
 
-        res.status(200).json({ message: `Class request ${status.toLowerCase()}.` });
+        return res.status(200).json({ 
+            message: `Class request ${status.toLowerCase()} successfully.`,
+            type: classRequest.type
+        });
+
     } catch (error) {
-        res.status(500).json({ error: "An error occurred while handling the class request." });
+        console.error("Comprehensive Error in handleClassRequest:", error);
+        return res.status(500).json({ 
+            error: "An error occurred while handling the class request.", 
+            details: error.message 
+        });
     }
 };
-
 
 exports.getClassRequestsForTutor = async (req, res) => {
     try {
-        const tutorId = req.user.id;  // Get tutor's ID from the logged-in user
-        
-        // Check if tutorId is valid
-        if (!tutorId) {
-            return res.status(400).json({ error: "Tutor ID not found." });
-        }
-
-        // Fetch all class requests for this tutor
+        const tutorId = req.user.id;
         const classRequests = await ClassRequest.find({ tutor: tutorId })
-            .populate('student', 'name email')  // Optionally populate student details
-            .populate('course', 'title description'); // Optionally populate course details
+            .populate('student', 'name email')
+            .populate('course', 'title description');
 
-        // If no class requests are found
-        if (classRequests.length === 0) {
-            return res.status(404).json({ message: "No class requests found for this tutor." });
-        }
-
-        // Return the fetched class requests
         return res.status(200).json({
             message: "Class requests retrieved successfully.",
             classRequests,
         });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "An error occurred while fetching class requests." });
     }
 };
 
-// Function to fetch class requests made by the student
 exports.getStudentClassRequests = async (req, res) => {
     try {
-        const studentId = req.user.id;  // Get student's ID from the logged-in user
-        
-        // Check if studentId is valid
-        if (!studentId) {
-            return res.status(400).json({ error: "Student ID not found." });
-        }
-
-        // Fetch all class requests made by this student
+        const studentId = req.user.id;
         const classRequests = await ClassRequest.find({ student: studentId })
-            .populate('tutor', 'name email')  // Optionally populate tutor details
-            .populate('course', 'title description'); // Optionally populate course details
+            .populate('tutor', 'name email')
+            .populate('course', 'title description');
 
-        // If no class requests are found
-        if (classRequests.length === 0) {
-            return res.status(404).json({ message: "No class requests found for this student." });
-        }
-
-        // Return the fetched class requests
         return res.status(200).json({
             message: "Class requests retrieved successfully.",
             classRequests,
         });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "An error occurred while fetching class requests." });
     }
 };
 
-// Function to fetch accepted classes for the student (personal or group)
 exports.getAcceptedClasses = async (req, res) => {
     try {
-        const studentId = req.user.id;  // Get student's ID from the logged-in user
-        
-        // Check if studentId is valid
-        if (!studentId) {
-            return res.status(400).json({ error: "Student ID not found." });
-        }
+        const studentId = req.user.id;
+        const acceptedClasses = await Class.find({ participants: studentId })
+            .populate('tutor', 'name email')
+            .populate('course', 'title description');
 
-        // Fetch accepted personal and group classes for this student
-        const acceptedClasses = await Class.find({
-            participants: studentId,  // Check if the student is in the participants array
-        })
-            .populate('tutor', 'name email')  // Optionally populate tutor details
-            .populate('course', 'title description'); // Optionally populate course details
-
-        // If no accepted classes are found
-        if (acceptedClasses.length === 0) {
-            return res.status(404).json({ message: "No accepted classes found for this student." });
-        }
-
-        // Return the fetched accepted classes
         return res.status(200).json({
             message: "Accepted classes retrieved successfully.",
             acceptedClasses,
         });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "An error occurred while fetching accepted classes." });
     }
 };
-
