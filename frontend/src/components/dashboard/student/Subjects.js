@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
+import "../../css/student/Subjects.css"; // Import the CSS file
 
 export default function Subject() {
   const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Search query state
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Fetch courses from the backend
@@ -66,58 +69,59 @@ export default function Subject() {
     );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="main-container">
+      <Header/>
       {/* Sidebar */}
-      <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
+      <div className="sidebar-container">
         <Sidebar />
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Courses</h1>
+      <div className="content-container">
+        <h1 className="page-title">Courses</h1>
 
         {/* Search Bar */}
-        <div className="mb-6">
+        <div className="search-container">
           <input
             type="text"
             placeholder="Search for a subject by title, description, or tags..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+            className="search-input"
           />
         </div>
 
-        <div className="space-y-8">
+        <div className="categories-container">
           {categories.map((category, index) => (
-            <div key={index}>
+            <div key={index} className="category-section">
               {/* Category Title */}
-              <h2 className="text-2xl font-semibold text-richblue-700 mb-4">
+              <h2 className="category-title">
                 {category.title}
               </h2>
   
               {/* Courses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.subjects.map((subject, i) =>  {
+              <div className="subjects-grid">
+                {category.subjects.map((subject, i) => {
                 const filteredSubjects = filterSubjects(category.subjects);
                 return (
                   filteredSubjects.length > 0 && (
                   <Link
                     to={`/dashboard/student/subject/${subject.id}`}
                     key={i}
-                    className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
+                    className="subject-card"
                   >
                     {/* Course Title */}
-                    <h3 className="text-lg font-semibold text-gray-800">
+                    <h3 className="subject-title">
                       {subject.title}
                     </h3>
   
                     {/* Course Description */}
-                    <p className="text-gray-600 mb-2">
+                    <p className="subject-description">
                       {subject.description}
                     </p>
   
                     {/* Tags */}
-                    <p className="text-gray-500 text-sm mb-2">
+                    <p className="subject-tags">
                       <strong>Tags:</strong>{" "}
                       {subject.tags.length > 0
                         ? subject.tags.join(", ")
@@ -129,7 +133,7 @@ export default function Subject() {
                       <img
                         src={subject.thumbnail}
                         alt={`${subject.title} Thumbnail`}
-                        className="mt-4 w-full h-32 object-cover rounded-lg"
+                        className="subject-thumbnail"
                       />
                     )}
                   </Link>
@@ -141,7 +145,7 @@ export default function Subject() {
           ))}
         </div>
       </div>
+      <Footer/>
     </div>
   );
-  
 }

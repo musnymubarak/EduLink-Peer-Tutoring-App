@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Sidebar";
 import axios from "axios";
+import Header from "../Header";
+import Footer from "../Footer";
 
 export default function TNotification() {
   // State to hold the fetched notifications
@@ -53,6 +55,7 @@ export default function TNotification() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Header/>
       {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
@@ -113,6 +116,7 @@ export default function TNotification() {
           </div>
         )}
       </div>
+      <Footer/>
     </div>
   );
 }

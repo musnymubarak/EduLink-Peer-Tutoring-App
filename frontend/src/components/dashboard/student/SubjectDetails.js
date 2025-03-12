@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
+import Header from "../Header";
 
 export default function SubjectDetails() {
   const { id } = useParams();
@@ -11,13 +12,15 @@ export default function SubjectDetails() {
   const [ratingsAndReviews, setRatingsAndReviews] = useState([]);
   const [sections, setSections] = useState([]); // State for course sections
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedClassType, setSelectedClassType] = useState("group");
+  const [selectedClassType, setSelectedClassType] = useState("Group");
   const [formData, setFormData] = useState({
     time: "",
     suggestions: "",
   });
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -103,12 +106,33 @@ export default function SubjectDetails() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const formatDateTimeForServer = (dateTimeString) => {
+    // Create a Date object and ensure it's valid
+    const dateObj = new Date(dateTimeString);
+    if (isNaN(dateObj.getTime())) {
+      return null; // Return null if the date is invalid
+    }
+    // Return the ISO format which is compatible with the backend
+    return dateObj.toISOString();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError("");
+
+    // Validate the time format
+    const formattedTime = formatDateTimeForServer(formData.time);
+    if (!formattedTime) {
+      setError("Please enter a valid date and time (YYYY-MM-DD HH:MM)");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const payload = {
-        type: selectedClassType,
-        time: formData.time,
+        type: selectedClassType, // Now using correct enum values
+        time: formattedTime, // Use the formatted time
         suggestions: formData.suggestions,
       };
 
@@ -124,9 +148,12 @@ export default function SubjectDetails() {
 
       alert("Class request sent successfully!");
       setIsModalOpen(false);
+      setFormData({ time: "", suggestions: "" });
     } catch (error) {
       console.error("Error sending class request:", error.response?.data || error);
-      alert(error.response?.data?.error || "An error occurred. Please try again.");
+      setError(error.response?.data?.error || "An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -138,6 +165,7 @@ export default function SubjectDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <Header/>
       <button
         onClick={() => navigate(-1)}
         className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
@@ -253,11 +281,16 @@ export default function SubjectDetails() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
             <h2 className="text-2xl font-semibold mb-4">Request Class</h2>
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700" htmlFor="time">Preferred Time</label>
                 <input
-                  type="text"
+                  type="datetime-local"
                   id="time"
                   name="time"
                   value={formData.time}
@@ -265,6 +298,9 @@ export default function SubjectDetails() {
                   className="border border-gray-300 rounded-lg w-full p-2"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Please select a date and time for your session.
+                </p>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700" htmlFor="suggestions">Suggestions</label>
@@ -274,6 +310,8 @@ export default function SubjectDetails() {
                   value={formData.suggestions}
                   onChange={handleInputChange}
                   className="border border-gray-300 rounded-lg w-full p-2"
+                  placeholder="Any specific topics you want to cover in this session?"
+                  rows={4}
                   required
                 ></textarea>
               </div>
@@ -284,8 +322,8 @@ export default function SubjectDetails() {
                   onChange={(e) => setSelectedClassType(e.target.value)}
                   className="border border-gray-300 rounded-lg w-full p-2"
                 >
-                  <option value="group">Group</option>
-                  <option value="private">Private</option>
+                  <option value="Group">Group</option>
+                  <option value="Personal">Personal</option>
                 </select>
               </div>
               <div className="flex justify-between">
@@ -293,14 +331,16 @@ export default function SubjectDetails() {
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  className={`px-4 py-2 ${isSubmitting ? 'bg-gray-500' : 'bg-blue-600'} text-white rounded-lg`}
+                  disabled={isSubmitting}
                 >
-                  Submit
+                  {isSubmitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </form>
