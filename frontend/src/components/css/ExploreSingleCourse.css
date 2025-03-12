@@ -1,13 +1,27 @@
 /* Base styles */
 body {
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* Container for the course page */
+/* Wrapper for the entire page including navbar */
+.course-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container for the course page content */
 .course-container {
   min-height: 100vh;
   background-color: #f9fafb;
-  padding: 16px;
+  padding: 40px 16px 16px 16px; /* Added top padding of 40px */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Banner Section */
@@ -47,6 +61,7 @@ body {
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .section-title {
@@ -98,6 +113,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .modal-content {
@@ -115,4 +131,11 @@ body {
   font-weight: 600;
   color: #374151;
   margin-bottom: 1rem;
+}
+
+/* Media query for responsive design */
+@media screen and (min-width: 1024px) {
+  .course-container {
+    padding: 60px 48px 24px 48px; /* Increased top padding for larger screens */
+  }
 }
