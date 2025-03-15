@@ -21,4 +21,6 @@ router.get("/student/accepted-classes", auth, isStudent, classController.getAcce
 // Admin-only: Create a Group Class
 router.post("/create-group-class/:courseId", auth, isTutor, classController.createGroupClass);
 
+router.get("/group-classes/:courseId", auth, classController.getGroupClasses);
+
 module.exports = router;
