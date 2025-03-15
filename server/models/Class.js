@@ -44,7 +44,7 @@ const classSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Pending", "Accepted", "Rejected"],  // Class status
+        enum: ["Pending", "Accepted", "Rejected", "Scheduled"],  // Class status
         default: "Pending",
     },
     createdAt: {
