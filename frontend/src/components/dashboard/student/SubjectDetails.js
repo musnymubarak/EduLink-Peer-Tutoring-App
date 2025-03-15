@@ -10,9 +10,11 @@ export default function SubjectDetails() {
   const [course, setCourse] = useState(null);
   const [tutor, setTutor] = useState(null);
   const [ratingsAndReviews, setRatingsAndReviews] = useState([]);
-  const [sections, setSections] = useState([]); // State for course sections
+  const [sections, setSections] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassType, setSelectedClassType] = useState("Group");
+  const [availableGroupTimes, setAvailableGroupTimes] = useState([]);
+  const [selectedGroupTime, setSelectedGroupTime] = useState("");
   const [formData, setFormData] = useState({
     time: "",
     suggestions: "",
@@ -21,6 +23,7 @@ export default function SubjectDetails() {
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -29,7 +32,7 @@ export default function SubjectDetails() {
         setCourse(response.data.data);
         const tutorId = response.data.data.tutor._id;
         fetchTutor(tutorId);
-        fetchSections(id); // Fetch sections when the course is fetched
+        fetchSections(id);
       } catch (error) {
         console.error("Error fetching course:", error);
       }
@@ -47,7 +50,7 @@ export default function SubjectDetails() {
     const fetchSections = async (courseId) => {
       try {
         const response = await axios.get(`http://localhost:4000/api/v1/sections/course/${courseId}`);
-        setSections(response.data.data); // Assuming the API returns an array of sections
+        setSections(response.data.data);
       } catch (error) {
         console.error("Error fetching sections:", error);
       }
@@ -107,13 +110,20 @@ export default function SubjectDetails() {
   };
 
   const formatDateTimeForServer = (dateTimeString) => {
-    // Create a Date object and ensure it's valid
     const dateObj = new Date(dateTimeString);
     if (isNaN(dateObj.getTime())) {
-      return null; // Return null if the date is invalid
+      return null;
     }
-    // Return the ISO format which is compatible with the backend
     return dateObj.toISOString();
+  };
+
+  const fetchAvailableGroupTimes = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/v1/classes/available-group-times/${id}`);
+      setAvailableGroupTimes(response.data.data);
+    } catch (error) {
+      console.error("Error fetching available group times:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -121,21 +131,33 @@ export default function SubjectDetails() {
     setIsSubmitting(true);
     setError("");
 
-    // Validate the time format
-    const formattedTime = formatDateTimeForServer(formData.time);
-    if (!formattedTime) {
-      setError("Please enter a valid date and time (YYYY-MM-DD HH:MM)");
-      setIsSubmitting(false);
-      return;
+    let payload;
+    if (selectedClassType === "Group") {
+      if (!selectedGroupTime) {
+        setError("Please select a group class time.");
+        setIsSubmitting(false);
+        return;
+      }
+      payload = {
+        type: selectedClassType,
+        time: selectedGroupTime,
+        suggestions: formData.suggestions,
+      };
+    } else {
+      const formattedTime = formatDateTimeForServer(formData.time);
+      if (!formattedTime) {
+        setError("Please enter a valid date and time (YYYY-MM-DD HH:MM)");
+        setIsSubmitting(false);
+        return;
+      }
+      payload = {
+        type: selectedClassType,
+        time: formattedTime,
+        suggestions: formData.suggestions,
+      };
     }
 
     try {
-      const payload = {
-        type: selectedClassType, // Now using correct enum values
-        time: formattedTime, // Use the formatted time
-        suggestions: formData.suggestions,
-      };
-
       const response = await axios.post(
         `http://localhost:4000/api/v1/classes/send-request/${id}`,
         payload,
@@ -149,6 +171,7 @@ export default function SubjectDetails() {
       alert("Class request sent successfully!");
       setIsModalOpen(false);
       setFormData({ time: "", suggestions: "" });
+      setSelectedGroupTime("");
     } catch (error) {
       console.error("Error sending class request:", error.response?.data || error);
       setError(error.response?.data?.error || "An error occurred. Please try again.");
@@ -165,7 +188,7 @@ export default function SubjectDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <Header/>
+      <Header />
       <button
         onClick={() => navigate(-1)}
         className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
@@ -221,9 +244,9 @@ export default function SubjectDetails() {
           {sections.length > 0 ? (
             <ul className="list-disc list-inside text-gray-600">
               {sections.map((section) => (
-               <li key={section._id} className="cursor-pointer hover:text-blue-500" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
-               {section.sectionName}
-             </li> // Displaying section names
+                <li key={section._id} className="cursor-pointer hover:text-blue-500" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
+                  {section.sectionName}
+                </li> // Displaying section names
               ))}
             </ul>
           ) : (
@@ -261,7 +284,12 @@ export default function SubjectDetails() {
             </button>
           ) : isEnrolled ? (
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsModalOpen(true);
+                if (selectedClassType === "Group") {
+                  fetchAvailableGroupTimes();
+                }
+              }}
               className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700"
             >
               Request to Class
@@ -288,20 +316,59 @@ export default function SubjectDetails() {
             )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700" htmlFor="time">Preferred Time</label>
-                <input
-                  type="datetime-local"
-                  id="time"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleInputChange}
+                <label className="block text-gray-700">Class Type</label>
+                <select
+                  value={selectedClassType}
+                  onChange={(e) => {
+                    setSelectedClassType(e.target.value);
+                    if (e.target.value === "Group") {
+                      fetchAvailableGroupTimes();
+                    }
+                  }}
                   className="border border-gray-300 rounded-lg w-full p-2"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Please select a date and time for your session.
-                </p>
+                >
+                  <option value="Group">Group</option>
+                  <option value="Personal">Personal</option>
+                </select>
               </div>
+
+              {selectedClassType === "Group" ? (
+                <div className="mb-4">
+                  <label className="block text-gray-700">Available Group Class Times</label>
+                  <select
+                    value={selectedGroupTime}
+                    onChange={(e) => setSelectedGroupTime(e.target.value)}
+                    className="border border-gray-300 rounded-lg w-full p-2"
+                    required
+                  >
+                    <option value="">Select a time</option>
+                    {availableGroupTimes.map((time) => (
+                      <option key={time} value={time}>
+                        {new Date(time).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <label className="block text-gray-700" htmlFor="time">Preferred Time</label>
+                  <input
+                    type="datetime-local"
+                    id="time"
+                    name="time"
+                    value={formData.time}
+                    onChange={handleInputChange}
+                    className="border border-gray-300 rounded-lg w-full p-2"
+                    min={new Date().toISOString().slice(0, 16)}
+                    step="1800" 
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Please select a date and time for your session (30-minute intervals).
+                  </p>
+                </div>
+              )}
+
               <div className="mb-4">
                 <label className="block text-gray-700" htmlFor="suggestions">Suggestions</label>
                 <textarea
@@ -315,17 +382,7 @@ export default function SubjectDetails() {
                   required
                 ></textarea>
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Class Type</label>
-                <select
-                  value={selectedClassType}
-                  onChange={(e) => setSelectedClassType(e.target.value)}
-                  className="border border-gray-300 rounded-lg w-full p-2"
-                >
-                  <option value="Group">Group</option>
-                  <option value="Personal">Personal</option>
-                </select>
-              </div>
+
               <div className="flex justify-between">
                 <button
                   type="button"
