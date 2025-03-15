@@ -8,6 +8,13 @@ export default function TSubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [formData, setFormData] = useState({
+    time: "",
+    duration: 60, // Default duration in minutes
+    classLink: "",
+  });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -21,10 +28,46 @@ export default function TSubjectDetails() {
 
     fetchCourse();
   }, [id]);
-  
+
   const handleRedirect = () => {
     // Redirect to the AddSection page
     navigate("/dashboard/tutor/add-section"); // Adjust the route if necessary
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Validate input
+    if (!formData.time || !formData.duration) {
+      setError("Class time and duration are required.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:4000/api/v1/classes/create-group-class/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      // Close the modal and show success message
+      setIsModalOpen(false);
+      alert("Group class created successfully!");
+      console.log("Group class created:", response.data);
+    } catch (error) {
+      console.error("Error creating group class:", error);
+      setError(error.response?.data?.error || "An error occurred. Please try again.");
+    }
   };
 
   if (!course) {
@@ -33,7 +76,7 @@ export default function TSubjectDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <Header/>
+      <Header />
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -100,6 +143,7 @@ export default function TSubjectDetails() {
             )}
           </div>
         </section>
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Number of students enrolled: 
             <span className="text-gray-600">{course.studentsEnrolled?.length > 0
@@ -108,13 +152,92 @@ export default function TSubjectDetails() {
             </span>
           </h2>
         </section>
+
+        {/* Add Sections Button */}
         <button
-            onClick={handleRedirect}
-            className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
-          >
-            Add Sections
-          </button>
+          onClick={handleRedirect}
+          className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+        >
+          Add Sections
+        </button>
+
+        {/* Create Group Class Button */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="mt-6 ml-4 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          Create Group Class
+        </button>
       </div>
+
+      {/* Modal for Creating Group Class */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
+            <h2 className="text-2xl font-semibold mb-4">Create Group Class</h2>
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700" htmlFor="time">Class Time</label>
+                <input
+                  type="datetime-local"
+                  id="time"
+                  name="time"
+                  value={formData.time}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-lg w-full p-2"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700" htmlFor="duration">Duration (minutes)</label>
+                <input
+                  type="number"
+                  id="duration"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-lg w-full p-2"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700" htmlFor="classLink">Class Link</label>
+                <input
+                  type="url"
+                  id="classLink"
+                  name="classLink"
+                  value={formData.classLink}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-lg w-full p-2"
+                />
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                >
+                  Create Class
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
