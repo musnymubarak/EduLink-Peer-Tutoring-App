@@ -18,12 +18,13 @@ export default function SubjectDetails() {
   const [formData, setFormData] = useState({
     time: "",
     suggestions: "",
+    duration: 60, // Default duration in minutes
   });
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  
+
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -141,6 +142,7 @@ export default function SubjectDetails() {
       payload = {
         type: selectedClassType,
         time: selectedGroupTime,
+        duration: formData.duration, // Include duration
         suggestions: formData.suggestions,
       };
     } else {
@@ -153,6 +155,7 @@ export default function SubjectDetails() {
       payload = {
         type: selectedClassType,
         time: formattedTime,
+        duration: formData.duration, // Include duration
         suggestions: formData.suggestions,
       };
     }
@@ -170,7 +173,7 @@ export default function SubjectDetails() {
 
       alert("Class request sent successfully!");
       setIsModalOpen(false);
-      setFormData({ time: "", suggestions: "" });
+      setFormData({ time: "", suggestions: "", duration: 60 }); // Reset form data
       setSelectedGroupTime("");
     } catch (error) {
       console.error("Error sending class request:", error.response?.data || error);
@@ -359,8 +362,6 @@ export default function SubjectDetails() {
                     value={formData.time}
                     onChange={handleInputChange}
                     className="border border-gray-300 rounded-lg w-full p-2"
-                    min={new Date().toISOString().slice(0, 16)}
-                    step="1800" 
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -368,6 +369,24 @@ export default function SubjectDetails() {
                   </p>
                 </div>
               )}
+
+              <div className="mb-4">
+                <label className="block text-gray-700" htmlFor="duration">Duration (minutes)</label>
+                <input
+                  type="number"
+                  id="duration"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded-lg w-full p-2"
+                  min="30"
+                  step="30"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Please enter the duration of the session in minutes (minimum 30 minutes).
+                </p>
+              </div>
 
               <div className="mb-4">
                 <label className="block text-gray-700" htmlFor="suggestions">Suggestions</label>
