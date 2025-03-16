@@ -30,10 +30,14 @@ const classRequestSchema = new mongoose.Schema({
         enum: ["Pending", "Accepted", "Rejected"],  // Request status
         default: "Pending",
     },
+    duration: {
+        type: Number,  // Duration of the class in minutes
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,  // Request creation time
-    },
+    }
 });
 
 module.exports = mongoose.model("ClassRequest", classRequestSchema);

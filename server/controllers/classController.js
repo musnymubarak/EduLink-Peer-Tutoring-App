@@ -6,12 +6,12 @@ const cron = require("node-cron");
 
 exports.sendClassRequest = async (req, res) => {
     try {
-        const { type, time } = req.body;
+        const { type, time, duration } = req.body;
         const courseId = req.params.courseId;
         const studentId = req.user.id;
 
-        if (!type || !time) {
-            return res.status(400).json({ error: "Class type and time are required." });
+        if (!type || !time || !duration) {
+            return res.status(400).json({ error: "Class type, duration and time are required." });
         }
 
         const classTime = new Date(time);
@@ -20,7 +20,7 @@ exports.sendClassRequest = async (req, res) => {
         }
 
         const startTime = new Date(classTime);
-        const endTime = new Date(classTime.getTime() + 60 * 60 * 1000);
+        const endTime = new Date(classTime.getTime() + duration * 60 * 1000);
 
         const course = await Course.findById(courseId);
         if (!course) {
@@ -54,6 +54,7 @@ exports.sendClassRequest = async (req, res) => {
             tutor: tutorId,
             course: courseId,
             type,
+            duration,
             time: startTime,
             status: "Pending",
         });
@@ -130,6 +131,7 @@ exports.handleClassRequest = async (req, res) => {
                         course: classRequest.course._id,
                         type: "Personal",
                         time: classRequest.time,
+                        duration: classRequest.duration, // Use duration from classRequest
                         classLink: classLink || "", // Allow empty link
                         status: "Accepted"
                     });
@@ -152,6 +154,7 @@ exports.handleClassRequest = async (req, res) => {
                             course: classRequest.course._id,
                             type: "Group",
                             time: classRequest.time,
+                            duration: classRequest.duration, // Use duration from classRequest
                             classLink: classLink || "",
                             status: "Accepted"
                         });
