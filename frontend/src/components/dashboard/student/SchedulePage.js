@@ -1,27 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../css/student/SchedulePage.css';
 
 export default function SchedulePage() {
-  const [events, setEvents] = useState([
-    {
-      id: "1",
-      title: "C++ Class",
-      start: "2024-12-12T08:00:00",
-      end: "2024-12-12T10:00:00",
-      description: "Learn the fundamentals of C++ programming.",
-    },
-    {
-      id: "2",
-      title: "Python Workshop",
-      start: "2024-12-13T14:00:00",
-      end: "2024-12-13T16:00:00",
-      description: "Advanced Python programming techniques.",
-    }
-  ]);
-
+  const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
+  const [fetchingClasses, setFetchingClasses] = useState(true);
 
+  // Fetch accepted classes on component mount
+  useEffect(() => {
+    fetchAcceptedClasses();
+  }, []);
+
+  const fetchAcceptedClasses = async () => {
+    setFetchingClasses(true);
+    try {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+  
+      const response = await fetch("http://localhost:4000/api/v1/classes/student/accepted-classes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.status === 401) {
+        console.error("Authentication token expired or invalid");
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Log the raw data to see its structure
+        console.log("Raw API response:", data);
+        
+        const transformedEvents = data.acceptedClasses.map(classItem => {
+          const startTime = new Date(classItem.time);
+          const validStartTime = isNaN(startTime.getTime()) ? new Date() : startTime;
+          const endTime = new Date(validStartTime.getTime() + (classItem.duration || 60) * 60000);
+          
+          return {
+            id: classItem._id,
+            title: classItem.course?.courseName || "Untitled Class",
+            start: validStartTime,
+            end: endTime,
+            description: classItem.course?.courseDescription || "No description provided",
+            meetLink: classItem.classLink || "",
+            tutorName: classItem.tutor?.firstName || classItem.tutor?.email || "Unknown Tutor"
+          };
+        });
+  
+        console.log("Transformed events:", transformedEvents);
+        setEvents(transformedEvents);
+      } else {
+        console.error("Failed to fetch classes:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching accepted classes:", error);
+    } finally {
+      setFetchingClasses(false);
+    }
+  };
+  
   const deleteEvent = (eventId) => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
   };
@@ -35,22 +82,20 @@ export default function SchedulePage() {
     const month = selectedDate.getMonth();
     const day = selectedDate.getDate();
 
-    const filteredEvents = events.filter(event => {
-      const eventDate = new Date(event.start);
-      return eventDate >= new Date(year, month, day) && eventDate < new Date(year, month, day + 7);
-    });
+    // Removed the week-only filter to properly display month view
+    // Now we'll filter within each view generator function
 
     switch(viewMode) {
       case 'month':
-        return generateMonthView(year, month, filteredEvents);
+        return generateMonthView(year, month, events);
       case 'week':
-        return generateWeekView(year, month, day, filteredEvents);
+        return generateWeekView(year, month, day, events);
       default:
-        return generateMonthView(year, month, filteredEvents);
+        return generateMonthView(year, month, events);
     }
   };
 
-  const generateMonthView = (year, month, filteredEvents) => {
+  const generateMonthView = (year, month, allEvents) => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startingDayOfWeek = new Date(year, month, 1).getDay();
 
@@ -61,16 +106,22 @@ export default function SchedulePage() {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
-      const dayEvents = filteredEvents.filter(event => 
-        new Date(event.start).toDateString() === currentDate.toDateString()
-      );
+      
+      // Filter events for this specific day
+      const dayEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.getFullYear() === year && 
+               eventDate.getMonth() === month && 
+               eventDate.getDate() === day;
+      });
+      
       days.push({ date: currentDate, events: dayEvents });
     }
 
     return days;
   };
 
-  const generateWeekView = (year, month, day, filteredEvents) => {
+  const generateWeekView = (year, month, day, allEvents) => {
     const weekStart = new Date(year, month, day - new Date(year, month, day).getDay());
 
     const days = [];
@@ -78,9 +129,13 @@ export default function SchedulePage() {
       const currentDate = new Date(weekStart);
       currentDate.setDate(weekStart.getDate() + i);
 
-      const dayEvents = filteredEvents.filter(event => 
-        new Date(event.start).toDateString() === currentDate.toDateString()
-      );
+      // Filter events for this specific day
+      const dayEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.getFullYear() === currentDate.getFullYear() && 
+               eventDate.getMonth() === currentDate.getMonth() && 
+               eventDate.getDate() === currentDate.getDate();
+      });
 
       days.push({ date: currentDate, events: dayEvents });
     }
@@ -100,10 +155,28 @@ export default function SchedulePage() {
 
   const isToday = (date) => {
     const today = new Date();
-    return today.toDateString() === date.toDateString();
+    return today.getDate() === date.getDate() &&
+           today.getMonth() === date.getMonth() &&
+           today.getFullYear() === date.getFullYear();
   };
 
   const renderView = () => {
+    if (fetchingClasses) {
+      return (
+        <div className="loading-container">
+          <div className="loading-message">Loading classes...</div>
+        </div>
+      );
+    }
+
+    if (events.length === 0) {
+      return (
+        <div className="no-events-message">
+          <p>No scheduled classes found. Check back later or refresh to update.</p>
+        </div>
+      );
+    }
+
     const calendarData = generateCalendarView();
 
     switch(viewMode) {
@@ -121,20 +194,37 @@ export default function SchedulePage() {
                 {day && (
                   <>
                     <div className="date-number">{day.date.getDate()}</div>
-                    {day.events.map(event => (
-                      <div 
-                        key={event.id} 
-                        className="event-item"
-                      >
-                        <span>{event.title}</span>
-                        <button 
-                          onClick={() => deleteEvent(event.id)}
-                          className="delete-btn"
+                    {day.events.length > 0 ? (
+                      day.events.map(event => (
+                        <div 
+                          key={event.id} 
+                          className="event-item"
                         >
-                          ✖
-                        </button>
-                      </div>
-                    ))}
+                          <div className="event-title">{event.title}</div>
+                          <div className="event-details">
+                            {event.tutorName && (
+                              <div className="tutor-name">Tutor: {event.tutorName}</div>
+                            )}
+                            {event.meetLink && (
+                              <a 
+                                href={event.meetLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="meet-link"
+                              >
+                                Join Meeting
+                              </a>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => deleteEvent(event.id)}
+                            className="delete-btn"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                      ))
+                    ) : null}
                   </>
                 )}
               </div>
@@ -155,20 +245,41 @@ export default function SchedulePage() {
                 {day && (
                   <>
                     <div className="date-number">{day.date.getDate()}</div>
-                    {day.events.map(event => (
-                      <div 
-                        key={event.id} 
-                        className="event-item"
-                      >
-                        <span>{event.title}</span>
-                        <button 
-                          onClick={() => deleteEvent(event.id)}
-                          className="delete-btn"
+                    {day.events.length > 0 ? (
+                      day.events.map(event => (
+                        <div 
+                          key={event.id} 
+                          className="event-item"
                         >
-                          ✖
-                        </button>
-                      </div>
-                    ))}
+                          <div className="event-title">{event.title}</div>
+                          <div className="event-time">
+                            {new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                            {new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </div>
+                          <div className="event-details">
+                            {event.tutorName && (
+                              <div className="tutor-name">Tutor: {event.tutorName}</div>
+                            )}
+                            {event.meetLink && (
+                              <a 
+                                href={event.meetLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="meet-link"
+                              >
+                                Join Meeting
+                              </a>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => deleteEvent(event.id)}
+                            className="delete-btn"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                      ))
+                    ) : null}
                   </>
                 )}
               </div>
@@ -187,6 +298,12 @@ export default function SchedulePage() {
           <h1 className="main-title">
             Class Schedule
           </h1>
+          <button 
+            onClick={fetchAcceptedClasses} 
+            className="refresh-btn"
+          >
+            ↻ Refresh
+          </button>
         </div>
 
         <div className="controls-container">
