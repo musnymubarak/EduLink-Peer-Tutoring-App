@@ -225,17 +225,27 @@ exports.getStudentClassRequests = async (req, res) => {
 
 exports.getAcceptedClasses = async (req, res) => {
     try {
-        const studentId = req.user.id;
-        const acceptedClasses = await Class.find({ participants: studentId })
-            .populate('tutor', 'name email')
-            .populate('course', 'title description');
-
-        return res.status(200).json({
-            message: "Accepted classes retrieved successfully.",
-            acceptedClasses,
-        });
+      const studentId = req.user.id;
+      const acceptedClasses = await Class.find({
+        status: "Accepted",
+        $or: [
+          { type: "Personal", student: studentId },
+          { type: "Group", participants: studentId }
+        ]
+      })
+      .populate('tutor', 'firstName email')
+      .populate('course', 'courseName courseDescription');
+      console.log(acceptedClasses)
+      return res.status(200).json({
+        message: "Accepted classes retrieved successfully.",
+        acceptedClasses,
+      });
     } catch (error) {
-        return res.status(500).json({ error: "An error occurred while fetching accepted classes." });
+      console.error("Error fetching accepted classes:", error);
+      return res.status(500).json({ 
+        error: "An error occurred while fetching accepted classes.",
+        details: error.message 
+      });
     }
 };
 
