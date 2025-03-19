@@ -45,6 +45,7 @@ import TAddSection from './components/dashboard/tutor/TAddSection';
 import TAddNewSection from './components/dashboard/tutor/TAddNewSection';
 import TNotification from './components/dashboard/tutor/TNotification';
 import TSection from './components/dashboard/tutor/TSection'
+import TClasses from './components/dashboard/tutor/TClasses';
 
 function App() {
   return (
@@ -95,6 +96,7 @@ function App() {
         <Route path="/dashboard/tutor/add-section" element={<TAddSection />} />
         <Route path="/dashboard/tutor/add-new-section" element={<TAddNewSection />} />
         <Route path="/dashboard/tutor/section/:sectionId" element={<TSection />} />
+        <Route path="/dashboard/tutor/classes" element={<TClasses />} />
 
         {/* admin */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />
