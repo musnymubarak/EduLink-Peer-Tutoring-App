@@ -71,7 +71,7 @@ export default function TSubjects() {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Courses</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 pt-14">Courses</h1>
 
         {/* Search Bar */}
         <div className="mb-6">
