@@ -225,29 +225,39 @@ exports.getStudentClassRequests = async (req, res) => {
 
 exports.getAcceptedClasses = async (req, res) => {
     try {
-      const studentId = req.user.id;
-      const acceptedClasses = await Class.find({
-        status: "Accepted",
-        $or: [
-          { type: "Personal", student: studentId },
-          { type: "Group", participants: studentId }
-        ]
-      })
-      .populate('tutor', 'firstName email')
-      .populate('course', 'courseName courseDescription');
-      console.log(acceptedClasses)
+      const userId = req.user.id;
+      const userRole = req.user.accountType;
+      
+      let query = { status: "Accepted" };
+      
+      if (userRole === "Tutor") {
+        query.tutor = userId;
+      } else {
+        query.$or = [
+          { type: "Personal", student: userId },
+          { type: "Group", participants: userId }
+        ];
+      }
+      
+      console.log(query.tutor);
+      const acceptedClasses = await Class.find(query)
+        .populate('tutor', 'firstName email')
+        .populate('course', 'courseName courseDescription')
+        .populate('student', 'firstName email') 
+        .populate('participants', 'firstName email'); 
+      
       return res.status(200).json({
         message: "Accepted classes retrieved successfully.",
         acceptedClasses,
       });
     } catch (error) {
       console.error("Error fetching accepted classes:", error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: "An error occurred while fetching accepted classes.",
-        details: error.message 
+        details: error.message
       });
     }
-};
+  };
 
 // Function to delete a class after its duration
 const scheduleClassDeletion = (classId, duration) => {
