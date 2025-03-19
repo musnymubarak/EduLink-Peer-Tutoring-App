@@ -22,7 +22,7 @@ export default function SchedulePage() {
         return;
       }
   
-      const response = await fetch("http://localhost:4000/api/v1/classes/student/accepted-classes", {
+      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
