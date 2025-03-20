@@ -3,10 +3,13 @@ import Sidebar from "../Sidebar";
 import axios from "axios";
 import Header from "../Header";
 import Footer from "../Footer";
+import EditCourse from "./EditCourse"; // Import the EditCourse component
 
 export default function YourSubjects() {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState(null); // State to hold the selected course ID
+  const [isEditModalOpen, setEditModalOpen] = useState(false); // State to control the edit modal
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -26,11 +29,10 @@ export default function YourSubjects() {
         const response = await axios.get("http://localhost:4000/api/v1/courses", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(tutorId)
+
         if (response.data.success) {
           const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
           setCourses(tutorCourses || []); // Ensure courses is always an array
-
         } else {
           alert("Failed to load courses");
         }
@@ -45,6 +47,16 @@ export default function YourSubjects() {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const handleEditCourse = (courseId) => {
+    setSelectedCourseId(courseId); // Set the selected course ID
+    setEditModalOpen(true); // Open the edit modal
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false); // Close the edit modal
+    setSelectedCourseId(null); // Reset the selected course ID
   };
 
   return (
@@ -82,10 +94,27 @@ export default function YourSubjects() {
                 <div key={course._id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 w-64 max-w-sm">
                   <h3 className="text-lg font-semibold text-gray-800">{course.courseName}</h3>
                   <p className="text-gray-600">{course.courseDescription}</p>
+                  <button
+                    onClick={() => handleEditCourse(course._id)} // Call handleEditCourse on button click
+                    className="mt-4 bg-blue-500 text-white rounded px-4 py-2"
+                  >
+                    Edit
+                  </button>
                 </div>
               ))
           )}
         </div>
+
+        {isEditModalOpen && (
+          <EditCourse
+            courseId={selectedCourseId}
+            onClose={handleCloseEditModal}
+            onUpdate={() => {
+              handleCloseEditModal();
+              // Optionally, refresh the course list here
+            }}
+          />
+        )}
       </div>
       <Footer />
     </div>
