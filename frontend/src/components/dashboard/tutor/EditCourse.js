@@ -85,8 +85,8 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
               required
             />
           </div>
-          <button type="submit">Update Course</button>
-          <button type="button" onClick={onClose}>Cancel</button>
+          <button type="submit" className='bg-blue-600 text-white p-2 rounded'>Update Course</button>
+          <button type="button" className='bg-blue-600 text-white p-2 rounded' onClick={onClose}>Cancel</button>
         </form>
       </div>
     </div>
