@@ -46,6 +46,7 @@ import TAddNewSection from './components/dashboard/tutor/TAddNewSection';
 import TNotification from './components/dashboard/tutor/TNotification';
 import TSection from './components/dashboard/tutor/TSection'
 import TClasses from './components/dashboard/tutor/TClasses';
+import Classes from './components/dashboard/student/Classes';
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
         />
         <Route path='/dashboard/student/noti' element={<Notification/>}/>
         <Route path='/dashboard/student/section/:sectionId' element={<CourseSection/>}/>
+        <Route path="/dashboard/student/classes" element={<Classes />} />
 
         {/*tutor*/}
         <Route path="/explore-subjects" element={<ExploreSubjects />} />
