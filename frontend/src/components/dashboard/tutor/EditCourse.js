@@ -5,13 +5,23 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
   const [courseData, setCourseData] = useState({
     courseName: "",
     courseDescription: "",
+    category: "", // Add category field
+    thumbnail: "", // Add thumbnail field
+    tags: "", // Add tags field
+    instructions: "", // Add instructions field
+    status: "", // Add status field
   });
+
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` }, // Ensure token is sent
+          params: { includeFeedback: true }, // Include feedback in the request
+
+
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -19,6 +29,13 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
           setCourseData({
             courseName: response.data.data.courseName,
             courseDescription: response.data.data.courseDescription,
+            category: response.data.data.category, // Set category
+            thumbnail: response.data.data.thumbnail, // Set thumbnail
+            tags: response.data.data.tags ? response.data.data.tags.join(", ") : "", // Set tags as a comma-separated string
+
+            instructions: response.data.data.instructions, // Set instructions
+            status: response.data.data.status, // Set status
+
           });
         } else {
           alert("Failed to load course data");
@@ -76,6 +93,58 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
               required
             />
           </div>
+          <div>
+            <label>Category:</label>
+            <input
+              type="text"
+              name="category"
+              value={courseData.category}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label>Thumbnail:</label>
+            <input
+              type="text"
+              name="thumbnail"
+              value={courseData.thumbnail}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label>Tags:</label>
+            <input
+              type="text"
+              name="tags"
+              value={courseData.tags}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label>Instructions:</label>
+            <textarea
+              name="instructions"
+              value={courseData.instructions}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label>Status:</label>
+            <select
+              name="status"
+              value={courseData.status}
+              onChange={handleChange}
+              required
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
           <div>
             <label>Course Description:</label>
             <textarea
