@@ -13,13 +13,122 @@ export default function TDashboard() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [courseRatings, setCourseRatings] = useState({});
+  const [averageRating, setAverageRating] = useState(0);
+  
   const tutorExtraDetails = {
-    rating: 4.8,
     experience: "5 years",    
     upcomingSessions: [
       { id: 1, topic: "Functions in C", date: "2024-12-10", time: "10:00 AM" },
       { id: 2, topic: "Data Structures", date: "2024-12-11", time: "2:00 PM" },
     ],
+  };
+  
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Authentication token is missing. Please log in.");
+          return;
+        }
+
+        // Decode the token to get tutorId
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const payload = JSON.parse(atob(base64));
+        const tutorId = payload.id; // Extract tutor ID from token
+
+        const response = await axios.get(
+          "http://localhost:4000/api/v1/courses",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
+          console.log(tutorCourses)
+          setCourses(tutorCourses || []); // Ensure courses is always an array
+          
+          // Fetch ratings for each course
+          fetchCourseRatings(tutorCourses, token);
+        } else {
+          alert("Failed to load courses");
+        }
+      } catch (error) {
+        console.error("Error fetching enrolled courses:", error);
+        alert("An error occurred while fetching the courses.");
+      }
+    };
+
+    fetchCourses();
+  }, []);
+  
+  // New function to fetch ratings for each course
+  const fetchCourseRatings = async (courses, token) => {
+    try {
+      const ratingsPromises = courses.map(async (course) => {
+        try {
+          const response = await axios.get(
+            `http://localhost:4000/api/v1/rating/${course._id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          
+          console.log(response.data);
+          
+          // Extract rating from the data array if it exists
+          let rating = 0;
+          if (response.data.success && response.data.data && response.data.data.length > 0) {
+            // If multiple ratings exist, we could calculate an average
+            // For now, we'll take the first rating
+            rating = response.data.data[0].rating || 0;
+            
+            // Log the extracted rating
+            console.log(`Rating for course ${course._id}: ${rating}`);
+          }
+          
+          return { 
+            courseId: course._id, 
+            rating: rating
+          };
+        } catch (error) {
+          console.error(`Error fetching rating for course ${course._id}:`, error);
+          // Return 0 rating if error occurs
+          return { courseId: course._id, rating: 0 };
+        }
+      });
+      
+      const ratingsResults = await Promise.all(ratingsPromises);
+      
+      // Convert array of results to an object with courseId as key
+      const ratingsObj = {};
+      ratingsResults.forEach(result => {
+        ratingsObj[result.courseId] = result.rating;
+      });
+      
+      // Calculate average rating
+      const totalRating = ratingsResults.reduce((sum, item) => sum + item.rating, 0);
+      const avgRating = courses.length > 0 ? (totalRating / courses.length).toFixed(1) : 0;
+      
+      // Log the complete ratings object and average
+      console.log("All course ratings:", ratingsObj);
+      console.log("Average rating:", avgRating);
+      
+      setCourseRatings(ratingsObj);
+      setAverageRating(avgRating);
+      
+    } catch (error) {
+      console.error("Error in fetchCourseRatings:", error);
+    }
   };
 
   // Debug function
@@ -257,19 +366,35 @@ export default function TDashboard() {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Tutor Dashboard</h1>
 
         {/* Overview Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-blue-700">Total Students</h2>
             <p className="text-3xl font-semibold text-gray-800 mt-4">{totalStudents}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700">Tutor Rating</h2>
-            <p className="text-3xl font-semibold text-gray-800 mt-4">{tutorExtraDetails.rating} / 5</p>
+            <h2 className="text-xl font-bold text-blue-700">Average Tutor Rating</h2>
+            <p className="text-3xl font-semibold text-gray-800 mt-4">{averageRating} / 5</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700">Experience</h2>
-            <p className="text-lg text-gray-600 mt-4">{tutorExtraDetails.experience}</p>
-          </div>
+        </div>
+
+        {/* Course Ratings Section - New section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-2xl font-bold text-blue-700 mb-4">Course Ratings</h2>
+          {courses.length > 0 ? (
+            <div className="space-y-4">
+              {courses.map((course) => (
+                <div key={course._id} className="flex justify-between items-center border-b pb-2">
+                  <p className="text-gray-800 font-semibold">{course.courseName || "Unnamed Course"}</p>
+                  <div className="flex items-center">
+                    <span className="text-yellow-500 mr-1">★</span>
+                    <span className="text-gray-700">{courseRatings[course._id] || 0} / 5</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No courses available.</p>
+          )}
         </div>
 
         {/* Recent Requests Section */}
