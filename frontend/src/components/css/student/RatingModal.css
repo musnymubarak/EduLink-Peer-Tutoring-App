@@ -28,6 +28,10 @@
 .modal-content label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold; /* Added to make label names more prominent */
+  color: #333; /* Changed color for better visibility */
+  text-align: left;
+
 }
 
 .modal-content input,

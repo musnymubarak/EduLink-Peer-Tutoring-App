@@ -6,13 +6,12 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
     courseName: "",
     courseDescription: "",
     category: "", // Add category field
-    whatYouWillLearn: "", // Add whatYouWillLearn field
+    whatYouWillLearn: "", // Set what you will learn
     thumbnail: "", // Add thumbnail field
     tags: "", // Add tags field
     instructions: "", // Add instructions field
     status: "", // Add status field
   });
-
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -21,22 +20,18 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` }, // Ensure token is sent
           params: { includeFeedback: true }, // Include feedback in the request
-
-
-          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.data.success) {
           setCourseData({
             courseName: response.data.data.courseName,
             courseDescription: response.data.data.courseDescription,
-            category: response.data.data.category, // Set category
+            category: response.data.data.category.name, // Set category
+            whatYouWillLearn: response.data.data.whatYouWillLearn, // Set what you will learn
             thumbnail: response.data.data.thumbnail, // Set thumbnail
-            tags: response.data.data.tags ? response.data.data.tags.join(", ") : "", // Set tags as a comma-separated string
-
+            tags: response.data.data.tag ? response.data.data.tag.join(", ") : "", // Set tags as a comma-separated string
             instructions: response.data.data.instructions, // Set instructions
             status: response.data.data.status, // Set status
-
           });
         } else {
           alert("Failed to load course data");
@@ -107,11 +102,10 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
           <div>
             <label>What You Will Learn:</label>
             <textarea 
-            name="whatYouWillLearn" 
-            value={courseData.whatYouWillLearn} 
-            onChange={handleChange} 
+              name="whatYouWillLearn" 
+              value={courseData.whatYouWillLearn} 
+              onChange={handleChange} 
             />
-
           </div>
           <div>
             <label>Course Description:</label>
@@ -124,9 +118,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
           </div>
           <div>
             <label>Thumbnail:</label>
-            <input type="file" accept="image/*"  />
-            
-            
+            <input type="file" accept="image/*" />
           </div>
           <div>
             <label>Tags:</label>
@@ -159,8 +151,6 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-
-         
           <button type="submit" className='bg-blue-600 text-white p-2 rounded'>Update Course</button>
           <button type="button" className='bg-blue-600 text-white p-2 rounded' onClick={onClose}>Cancel</button>
         </form>
