@@ -5,7 +5,8 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
     const [courseData, setCourseData] = useState({
         courseName: "",
         courseDescription: "",
-        category: "",
+        categoryObj: null,
+        categoryName: "",
         whatYouWillLearn: "",
         thumbnail: "",
         tags: "",
@@ -24,16 +25,18 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
                     headers: { Authorization: `Bearer ${token}` },
                     params: { includeFeedback: true },
                 });
+                console.log(response.data);
 
                 if (response.data.success) {
                     setCourseData({
                         courseName: response.data.data.courseName,
                         courseDescription: response.data.data.courseDescription,
-                        category: response.data.data.category || "", 
+                        categoryObj: response.data.data.category, // Store the entire category object
+                        categoryName: response.data.data.category?.name || "", // Store just the name for display
                         whatYouWillLearn: response.data.data.whatYouWillLearn || "",
                         thumbnail: response.data.data.thumbnail || "",
-                        tags: response.data.data.tags ? response.data.data.tags.join(", ") : "",
-                        instructions: response.data.data.instructions || "",
+                        tags: response.data.data.tag ? response.data.data.tag.join(", ") : "", 
+                        instructions: response.data.data.instructions ? response.data.data.instructions.join(", ") : "", 
                         status: response.data.data.status || "",
                         availableInstructors: response.data.data.availableInstructors || [],
                         price: response.data.data.price || null,
@@ -50,13 +53,23 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
 
         fetchCourseData();
     }, [courseId]);
+    
+    console.log(courseData);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setCourseData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+        
+        if (name === "categoryName") {
+            setCourseData((prevData) => ({
+                ...prevData,
+                categoryName: value,
+            }));
+        } else {
+            setCourseData((prevData) => ({
+                ...prevData,
+                [name]: value,
+            }));
+        }
     };
 
     const handleThumbnailUpload = async (event) => {
@@ -92,14 +105,17 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
 
         try {
             const response = await axios.put(`http://localhost:4000/api/v1/courses/${courseId}`, {
-                category: courseData.category,
+                category: courseData.categoryName,
                 courseName: courseData.courseName,
                 whatYouWillLearn: courseData.whatYouWillLearn,
                 courseDescription: courseData.courseDescription,
                 thumbnail: courseData.thumbnail,
-                tags: courseData.tags.split(", "),
-                instructions: courseData.instructions,
+                tag: courseData.tags.split(",").map(tag => tag.trim()),
+                instructions: courseData.instructions.split(",").map(instruction => instruction.trim()),
                 status: courseData.status,
+                price: courseData.price,
+                availableInstructors: courseData.availableInstructors,
+                courseContent: courseData.courseContent
             }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -128,7 +144,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
                     </div>
                     <div>
                         <label>Category:</label>
-                        <input type="text" name="category" value={courseData.category} onChange={handleChange} required />
+                        <input type="text" name="categoryName" value={courseData.categoryName} onChange={handleChange} required />
                     </div>
                     <div>
                         <label>What You Will Learn:</label>
