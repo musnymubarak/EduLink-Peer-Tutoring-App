@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
-const EditCourse = ({ courseId, onClose, onUpdate }) => {
+import { useParams, useNavigate } from "react-router-dom"; // Import useParams and useNavigate
+import Sidebar from "../Sidebar";
+import Header from "../Header";
+import Footer from "../Footer";
+const EditCoursePage = () => {
+  const { courseId } = useParams(); // Get courseId from URL parameters
   const [courseData, setCourseData] = useState({
     courseName: "",
     courseDescription: "",
-    category: "", // Add category field
-    whatYouWillLearn: "", // Add whatYouWillLearn field
-    thumbnail: "", // Add thumbnail field
-    tags: "", // Add tags field
-    instructions: "", // Add instructions field
-    status: "", // Add status field
+    category: "",
+    thumbnail: "",
+    tags: "",
+    instructions: "",
+    status: "",
   });
-
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` }, // Ensure token is sent
-          params: { includeFeedback: true }, // Include feedback in the request
-
-
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -30,13 +29,11 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
           setCourseData({
             courseName: response.data.data.courseName,
             courseDescription: response.data.data.courseDescription,
-            category: response.data.data.category, // Set category
-            thumbnail: response.data.data.thumbnail, // Set thumbnail
-            tags: response.data.data.tags ? response.data.data.tags.join(", ") : "", // Set tags as a comma-separated string
-
-            instructions: response.data.data.instructions, // Set instructions
-            status: response.data.data.status, // Set status
-
+            category: response.data.data.category,
+            thumbnail: response.data.data.thumbnail,
+            tags: response.data.data.tags.join(", "),
+            instructions: response.data.data.instructions,
+            status: response.data.data.status,
           });
         } else {
           alert("Failed to load course data");
@@ -68,8 +65,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
 
       if (response.data.success) {
         alert("Course updated successfully!");
-        onUpdate(); // Call the onUpdate function to refresh the course list
-        onClose(); // Close the edit form
+        navigate("/dashboard/tutor/your-subjects"); // Navigate back to the subjects page
       } else {
         alert("Failed to update course");
       }
@@ -80,12 +76,16 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Edit Course</h2>
-        <form onSubmit={handleSubmit}>
+    <div className="flex min-h-screen bg-gray-100">
+        <Header/>
+      <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
+        <Sidebar />
+      </div>
+      <div className="flex-1 ml-64 p-8 overflow-y-auto">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Edit Course</h2>
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
           <div>
-            <label>Course Name:</label>
+            <label className="block text-gray-700 font-bold mb-2">Course Name:</label>
             <input
               type="text"
               name="courseName"
@@ -95,7 +95,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
             />
           </div>
           <div>
-            <label>Category:</label>
+            <label className="block text-gray-700 font-bold mb-2">Category:</label>
             <input
               type="text"
               name="category"
@@ -105,31 +105,17 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
             />
           </div>
           <div>
-            <label>What You Will Learn:</label>
-            <textarea 
-            name="whatYouWillLearn" 
-            value={courseData.whatYouWillLearn} 
-            onChange={handleChange} 
-            />
-
-          </div>
-          <div>
-            <label>Course Description:</label>
-            <textarea
-              name="courseDescription"
-              value={courseData.courseDescription}
+            <label className="block text-gray-700 font-bold mb-2">Thumbnail:</label>
+            <input
+              type="text"
+              name="thumbnail"
+              value={courseData.thumbnail}
               onChange={handleChange}
               required
             />
           </div>
           <div>
-            <label>Thumbnail:</label>
-            <input type="file" accept="image/*"  />
-            
-            
-          </div>
-          <div>
-            <label>Tags:</label>
+            <label className="block text-gray-700 font-bold mb-2">Tags:</label>
             <input
               type="text"
               name="tags"
@@ -139,7 +125,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
             />
           </div>
           <div>
-            <label>Instructions:</label>
+            <label className="block text-gray-700 font-bold mb-2">Instructions:</label>
             <textarea
               name="instructions"
               value={courseData.instructions}
@@ -148,7 +134,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
             />
           </div>
           <div>
-            <label>Status:</label>
+            <label className="block text-gray-700 font-bold mb-2">Status:</label>
             <select
               name="status"
               value={courseData.status}
@@ -159,14 +145,20 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-
-         
+          <div>
+            <label className="block text-gray-700 font-bold mb-2">Course Description:</label>
+            <textarea
+              name="courseDescription"
+              value={courseData.courseDescription}
+              onChange={handleChange}
+              required
+            />
+          </div>
           <button type="submit" className='bg-blue-600 text-white p-2 rounded'>Update Course</button>
-          <button type="button" className='bg-blue-600 text-white p-2 rounded' onClick={onClose}>Cancel</button>
+          <button type="button" className='bg-blue-600 text-white p-2 rounded' onClick={() => navigate("/dashboard/tutor/your-subjects")}>Cancel</button>
         </form>
       </div>
+      <Footer/>
     </div>
   );
-};
-
-export default EditCourse;
+}
