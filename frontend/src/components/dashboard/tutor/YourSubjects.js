@@ -80,7 +80,7 @@ export default function YourSubjects() {
           />
         </div>
 
-        <div className="space-y-8">
+        <div className="flex flex-wrap gap-6">
           {courses.length === 0 ? (
             <p>No courses available.</p>
           ) : (
