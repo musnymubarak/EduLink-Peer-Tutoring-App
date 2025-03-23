@@ -8,7 +8,7 @@
 .back-button {
   display: flex;
   align-items: center;
-  margin: 2rem 0;
+  margin: 2rem 0 2rem 0;
   color: #2563eb;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -417,6 +417,10 @@
     padding-top: 3rem;
   }
 
+  .back-button {
+    margin: 1.5rem 0 1.5rem 0;
+  }
+
   .thumbnail-title {
     font-size: 2rem;
   }
@@ -432,9 +436,5 @@
   .modal-content {
     margin: 1rem;
     padding: 1.5rem;
-  }
-
-  .back-button {
-    margin: 1.5rem 0;
   }
 }
