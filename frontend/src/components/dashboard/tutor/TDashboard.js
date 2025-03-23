@@ -13,18 +13,11 @@ export default function TDashboard() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [categories, setCategories] = useState([]);
   const [courses, setCourses] = useState([]);
   const [courseRatings, setCourseRatings] = useState({});
   const [averageRating, setAverageRating] = useState(0);
-  
-  const tutorExtraDetails = {
-    experience: "5 years",    
-    upcomingSessions: [
-      { id: 1, topic: "Functions in C", date: "2024-12-10", time: "10:00 AM" },
-      { id: 2, topic: "Data Structures", date: "2024-12-11", time: "2:00 PM" },
-    ],
-  };
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [fetchingUpcomingSessions, setFetchingUpcomingSessions] = useState(true);
   
   useEffect(() => {
     const fetchCourses = async () => {
@@ -67,8 +60,85 @@ export default function TDashboard() {
     };
 
     fetchCourses();
+    fetchUpcomingSessions();
   }, []);
   
+  // New function to fetch upcoming sessions
+  const fetchUpcomingSessions = async () => {
+    setFetchingUpcomingSessions(true);
+    try {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+  
+      // Use the acceptedClasses endpoint to get upcoming sessions
+      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.status === 401) {
+        console.error("Authentication token expired or invalid");
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Log the raw data to see its structure
+        console.log("Raw API response for upcoming sessions:", data);
+        
+        // Get accepted classes
+        const classItems = data.acceptedClasses || [];
+        
+        // Transform the class data into upcoming sessions format
+        // and filter for only future sessions
+        const now = new Date();
+        const transformedSessions = classItems
+          .filter(classItem => {
+            const sessionTime = new Date(classItem.time);
+            return !isNaN(sessionTime.getTime()) && sessionTime > now;
+          })
+          .map(classItem => {
+            const startTime = new Date(classItem.time);
+            const sessionDate = startTime.toLocaleDateString();
+            const sessionTime = startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            return {
+              id: classItem._id,
+              topic: classItem.course?.courseName || "Untitled Class",
+              date: sessionDate,
+              time: sessionTime,
+              studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+              type: classItem.type || "Personal",
+              meetLink: classItem.classLink || ""
+            };
+          })
+          .sort((a, b) => {
+            // Sort by date (ascending)
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+          });
+  
+        console.log("Transformed upcoming sessions:", transformedSessions);
+        setUpcomingSessions(transformedSessions);
+      } else {
+        console.error("Failed to fetch upcoming sessions:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching upcoming sessions:", error);
+    } finally {
+      setFetchingUpcomingSessions(false);
+    }
+  };
+
   // New function to fetch ratings for each course
   const fetchCourseRatings = async (courses, token) => {
     try {
@@ -337,6 +407,10 @@ export default function TDashboard() {
     navigate("/dashboard/tutor/requests"); // Navigate to requests page
   };
 
+  const navigateToSchedulePage = () => {
+    navigate("/dashboard/tutor/schedule"); // Navigate to schedule page
+  };
+
   useEffect(() => {
     fetchClassRequests();
     fetchTotalStudents();
@@ -355,6 +429,10 @@ export default function TDashboard() {
   // Get only the 3 latest requests (already sorted by time in fetchClassRequests)
   const latestRequests = classRequests.slice(0, 3);
   const hasMoreRequests = classRequests.length > 3;
+
+  // Get only the 3 nearest upcoming sessions
+  const displayedSessions = upcomingSessions.slice(0, 3);
+  const hasMoreSessions = upcomingSessions.length > 3;
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -463,10 +541,23 @@ export default function TDashboard() {
 
         {/* Upcoming Sessions Section */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-4">Upcoming Sessions</h2>
-          {tutorExtraDetails.upcomingSessions.length > 0 ? (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-blue-700">Upcoming Sessions</h2>
+            {hasMoreSessions && (
+              <button 
+                onClick={navigateToSchedulePage}
+                className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                View Schedule
+              </button>
+            )}
+          </div>
+          
+          {fetchingUpcomingSessions ? (
+            <p className="text-gray-600">Loading upcoming sessions...</p>
+          ) : displayedSessions.length > 0 ? (
             <ul className="space-y-4">
-              {tutorExtraDetails.upcomingSessions.map((session) => (
+              {displayedSessions.map((session) => (
                 <li
                   key={session.id}
                   className="flex items-center justify-between border-b pb-2"
@@ -476,7 +567,20 @@ export default function TDashboard() {
                     <p className="text-gray-600 text-sm">
                       {session.date} at {session.time}
                     </p>
+                    <p className="text-gray-600 text-sm">
+                      Student: {session.studentName} - {session.type} Class
+                    </p>
                   </div>
+                  {session.meetLink && (
+                    <a 
+                      href={session.meetLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                      Join
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
