@@ -21,6 +21,7 @@ const ratingRoutes = require("./routes/ratingRoute");
 const classRoutes = require("./routes/classRoute"); 
 const notificationRoute = require("./routes/notificationRoute");
 const meetRoutes = require("./routes/meetRoutes");
+const reportRoute = require("./routes/reportRoute")
 
 // Import database configuration
 const database = require("./config/db");
@@ -29,7 +30,7 @@ const database = require("./config/db");
 const app = express();
 
 // Define the port
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // Connect to the database
 database.connect();
@@ -65,6 +66,7 @@ app.use("/api/v1/rating", ratingRoutes);
 app.use("/api/v1/classes", classRoutes);  
 app.use("/api/v1/notifications", notificationRoute);
 app.use("/api/meet", meetRoutes);
+app.use("/api/v1/report", reportRoute);
 
 // Default route
 app.get("/", (req, res) => {

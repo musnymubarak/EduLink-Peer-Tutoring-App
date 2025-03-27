@@ -7,10 +7,9 @@ const router = express.Router();
 
 // Create or update a rating and review for a course
 router.post(
-    "/",
+    "/:courseId",
     auth, 
-    isStudent, // Ensure the user is a student
-    isEnrolledInCourse, // Ensure the user is enrolled in the course
+    isStudent, 
     createOrUpdateRatingAndReview
 );
 

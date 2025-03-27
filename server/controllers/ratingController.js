@@ -6,13 +6,16 @@ const { isEnrolledInCourse } = require("../middlewares/courseMiddleware"); // Im
 // Create or update a rating and review for a course
 exports.createOrUpdateRatingAndReview = async (req, res) => {
     try {
-        const { courseId, userId, rating, review } = req.body;
+        const { courseId } = req.params; // Extract courseId from URL parameters
+        const { rating, review } = req.body;
+
+        const userId = req.user.id; // Extract userId from the token (which is in req.user)
 
         // Validate required fields
-        if (!courseId || !userId || !rating || !review) {
+        if (!rating || !review) {
             return res.status(400).json({
                 success: false,
-                message: "Course ID, User ID, rating, and review are required.",
+                message: "Rating and review are required.",
             });
         }
 
@@ -43,7 +46,7 @@ exports.createOrUpdateRatingAndReview = async (req, res) => {
         }
 
         // Check if the user is enrolled in the course
-        // This is now done via the `isEnrolledInCourse` middleware before this step
+        // This is done via the `isEnrolledInCourse` middleware before this step
 
         // Check if the user has already rated the course
         let existingRating = await RatingAndReview.findOne({ course: courseId, user: userId });

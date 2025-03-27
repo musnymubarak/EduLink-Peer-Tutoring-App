@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const classController = require("../controllers/classController");
-const { auth, isStudent, isTutor } = require("../middlewares/authMiddleware");
+const { auth, isStudent, isTutor, isAdmin } = require("../middlewares/authMiddleware");
 
 // Route to send a class request (Student only)
 router.post("/send-request/:courseId", auth, isStudent, classController.sendClassRequest);
@@ -16,6 +16,11 @@ router.get("/class-requests", auth, isTutor, classController.getClassRequestsFor
 router.get("/student/class-requests", auth, isStudent, classController.getStudentClassRequests);
 
 // Student-only: Get Accepted Classes (Personal & Group)
-router.get("/student/accepted-classes", auth, isStudent, classController.getAcceptedClasses);
+router.get("/accepted-classes", auth, classController.getAcceptedClasses);
+
+// Admin-only: Create a Group Class
+router.post("/create-group-class/:courseId", auth, isTutor, classController.createGroupClass);
+
+router.get("/group-classes/:courseId", auth, classController.getGroupClasses);
 
 module.exports = router;

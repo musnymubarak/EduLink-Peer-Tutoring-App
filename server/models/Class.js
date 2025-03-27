@@ -33,10 +33,19 @@ const classSchema = new mongoose.Schema({
         type: Date,  // Class time
         required: true,
     },
+    duration: {
+        type: Number,  // Duration of the class in minutes
+        required: true,
+    },
+    classLink: {
+        type: String,
+    },
     status: {
         type: String,
-        enum: ["Pending", "Accepted", "Rejected"],  // Class status
-        default: "Pending",
+        enum: ["Pending", "Accepted", "Rejected", "Scheduled"],  
+        required: function () {
+            return this.type === "Personal";  
+        },
     },
     createdAt: {
         type: Date,
