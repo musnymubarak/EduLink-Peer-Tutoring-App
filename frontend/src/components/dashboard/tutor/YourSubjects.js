@@ -22,7 +22,6 @@ export default function YourSubjects() {
           alert("Authentication token is missing. Please log in.");
           return;
         }
-
         const base64Url = token.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
