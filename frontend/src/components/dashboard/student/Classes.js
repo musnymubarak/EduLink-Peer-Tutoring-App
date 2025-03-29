@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Footer from "../Footer";
 import Header from "../Header";
 import Sidebar from "../Sidebar";
-import CourseCard from '../tutor/CourseCard'; // Import the CourseCard component
+import CourseCard from './CourseCard'; 
 
 export default function Classes() {
     const [acceptedCourses, setAcceptedCourses] = useState([]);
@@ -50,7 +50,7 @@ export default function Classes() {
             {/* Main Content */}
             <div className="flex-1 ml-64 p-8 overflow-y-auto">
                 <h1 className="text-3xl font-bold text-gray-800 mb-4 pt-14">Classes</h1>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap gap-4">
                     {acceptedCourses.map(course => (
                         <CourseCard 
                             key={course._id}
