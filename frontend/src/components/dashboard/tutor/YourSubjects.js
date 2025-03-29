@@ -3,28 +3,30 @@ import Sidebar from "../Sidebar";
 import axios from "axios";
 import Header from "../Header";
 import Footer from "../Footer";
-import EditCourse from "./EditCourse"; // Import the EditCourse component
+import EditCourse from "./EditCourse";
+import "../../css/tutor/YourSubjects.css";
 
 export default function YourSubjects() {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState(null); // State to hold the selected course ID
-  const [isEditModalOpen, setEditModalOpen] = useState(false); // State to control the edit modal
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem("token");
         if (!token) {
           alert("Authentication token is missing. Please log in.");
           return;
         }
 
-        // Decode the token to get tutorId
         const base64Url = token.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
-        const tutorId = payload.id; // Extract tutor ID from token
+        const tutorId = payload.id;
 
         const response = await axios.get("http://localhost:4000/api/v1/courses", {
           headers: { Authorization: `Bearer ${token}` },
@@ -32,13 +34,15 @@ export default function YourSubjects() {
 
         if (response.data.success) {
           const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
-          setCourses(tutorCourses || []); // Ensure courses is always an array
+          setCourses(tutorCourses || []);
         } else {
           alert("Failed to load courses");
         }
       } catch (error) {
         console.error("Error fetching courses:", error);
         alert("An error occurred while fetching the courses.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -50,39 +54,52 @@ export default function YourSubjects() {
   };
 
   const handleEditCourse = (courseId) => {
-    setSelectedCourseId(courseId); // Set the selected course ID
-    setEditModalOpen(true); // Open the edit modal
+    setSelectedCourseId(courseId);
+    setEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
-    setEditModalOpen(false); // Close the edit modal
-    setSelectedCourseId(null); // Reset the selected course ID
+    setEditModalOpen(false);
+    setSelectedCourseId(null);
   };
 
+  if (isLoading) {
+    return (
+      <div className="your-subjects-container">
+        <Header />
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading your courses...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="your-subjects-container">
       <Header />
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
 
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Your Subjects</h1>
+        <h1 className="page-title">Your Subjects</h1>
 
-        {/* Search Bar */}
-        <div className="mb-6">
+        <div className="search-container">
           <input
             type="text"
             placeholder="Search for a course..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+            className="search-input"
           />
         </div>
 
-        <div className="flex flex-wrap gap-6">
+        <div className="courses-grid">
           {courses.length === 0 ? (
-            <p>No courses available.</p>
+            <div className="no-courses">
+              <p className="no-courses-text">No courses available.</p>
+            </div>
           ) : (
             courses
               .filter(
@@ -91,15 +108,25 @@ export default function YourSubjects() {
                   course.courseDescription.toLowerCase().includes(searchQuery)
               )
               .map((course) => (
-                <div key={course._id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 w-64 max-w-sm">
-                  <h3 className="text-lg font-semibold text-gray-800">{course.courseName}</h3>
-                  <p className="text-gray-600">{course.courseDescription}</p>
-                  <button
-                    onClick={() => handleEditCourse(course._id)} // Call handleEditCourse on button click
-                    className="mt-4 bg-blue-500 text-white rounded px-4 py-2"
-                  >
-                    Edit
-                  </button>
+                <div key={course._id} className="course-card">
+                  <img
+                    src={course.thumbnail || "https://via.placeholder.com/400x200?text=No+Image"}
+                    alt={course.courseName}
+                    className="course-image"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/400x200?text=No+Image";
+                    }}
+                  />
+                  <div className="course-content">
+                    <h3 className="course-title">{course.courseName}</h3>
+                    <p className="course-description">{course.courseDescription}</p>
+                    <button
+                      onClick={() => handleEditCourse(course._id)}
+                      className="edit-button"
+                    >
+                      Edit Course
+                    </button>
+                  </div>
                 </div>
               ))
           )}
