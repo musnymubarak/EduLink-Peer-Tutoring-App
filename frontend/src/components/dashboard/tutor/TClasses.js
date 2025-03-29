@@ -48,13 +48,15 @@ export default function TClasses() {
             </div>
     
             {/* Main Content */}
-            <div className="flex-1 ml-64 p-8 overflow-y-auto">
+            <div className="flex-wrap ml-64 p-8 overflow-y-auto">
                 <h1 className="text-3xl font-bold text-gray-800 mb-4 pt-14">Classes</h1>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 ">
                     {acceptedCourses.map(course => (
                         <CourseCard 
                             key={course._id}
                             title={course.course?.courseName || "Untitled Class"}
+                            type={course.type || "Unknown Type"}
+                            time={course.time || "Unknown Time"}
                             description={course.course?.courseDescription || "No description provided"}
                             studentName={course.student?.firstName || course.student?.email || "Unknown Student"}
                             meetLink={course.classLink}
