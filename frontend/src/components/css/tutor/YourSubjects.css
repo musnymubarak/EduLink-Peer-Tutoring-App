@@ -6,22 +6,23 @@
 }
 
 .page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1d4ed8;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1e293b;
   margin-bottom: 2rem;
   position: relative;
   padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.page-title::after {
+.page-title::before {
   content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 4rem;
-  height: 4px;
-  background-color: #1d4ed8;
+  display: block;
+  width: 4px;
+  height: 24px;
+  background-color: #2563eb;
   border-radius: 2px;
 }
 
