@@ -611,7 +611,7 @@ export default function TDashboard() {
             </p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
-                onClick={handleAccept}
+                onClick={navigateToRequestsPage}
                 className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
               >
                 Accept
