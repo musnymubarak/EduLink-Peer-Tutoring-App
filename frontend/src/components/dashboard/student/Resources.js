@@ -210,7 +210,7 @@ export default function Community() {
                     messages.map((message, index) => (
                       <div key={index} className="mb-2">
                         <strong className="text-gray-800">
-                          {message.userId?.firstName} {message.userId?.lastName || "Unknown User"}:
+                          {message.userId?.firstName} {message.userId?.lastName || "You"}:
                         </strong>
                         <span className="text-gray-600 ml-2">{message.message}</span>
                       </div>

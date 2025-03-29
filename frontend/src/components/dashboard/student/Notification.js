@@ -3,6 +3,7 @@ import Sidebar from "../Sidebar";
 import axios from "axios";
 import Header from "../Header";
 import Footer from "../Footer";
+import "../../css/student/notification.css";
 
 export default function Notification() {
   // State to hold the fetched notifications
@@ -54,60 +55,52 @@ export default function Notification() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="notification-container">
       <Header/>
       {/* Sidebar */}
-      <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
+      <div className="notification-sidebar">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Notifications</h1>
+      <div className="notification-main-content">
+        <h1 className="notification-title">Notifications</h1>
 
         {/* Search Bar */}
-        <div className="mb-6">
+        <div className="notification-search-bar">
           <input
             type="text"
             placeholder="Search notifications by message or status..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
+            className="notification-search-input"
           />
         </div>
 
         {/* Loading and Error States */}
         {loading ? (
-          <p className="text-gray-600">Loading notifications...</p>
+          <p className="notification-status">Loading notifications...</p>
         ) : error ? (
-          <p className="text-red-600">{error}</p>
+          <p className="notification-status" style={{ color: 'red' }}>{error}</p>
         ) : filteredNotifications.length === 0 ? (
-          <p className="text-gray-600">No notifications match your search.</p>
+          <p className="notification-status">No notifications match your search.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="notification-list">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification._id}
-                className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200 ${
-                  notification.status === "unread"
-                    ? "border-l-4 border-blue-500"
-                    : "border-l-4 border-gray-300"
+                className={`notification-item ${
+                  notification.status === "unread" ? "unread" : "read"
                 }`}
               >
-                <p className="text-gray-800 font-medium">{notification.message}</p>
-                <p className="text-gray-600">
+                <p className="notification-message">{notification.message}</p>
+                <p className="notification-status">
                   <strong>Status:</strong>{" "}
-                  <span
-                    className={`${
-                      notification.status === "unread"
-                        ? "text-blue-500"
-                        : "text-gray-500"
-                    }`}
-                  >
+                  <span className={notification.status === "unread" ? "unread" : "read"}>
                     {notification.status}
                   </span>
                 </p>
-                <p className="text-gray-600">
+                <p className="notification-timestamp">
                   <strong>Created At:</strong>{" "}
                   {new Date(notification.createdAt).toLocaleString()}
                 </p>

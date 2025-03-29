@@ -13,13 +13,192 @@ export default function TDashboard() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const tutorExtraDetails = {
-    rating: 4.8,
-    experience: "5 years",    
-    upcomingSessions: [
-      { id: 1, topic: "Functions in C", date: "2024-12-10", time: "10:00 AM" },
-      { id: 2, topic: "Data Structures", date: "2024-12-11", time: "2:00 PM" },
-    ],
+  const [courses, setCourses] = useState([]);
+  const [courseRatings, setCourseRatings] = useState({});
+  const [averageRating, setAverageRating] = useState(0);
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [fetchingUpcomingSessions, setFetchingUpcomingSessions] = useState(true);
+  
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Authentication token is missing. Please log in.");
+          return;
+        }
+
+        // Decode the token to get tutorId
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const payload = JSON.parse(atob(base64));
+        const tutorId = payload.id; // Extract tutor ID from token
+
+        const response = await axios.get(
+          "http://localhost:4000/api/v1/courses",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
+          console.log(tutorCourses)
+          setCourses(tutorCourses || []); // Ensure courses is always an array
+          
+          // Fetch ratings for each course
+          fetchCourseRatings(tutorCourses, token);
+        } else {
+          alert("Failed to load courses");
+        }
+      } catch (error) {
+        console.error("Error fetching enrolled courses:", error);
+        alert("An error occurred while fetching the courses.");
+      }
+    };
+
+    fetchCourses();
+    fetchUpcomingSessions();
+  }, []);
+  
+  // New function to fetch upcoming sessions
+  const fetchUpcomingSessions = async () => {
+    setFetchingUpcomingSessions(true);
+    try {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+  
+      // Use the acceptedClasses endpoint to get upcoming sessions
+      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.status === 401) {
+        console.error("Authentication token expired or invalid");
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Log the raw data to see its structure
+        console.log("Raw API response for upcoming sessions:", data);
+        
+        // Get accepted classes
+        const classItems = data.acceptedClasses || [];
+        
+        // Transform the class data into upcoming sessions format
+        // and filter for only future sessions
+        const now = new Date();
+        const transformedSessions = classItems
+          .filter(classItem => {
+            const sessionTime = new Date(classItem.time);
+            return !isNaN(sessionTime.getTime()) && sessionTime > now;
+          })
+          .map(classItem => {
+            const startTime = new Date(classItem.time);
+            const sessionDate = startTime.toLocaleDateString();
+            const sessionTime = startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            return {
+              id: classItem._id,
+              topic: classItem.course?.courseName || "Untitled Class",
+              date: sessionDate,
+              time: sessionTime,
+              studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+              type: classItem.type || "Personal",
+              meetLink: classItem.classLink || ""
+            };
+          })
+          .sort((a, b) => {
+            // Sort by date (ascending)
+            const dateA = new Date(`${a.date} ${a.time}`);
+            const dateB = new Date(`${b.date} ${b.time}`);
+            return dateA - dateB;
+          });
+  
+        console.log("Transformed upcoming sessions:", transformedSessions);
+        setUpcomingSessions(transformedSessions);
+      } else {
+        console.error("Failed to fetch upcoming sessions:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching upcoming sessions:", error);
+    } finally {
+      setFetchingUpcomingSessions(false);
+    }
+  };
+
+  // New function to fetch ratings for each course
+  const fetchCourseRatings = async (courses, token) => {
+    try {
+      const ratingsPromises = courses.map(async (course) => {
+        try {
+          const response = await axios.get(
+            `http://localhost:4000/api/v1/rating/${course._id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          
+          console.log(response.data);
+          
+          // Extract rating from the data array if it exists
+          let rating = 0;
+          if (response.data.success && response.data.data && response.data.data.length > 0) {
+            // If multiple ratings exist, we could calculate an average
+            // For now, we'll take the first rating
+            rating = response.data.data[0].rating || 0;
+            
+            // Log the extracted rating
+            console.log(`Rating for course ${course._id}: ${rating}`);
+          }
+          
+          return { 
+            courseId: course._id, 
+            rating: rating
+          };
+        } catch (error) {
+          console.error(`Error fetching rating for course ${course._id}:`, error);
+          // Return 0 rating if error occurs
+          return { courseId: course._id, rating: 0 };
+        }
+      });
+      
+      const ratingsResults = await Promise.all(ratingsPromises);
+      
+      // Convert array of results to an object with courseId as key
+      const ratingsObj = {};
+      ratingsResults.forEach(result => {
+        ratingsObj[result.courseId] = result.rating;
+      });
+      
+      // Calculate average rating
+      const totalRating = ratingsResults.reduce((sum, item) => sum + item.rating, 0);
+      const avgRating = courses.length > 0 ? (totalRating / courses.length).toFixed(1) : 0;
+      
+      // Log the complete ratings object and average
+      console.log("All course ratings:", ratingsObj);
+      console.log("Average rating:", avgRating);
+      
+      setCourseRatings(ratingsObj);
+      setAverageRating(avgRating);
+      
+    } catch (error) {
+      console.error("Error in fetchCourseRatings:", error);
+    }
   };
 
   // Debug function
@@ -228,6 +407,10 @@ export default function TDashboard() {
     navigate("/dashboard/tutor/requests"); // Navigate to requests page
   };
 
+  const navigateToSchedulePage = () => {
+    navigate("/dashboard/tutor/schedule"); // Navigate to schedule page
+  };
+
   useEffect(() => {
     fetchClassRequests();
     fetchTotalStudents();
@@ -247,6 +430,10 @@ export default function TDashboard() {
   const latestRequests = classRequests.slice(0, 3);
   const hasMoreRequests = classRequests.length > 3;
 
+  // Get only the 3 nearest upcoming sessions
+  const displayedSessions = upcomingSessions.slice(0, 3);
+  const hasMoreSessions = upcomingSessions.length > 3;
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Header/>
@@ -257,19 +444,35 @@ export default function TDashboard() {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Tutor Dashboard</h1>
 
         {/* Overview Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-blue-700">Total Students</h2>
             <p className="text-3xl font-semibold text-gray-800 mt-4">{totalStudents}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700">Tutor Rating</h2>
-            <p className="text-3xl font-semibold text-gray-800 mt-4">{tutorExtraDetails.rating} / 5</p>
+            <h2 className="text-xl font-bold text-blue-700">Average Tutor Rating</h2>
+            <p className="text-3xl font-semibold text-gray-800 mt-4">{averageRating} / 5</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700">Experience</h2>
-            <p className="text-lg text-gray-600 mt-4">{tutorExtraDetails.experience}</p>
-          </div>
+        </div>
+
+        {/* Course Ratings Section - New section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-2xl font-bold text-blue-700 mb-4">Course Ratings</h2>
+          {courses.length > 0 ? (
+            <div className="space-y-4">
+              {courses.map((course) => (
+                <div key={course._id} className="flex justify-between items-center border-b pb-2">
+                  <p className="text-gray-800 font-semibold">{course.courseName || "Unnamed Course"}</p>
+                  <div className="flex items-center">
+                    <span className="text-yellow-500 mr-1">★</span>
+                    <span className="text-gray-700">{courseRatings[course._id] || 0} / 5</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No courses available.</p>
+          )}
         </div>
 
         {/* Recent Requests Section */}
@@ -338,10 +541,23 @@ export default function TDashboard() {
 
         {/* Upcoming Sessions Section */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-4">Upcoming Sessions</h2>
-          {tutorExtraDetails.upcomingSessions.length > 0 ? (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-blue-700">Upcoming Sessions</h2>
+            {hasMoreSessions && (
+              <button 
+                onClick={navigateToSchedulePage}
+                className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                View Schedule
+              </button>
+            )}
+          </div>
+          
+          {fetchingUpcomingSessions ? (
+            <p className="text-gray-600">Loading upcoming sessions...</p>
+          ) : displayedSessions.length > 0 ? (
             <ul className="space-y-4">
-              {tutorExtraDetails.upcomingSessions.map((session) => (
+              {displayedSessions.map((session) => (
                 <li
                   key={session.id}
                   className="flex items-center justify-between border-b pb-2"
@@ -351,7 +567,20 @@ export default function TDashboard() {
                     <p className="text-gray-600 text-sm">
                       {session.date} at {session.time}
                     </p>
+                    <p className="text-gray-600 text-sm">
+                      Student: {session.studentName} - {session.type} Class
+                    </p>
                   </div>
+                  {session.meetLink && (
+                    <a 
+                      href={session.meetLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                      Join
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -382,7 +611,7 @@ export default function TDashboard() {
             </p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
-                onClick={handleAccept}
+                onClick={navigateToRequestsPage}
                 className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
               >
                 Accept

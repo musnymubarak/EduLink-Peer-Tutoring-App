@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import '../../css/student/SchedulePage.css';
 
 export default function TSchedulePage() {
-  const [events, setEvents] = useState([
-    {
-      id: "1",
-      title: "C++ Class",
-      start: "2024-12-12T08:00:00",
-      end: "2024-12-12T10:00:00",
-      description: "Learn the fundamentals of C++ programming.",
-    },
-    {
-      id: "2",
-      title: "Python Workshop",
-      start: "2024-12-13T14:00:00",
-      end: "2024-12-13T16:00:00",
-      description: "Advanced Python programming techniques.",
-    }
-  ]);
-
+  const [events, setEvents] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState('month');
+  const [fetchingClasses, setFetchingClasses] = useState(true);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -25,30 +14,146 @@ export default function TSchedulePage() {
     description: "",
     meetLink: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month');
-  const [loading, setLoading] = useState(false); 
+  // Fetch classes on component mount
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
-  const addEvent = () => {
-    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.description || !newEvent.meetLink) {
+  const fetchClasses = async () => {
+    setFetchingClasses(true);
+    try {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+  
+      // Use the acceptedClasses endpoint
+      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.status === 401) {
+        console.error("Authentication token expired or invalid");
+        return;
+      }
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Log the raw data to see its structure
+        console.log("Raw API response:", data);
+        
+        // The API returns classRequests instead of acceptedClasses
+        const classItems = data.acceptedClasses || [];
+        
+        // Transform the class requests into calendar events
+        const transformedEvents = classItems.map(classItem => {
+          const startTime = new Date(classItem.time);
+          const validStartTime = isNaN(startTime.getTime()) ? new Date() : startTime;
+          const endTime = new Date(validStartTime.getTime() + (classItem.duration || 60) * 60000);
+          
+          console.log(classItem.student)
+          return {
+            id: classItem._id,
+            title: classItem.course?.courseName || "Untitled Class",
+            start: validStartTime,
+            end: endTime,
+            description: classItem.course?.courseDescription || "No description provided",
+            meetLink: classItem.classLink || "",
+            studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+            type: classItem.type // Personal or Group
+          };
+        });
+  
+        console.log("Transformed events:", transformedEvents);
+        setEvents(transformedEvents);
+      } else {
+        console.error("Failed to fetch accepted classes:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching accepted classes:", error);
+    } finally {
+      setFetchingClasses(false);
+    }
+  };
+
+  const addEvent = async () => {
+    if (!newEvent.title || !newEvent.start || !newEvent.end || !newEvent.description) {
       alert("Please fill in all required fields.");
       return;
     }
 
-    const eventToAdd = {
-      ...newEvent,
-      id: String(Date.now())
-    };
-
-    setEvents(prevEvents => [...prevEvents, eventToAdd]);
-    setNewEvent({
-      title: "",
-      start: "",
-      end: "",
-      description: "",
-      meetLink: "",
-    });
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+      
+      // Convert dates to ISO strings if they aren't already
+      const startDate = new Date(newEvent.start).toISOString();
+      const endDate = new Date(newEvent.end).toISOString();
+      
+      // Calculate duration in minutes
+      const durationMs = new Date(endDate) - new Date(startDate);
+      const durationMinutes = Math.floor(durationMs / 60000);
+      
+      const classData = {
+        courseName: newEvent.title,
+        courseDescription: newEvent.description,
+        time: startDate,
+        duration: durationMinutes,
+        classLink: newEvent.meetLink || ""
+      };
+      
+      const response = await fetch("http://localhost:4000/api/v1/classes/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(classData)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Add event to local state
+        const eventToAdd = {
+          id: data.class._id || String(Date.now()),
+          title: newEvent.title,
+          start: new Date(newEvent.start),
+          end: new Date(newEvent.end),
+          description: newEvent.description,
+          meetLink: newEvent.meetLink || ""
+        };
+        
+        setEvents(prevEvents => [...prevEvents, eventToAdd]);
+        setNewEvent({
+          title: "",
+          start: "",
+          end: "",
+          description: "",
+          meetLink: "",
+        });
+        setIsAddEventModalOpen(false);
+      } else {
+        console.error("Failed to create class:", data.error);
+        alert("Failed to create class: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error creating class:", error);
+      alert("Error creating class. Please try again.");
+    }
   };
 
   const generateMeetLink = async () => {
@@ -77,9 +182,34 @@ export default function TSchedulePage() {
       setLoading(false); 
     }
   };
-
-  const deleteEvent = (eventId) => {
-    setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+  
+  const deleteEvent = async (eventId) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+      
+      const response = await fetch(`http://localhost:4000/api/v1/classes/${eventId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      
+      if (response.ok) {
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+      } else {
+        const data = await response.json();
+        console.error("Failed to delete class:", data.error);
+        alert("Failed to delete class: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error deleting class:", error);
+    }
   };
 
   const goToToday = () => {
@@ -91,22 +221,17 @@ export default function TSchedulePage() {
     const month = selectedDate.getMonth();
     const day = selectedDate.getDate();
 
-    const filteredEvents = events.filter(event => {
-      const eventDate = new Date(event.start);
-      return eventDate >= new Date(year, month, day) && eventDate < new Date(year, month, day + 7);
-    });
-
     switch(viewMode) {
       case 'month':
-        return generateMonthView(year, month, filteredEvents);
+        return generateMonthView(year, month, events);
       case 'week':
-        return generateWeekView(year, month, day, filteredEvents);
+        return generateWeekView(year, month, day, events);
       default:
-        return generateMonthView(year, month, filteredEvents);
+        return generateMonthView(year, month, events);
     }
   };
 
-  const generateMonthView = (year, month, filteredEvents) => {
+  const generateMonthView = (year, month, allEvents) => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startingDayOfWeek = new Date(year, month, 1).getDay();
 
@@ -117,16 +242,22 @@ export default function TSchedulePage() {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
-      const dayEvents = filteredEvents.filter(event => 
-        new Date(event.start).toDateString() === currentDate.toDateString()
-      );
+      
+      // Filter events for this specific day
+      const dayEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.getFullYear() === year && 
+               eventDate.getMonth() === month && 
+               eventDate.getDate() === day;
+      });
+      
       days.push({ date: currentDate, events: dayEvents });
     }
 
     return days;
   };
 
-  const generateWeekView = (year, month, day, filteredEvents) => {
+  const generateWeekView = (year, month, day, allEvents) => {
     const weekStart = new Date(year, month, day - new Date(year, month, day).getDay());
 
     const days = [];
@@ -134,9 +265,13 @@ export default function TSchedulePage() {
       const currentDate = new Date(weekStart);
       currentDate.setDate(weekStart.getDate() + i);
 
-      const dayEvents = filteredEvents.filter(event => 
-        new Date(event.start).toDateString() === currentDate.toDateString()
-      );
+      // Filter events for this specific day
+      const dayEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.getFullYear() === currentDate.getFullYear() && 
+               eventDate.getMonth() === currentDate.getMonth() && 
+               eventDate.getDate() === currentDate.getDate();
+      });
 
       days.push({ date: currentDate, events: dayEvents });
     }
@@ -156,10 +291,28 @@ export default function TSchedulePage() {
 
   const isToday = (date) => {
     const today = new Date();
-    return today.toDateString() === date.toDateString();
+    return today.getDate() === date.getDate() &&
+           today.getMonth() === date.getMonth() &&
+           today.getFullYear() === date.getFullYear();
   };
 
   const renderView = () => {
+    if (fetchingClasses) {
+      return (
+        <div className="loading-container">
+          <div className="loading-message">Loading classes...</div>
+        </div>
+      );
+    }
+
+    if (events.length === 0) {
+      return (
+        <div className="no-events-message">
+          <p>No accepted classes found. Create a new class or refresh to update.</p>
+        </div>
+      );
+    }
+
     const calendarData = generateCalendarView();
 
     switch(viewMode) {
@@ -176,21 +329,41 @@ export default function TSchedulePage() {
               >
                 {day && (
                   <>
-                    <div className="text-sm text-gray-500">{day.date.getDate()}</div>
-                    {day.events.map(event => (
-                      <div 
-                        key={event.id} 
-                        className="bg-blue-100 text-blue-800 rounded p-1 mt-1 text-xs flex justify-between items-center"
-                      >
-                        <span>{event.title}</span>
-                        <button 
-                          onClick={() => deleteEvent(event.id)}
-                          className="text-red-500 hover:text-red-700"
+                    <div className="date-number">{day.date.getDate()}</div>
+                    {day.events.length > 0 ? (
+                      day.events.map(event => (
+                        <div 
+                          key={event.id} 
+                          className={`event-item ${event.type === 'Group' ? 'group-class' : 'personal-class'}`}
                         >
-                          ✖
-                        </button>
-                      </div>
-                    ))}
+                          <div className="event-title">{event.title}</div>
+                          <div className="event-details">
+                            {event.studentName && (
+                              <div className="student-name">Student: {event.studentName}</div>
+                            )}
+                            {event.type === 'Group' && (
+                              <div className="class-type">Group Class</div>
+                            )}
+                            {event.meetLink && (
+                              <a 
+                                href={event.meetLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="meet-link"
+                              >
+                                Join Meeting
+                              </a>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => deleteEvent(event.id)}
+                            className="delete-btn"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                      ))
+                    ) : null}
                   </>
                 )}
               </div>
@@ -199,32 +372,56 @@ export default function TSchedulePage() {
         );
       case 'week':
         return (
-          <div className="grid grid-cols-7 gap-2 text-center h-full">
+          <div className="grid-calendar">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="font-bold text-gray-600">{day}</div>
+              <div key={day} className="day-header">{day}</div>
             ))}
             {calendarData.map((day, index) => (
               <div 
                 key={index} 
-                className={`border p-2 flex flex-col justify-between ${day ? 'bg-white h-full' : 'bg-gray-100'} ${day && isToday(day.date) ? 'bg-yellow-300' : ''}`}
+                className={`calendar-cell week-cell ${day ? 'cell-active' : 'cell-inactive'} ${day && isToday(day.date) ? 'cell-today' : ''}`}
               >
                 {day && (
                   <>
-                    <div className="text-sm text-gray-500">{day.date.getDate()}</div>
-                    {day.events.map(event => (
-                      <div 
-                        key={event.id} 
-                        className="bg-blue-100 text-blue-800 rounded p-1 mt-1 text-xs flex justify-between items-center"
-                      >
-                        <span>{event.title}</span>
-                        <button 
-                          onClick={() => deleteEvent(event.id)}
-                          className="text-red-500 hover:text-red-700"
+                    <div className="date-number">{day.date.getDate()}</div>
+                    {day.events.length > 0 ? (
+                      day.events.map(event => (
+                        <div 
+                          key={event.id} 
+                          className={`event-item ${event.type === 'Group' ? 'group-class' : 'personal-class'}`}
                         >
-                          ✖
-                        </button>
-                      </div>
-                    ))}
+                          <div className="event-title">{event.title}</div>
+                          <div className="event-time">
+                            {new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                            {new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </div>
+                          <div className="event-details">
+                            {event.studentName && (
+                              <div className="student-name">Student: {event.studentName}</div>
+                            )}
+                            {event.type === 'Group' && (
+                              <div className="class-type">Group Class</div>
+                            )}
+                            {event.meetLink && (
+                              <a 
+                                href={event.meetLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="meet-link"
+                              >
+                                Join Meeting
+                              </a>
+                            )}
+                          </div>
+                          <button 
+                            onClick={() => deleteEvent(event.id)}
+                            className="delete-btn"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                      ))
+                    ) : null}
                   </>
                 )}
               </div>
@@ -236,68 +433,58 @@ export default function TSchedulePage() {
     }
   };
 
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-800">
-            Class Schedule
+    <div className="schedule-container">
+      <div className="schedule-content">
+        <div className="header-container">
+          <h1 className="main-title">
+            Accepted Classes
           </h1>
-
-          <button
-            onClick={() => setIsAddEventModalOpen(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
-          >
-            + Add Class
-          </button>
+          <div className="buttons-container">
+            <button 
+              onClick={fetchClasses} 
+              className="refresh-btn"
+            >
+              ↻ Refresh
+            </button>
+          </div>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setViewMode("month")}
-              className={`px-4 py-2 rounded flex items-center ${
-                viewMode === "month" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
+        <div className="controls-container">
+          <div className="view-toggle">
+            <button 
+              onClick={() => setViewMode('month')}
+              className={`toggle-btn ${viewMode === 'month' ? 'active-toggle' : ''}`}
             >
               Month
             </button>
-            <button
-              onClick={() => setViewMode("week")}
-              className={`px-4 py-2 rounded flex items-center ${
-                viewMode === "week" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
+            <button 
+              onClick={() => setViewMode('week')}
+              className={`toggle-btn ${viewMode === 'week' ? 'active-toggle' : ''}`}
             >
               Week
             </button>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <button
+          <div className="navigation-controls">
+            <button 
               onClick={goToToday}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="today-btn"
             >
               Today
             </button>
-            <button
+            <button 
               onClick={() => changeDate(-1)}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="nav-btn"
             >
               Previous
             </button>
-            <h2 className="text-2xl font-bold">
-              {viewMode === "month"
-                ? selectedDate.toLocaleString("default", {
-                    month: "long",
-                    year: "numeric",
-                  })
-                : selectedDate.toDateString()}
+            <h2 className="date-title">
+              {viewMode === 'month' ? selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : selectedDate.toDateString()}
             </h2>
-            <button
+            <button 
               onClick={() => changeDate(1)}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="nav-btn"
             >
               Next
             </button>
@@ -307,16 +494,11 @@ export default function TSchedulePage() {
         {renderView()}
 
         {isAddEventModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg w-96 p-6">
-              <h2 className="text-2xl font-bold mb-4">Add New Event</h2>
-              <div className="mb-4">
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Title
-                </label>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2 className="modal-title">Add New Class</h2>
+              <div className="form-group">
+                <label htmlFor="title">Class Title</label>
                 <input
                   type="text"
                   id="title"
@@ -324,16 +506,11 @@ export default function TSchedulePage() {
                   onChange={(e) =>
                     setNewEvent({ ...newEvent, title: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="start"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Start
-                </label>
+              <div className="form-group">
+                <label htmlFor="start">Start Time</label>
                 <input
                   type="datetime-local"
                   id="start"
@@ -341,16 +518,11 @@ export default function TSchedulePage() {
                   onChange={(e) =>
                     setNewEvent({ ...newEvent, start: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="end"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  End
-                </label>
+              <div className="form-group">
+                <label htmlFor="end">End Time</label>
                 <input
                   type="datetime-local"
                   id="end"
@@ -358,58 +530,50 @@ export default function TSchedulePage() {
                   onChange={(e) =>
                     setNewEvent({ ...newEvent, end: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-input"
                 />
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Description
-                </label>
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
                 <textarea
                   id="description"
                   value={newEvent.description}
                   onChange={(e) =>
                     setNewEvent({ ...newEvent, description: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="form-textarea"
                 />
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="meetLink"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Meeting Link
-                </label>
+              <div className="form-group">
+                <label htmlFor="meetLink">Meeting Link</label>
                 <input
                   type="text"
                   id="meetLink"
                   value={newEvent.meetLink}
-                  readOnly
-                  className="w-full px-4 py-2 border rounded-lg"
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, meetLink: e.target.value })
+                  }
+                  className="form-input"
                 />
                 <button
                   onClick={generateMeetLink}
-                  className="px-4 py-2 bg-green-500 text-white rounded mt-2"
+                  className="generate-link-btn"
                   disabled={loading}
                 >
                   {loading ? "Generating..." : "Generate Meeting Link"}
                 </button>
               </div>
 
-              <div className="flex justify-between">
+              <div className="modal-buttons">
                 <button
                   onClick={addEvent}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="submit-btn"
                 >
-                  Add Event
+                  Add Class
                 </button>
                 <button
                   onClick={() => setIsAddEventModalOpen(false)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="cancel-btn"
                 >
                   Cancel
                 </button>

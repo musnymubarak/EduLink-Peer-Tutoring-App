@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
 import Header from "../Header";
+import "../../css/student/SubjectDetails.css";
 
 export default function SubjectDetails() {
   const { id } = useParams();
@@ -18,12 +19,13 @@ export default function SubjectDetails() {
   const [formData, setFormData] = useState({
     time: "",
     suggestions: "",
+    duration: 60, // Default duration in minutes
   });
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  
+
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -141,6 +143,7 @@ export default function SubjectDetails() {
       payload = {
         type: selectedClassType,
         time: selectedGroupTime,
+        duration: formData.duration, // Include duration
         suggestions: formData.suggestions,
       };
     } else {
@@ -153,6 +156,7 @@ export default function SubjectDetails() {
       payload = {
         type: selectedClassType,
         time: formattedTime,
+        duration: formData.duration, // Include duration
         suggestions: formData.suggestions,
       };
     }
@@ -170,7 +174,7 @@ export default function SubjectDetails() {
 
       alert("Class request sent successfully!");
       setIsModalOpen(false);
-      setFormData({ time: "", suggestions: "" });
+      setFormData({ time: "", suggestions: "", duration: 60 }); // Reset form data
       setSelectedGroupTime("");
     } catch (error) {
       console.error("Error sending class request:", error.response?.data || error);
@@ -181,104 +185,112 @@ export default function SubjectDetails() {
   };
 
   if (!course) {
-    return <div className="p-8 text-center text-xl text-gray-700">Loading course details...</div>;
+    return (
+      <div className="subject-details-container">
+        <Header />
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading course details...</p>
+        </div>
+      </div>
+    );
   }
 
   const category = course.category?.name || "Uncategorized";
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="subject-details-container">
       <Header />
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center mb-6 text-blue-600 font-bold hover:underline"
+        className="back-button"
       >
-        <IoArrowBack className="mr-2 text-2xl" />
+        <IoArrowBack className="back-icon" />
         Back
       </button>
 
-      <div className="relative">
+      <div className="thumbnail-container">
         <img
-          src={course.thumbnail}
+          src={course.thumbnail || "https://via.placeholder.com/800x400?text=No+Image"}
           alt={`${course.courseName} thumbnail`}
-          className="w-full h-96 object-cover rounded-lg shadow-lg"
+          className="thumbnail-image"
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/800x400?text=No+Image";
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-4">
-          <h1 className="text-4xl font-bold text-white">{course.courseName}</h1>
+        <div className="thumbnail-overlay">
+          <h1 className="thumbnail-title">{course.courseName}</h1>
         </div>
       </div>
 
-      <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+      <div className="content-card">
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Description</h2>
-          <p className="text-gray-600">{course.courseDescription}</p>
+          <h2 className="section-title">Course Description</h2>
+          <p className="section-description">{course.courseDescription || "No description available."}</p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Additional Details</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            <li><strong>Status:</strong> {course.status}</li>
+          <h2 className="section-title">Additional Details</h2>
+          <ul className="details-list">
+            <li><strong>Status:</strong> {course.status || "Not specified"}</li>
             <li><strong>Category:</strong> {category}</li>
             <li><strong>Created At:</strong> {new Date(course.createdAt).toLocaleString()}</li>
           </ul>
         </section>
 
-        {/* Tutor Section */}
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tutor</h2>
+          <h2 className="section-title">Tutor</h2>
           {tutor ? (
-            <div className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition">
-              <h3 className="text-xl font-bold text-gray-700">
+            <div className="tutor-card">
+              <h3 className="tutor-name">
                 {tutor.firstName} {tutor.lastName}
               </h3>
-              <p className="text-gray-600"><strong>Email:</strong> {tutor.email}</p>
+              <p className="tutor-email"><strong>Email:</strong> {tutor.email}</p>
             </div>
           ) : (
-            <p className="text-gray-600">No tutor assigned to this course.</p>
+            <p className="section-description">No tutor assigned to this course.</p>
           )}
         </section>
 
-        {/* Course Sections Section */}
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Sections</h2>
+          <h2 className="section-title">Course Sections</h2>
           {sections.length > 0 ? (
-            <ul className="list-disc list-inside text-gray-600">
+            <ul className="details-list">
               {sections.map((section) => (
-                <li key={section._id} className="cursor-pointer hover:text-blue-500" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
+                <li key={section._id} className="section-item" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
                   {section.sectionName}
-                </li> // Displaying section names
+                </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">No sections available for this course.</p>
+            <p className="section-description">No sections available for this course.</p>
           )}
         </section>
 
-        {/* Ratings and Reviews Section */}
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Ratings and Reviews</h2>
+          <h2 className="section-title">Ratings and Reviews</h2>
           <div className="space-y-6">
             {ratingsAndReviews.length > 0 ? (
               ratingsAndReviews.map((review, index) => (
-                <div key={index} className="bg-gray-100 p-4 rounded-lg shadow">
-                  <h3 className="text-xl font-bold text-gray-700">
-                    {review.user.firstName} {review.user.lastName}
+                <div key={index} className="review-card">
+                  <h3 className="reviewer-name">
+                    {review.user?.firstName} {review.user?.lastName}
                   </h3>
-                  <p className="text-gray-600"><strong>Rating:</strong> {review.rating}</p>
-                  <p className="text-gray-600"><strong>Review:</strong> {review.review}</p>
+                  <p className="review-content"><strong>Rating:</strong> {review.rating}</p>
+                  <p className="review-content"><strong>Review:</strong> {review.review}</p>
                 </div>
               ))
             ) : (
-              <p className="text-gray-600">No ratings or reviews available for this course.</p>
+              <p className="section-description">No ratings or reviews available for this course.</p>
             )}
           </div>
         </section>
 
-        <div className="text-right">
+        <div className="action-button">
           {isCheckingEnrollment ? (
             <button
               disabled
-              className="px-6 py-3 bg-gray-400 text-white font-bold rounded-lg shadow"
+              className="button"
             >
               Checking Enrollment...
             </button>
@@ -290,14 +302,14 @@ export default function SubjectDetails() {
                   fetchAvailableGroupTimes();
                 }
               }}
-              className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700"
+              className="button button-request"
             >
               Request to Class
             </button>
           ) : (
             <button
               onClick={handleEnroll}
-              className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700"
+              className="button button-enroll"
             >
               Enroll
             </button>
@@ -306,17 +318,17 @@ export default function SubjectDetails() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md">
-            <h2 className="text-2xl font-semibold mb-4">Request Class</h2>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="modal-title">Request Class</h2>
             {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+              <div className="error-message">
                 {error}
               </div>
             )}
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700">Class Type</label>
+              <div className="form-group">
+                <label className="form-label">Class Type</label>
                 <select
                   value={selectedClassType}
                   onChange={(e) => {
@@ -325,7 +337,7 @@ export default function SubjectDetails() {
                       fetchAvailableGroupTimes();
                     }
                   }}
-                  className="border border-gray-300 rounded-lg w-full p-2"
+                  className="form-select"
                 >
                   <option value="Group">Group</option>
                   <option value="Personal">Personal</option>
@@ -333,12 +345,12 @@ export default function SubjectDetails() {
               </div>
 
               {selectedClassType === "Group" ? (
-                <div className="mb-4">
-                  <label className="block text-gray-700">Available Group Class Times</label>
+                <div className="form-group">
+                  <label className="form-label">Available Group Class Times</label>
                   <select
                     value={selectedGroupTime}
                     onChange={(e) => setSelectedGroupTime(e.target.value)}
-                    className="border border-gray-300 rounded-lg w-full p-2"
+                    className="form-select"
                     required
                   >
                     <option value="">Select a time</option>
@@ -350,51 +362,67 @@ export default function SubjectDetails() {
                   </select>
                 </div>
               ) : (
-                <div className="mb-4">
-                  <label className="block text-gray-700" htmlFor="time">Preferred Time</label>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="time">Preferred Time</label>
                   <input
                     type="datetime-local"
                     id="time"
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
-                    className="border border-gray-300 rounded-lg w-full p-2"
-                    min={new Date().toISOString().slice(0, 16)}
-                    step="1800" 
+                    className="form-input"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="help-text">
                     Please select a date and time for your session (30-minute intervals).
                   </p>
                 </div>
               )}
 
-              <div className="mb-4">
-                <label className="block text-gray-700" htmlFor="suggestions">Suggestions</label>
+              <div className="form-group">
+                <label className="form-label" htmlFor="duration">Duration (minutes)</label>
+                <input
+                  type="number"
+                  id="duration"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  min="30"
+                  step="30"
+                  required
+                />
+                <p className="help-text">
+                  Please enter the duration of the session in minutes (minimum 30 minutes).
+                </p>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="suggestions">Suggestions</label>
                 <textarea
                   id="suggestions"
                   name="suggestions"
                   value={formData.suggestions}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg w-full p-2"
+                  className="form-textarea"
                   placeholder="Any specific topics you want to cover in this session?"
                   rows={4}
                   required
                 ></textarea>
               </div>
 
-              <div className="flex justify-between">
+              <div className="modal-actions">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg"
+                  className="button button-cancel"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 ${isSubmitting ? 'bg-gray-500' : 'bg-blue-600'} text-white rounded-lg`}
+                  className={`button button-submit ${isSubmitting ? 'opacity-50' : ''}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Submitting..." : "Submit"}

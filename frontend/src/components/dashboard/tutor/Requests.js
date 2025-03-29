@@ -24,7 +24,8 @@ export default function Requests() {
   const [classDetails, setClassDetails] = useState({
     date: "",
     time: "",
-    classLink: ""
+    classLink: "",
+    duration:""
   });
 
   useEffect(() => {
@@ -57,10 +58,12 @@ export default function Requests() {
               time: new Date(req.time).toLocaleTimeString(),
               status: req.status,
               type: req.type,
+              duration: req.duration || "Not specified", // Ensure duration is included
               isNew: req.status === "Pending",
             };
           })
         );
+        
         setRequests(requestsWithCourses);
         setFilteredRequests(requestsWithCourses);
         setLoading(false);
@@ -117,23 +120,20 @@ export default function Requests() {
 
   const handleAcceptAction = async (request, action) => {
     try {
-      if (request.type === "Personal") {
         const requestDetails = requests.find(r => r.id === request.id);
         setClassDetails({
           date: requestDetails.date,
           time: requestDetails.time,
-          classLink: ""
+          classLink: "",
+          duration: requestDetails.duration || "0",
         });
+        
         setClassDetailsModal({
           show: true,
           type: request.type,
           requestId: request.id,
           courseId: request.courseId
         });
-      } else if (request.type === "Group") {
-        // Handle group request logic
-        console.log("Group request handling not implemented");
-      }
     } catch (err) {
       console.error("Error in accept action:", err);
       alert("Failed to process request. Please try again.");
@@ -204,7 +204,8 @@ export default function Requests() {
       setClassDetails({ 
         date: "", 
         time: "", 
-        classLink: "" 
+        classLink: "",
+        duration:"" 
       });
   
       // Provide user feedback
@@ -393,6 +394,16 @@ export default function Requests() {
                 onChange={(e) => setClassDetails(prev => ({ ...prev, classLink: e.target.value }))}
                 className="w-full px-3 py-2 border rounded-lg"
                 required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2">Duration</label>
+              <input
+                type="text"
+                value={classDetails.duration}
+                className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                disabled
               />
             </div>
 
