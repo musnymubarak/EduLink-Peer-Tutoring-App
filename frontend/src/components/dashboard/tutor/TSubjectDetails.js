@@ -8,10 +8,11 @@ export default function TSubjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [sections, setSections] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     time: "",
-    duration: 60, // Default duration in minutes
+    duration: 60,
     classLink: "",
   });
   const [error, setError] = useState("");
@@ -20,18 +21,28 @@ export default function TSubjectDetails() {
     const fetchCourse = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/v1/courses/${id}`);
-        setCourse(response.data.data); // Set the fetched course data
+        setCourse(response.data.data);
       } catch (error) {
         console.error("Error fetching course:", error);
       }
     };
 
+    const fetchSections = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/api/v1/sections/course/${id}`);
+        setSections(response.data.data);
+      } catch (error) {
+        console.error("Error fetching sections:", error);
+      }
+    };
+
     fetchCourse();
+    fetchSections();
   }, [id]);
 
   const handleRedirect = () => {
-    // Redirect to the AddSection page
-    navigate("/dashboard/tutor/add-section"); // Adjust the route if necessary
+    // Pass the course ID to the add-section page
+    navigate(`/dashboard/tutor/add-section?courseId=${id}`);
   };
 
   const handleInputChange = (e) => {
@@ -43,7 +54,6 @@ export default function TSubjectDetails() {
     e.preventDefault();
     setError("");
 
-    // Validate input
     if (!formData.time || !formData.duration) {
       setError("Class time and duration are required.");
       return;
@@ -60,7 +70,6 @@ export default function TSubjectDetails() {
         }
       );
 
-      // Close the modal and show success message
       setIsModalOpen(false);
       alert("Group class created successfully!");
       console.log("Group class created:", response.data);
@@ -126,6 +135,31 @@ export default function TSubjectDetails() {
           </ul>
         </section>
 
+        {/* Course Sections Display */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Course Sections</h2>
+          {sections.length > 0 ? (
+            <ul className="divide-y divide-gray-200">
+              {sections.map((section) => (
+                <li 
+                  key={section._id} 
+                  className="py-3 px-4 hover:bg-blue-50 rounded cursor-pointer transition duration-150 ease-in-out"
+                  onClick={() => navigate(`/dashboard/tutor/section/${section._id}`)}
+                >
+                  <div className="flex items-center">
+                    <span className="text-lg text-gray-700">{section.sectionName}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600 italic">No sections available for this course.</p>
+          )}
+        </section>
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Tags</h2>
           <div className="flex flex-wrap gap-2">
@@ -148,26 +182,27 @@ export default function TSubjectDetails() {
           <h2 className="text-2xl font-semibold text-blue-700 mb-4">Number of students enrolled: 
             <span className="text-gray-600">{course.studentsEnrolled?.length > 0
                 ? ` ${course.studentsEnrolled.length}`
-                : "No students enrolled."}
+                : " No students enrolled."}
             </span>
           </h2>
         </section>
 
-        {/* Add Sections Button */}
-        <button
-          onClick={handleRedirect}
-          className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
-        >
-          Add Sections
-        </button>
+        {/* Buttons */}
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={handleRedirect}
+            className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Add Sections
+          </button>
 
-        {/* Create Group Class Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="mt-6 ml-4 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        >
-          Create Group Class
-        </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            Create Group Class
+          </button>
+        </div>
       </div>
 
       {/* Modal for Creating Group Class */}
