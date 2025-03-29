@@ -247,15 +247,6 @@ export default function SubjectDetails() {
         </section>
 
         <section className="mb-8">
-          <h2 className="section-title">Additional Details</h2>
-          <ul className="details-list">
-            <li><strong>Status:</strong> {course.status || "Not specified"}</li>
-            <li><strong>Category:</strong> {category}</li>
-            <li><strong>Created At:</strong> {new Date(course.createdAt).toLocaleString()}</li>
-          </ul>
-        </section>
-
-        <section className="mb-8">
           <h2 className="section-title">Tutor</h2>
           {tutor ? (
             <div className="tutor-card">
