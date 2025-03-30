@@ -17,8 +17,9 @@ export default function TDashboard() {
   const [courseRatings, setCourseRatings] = useState({});
   const [averageRating, setAverageRating] = useState(0);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
-  const [fetchingUpcomingSessions, setFetchingUpcomingSessions] = useState(true);
-  
+  const [fetchingUpcomingSessions, setFetchingUpcomingSessions] =
+    useState(true);
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -44,10 +45,12 @@ export default function TDashboard() {
         );
 
         if (response.data.success) {
-          const tutorCourses = response.data.data.filter(course => course.tutor._id.toString() === tutorId);
-          console.log(tutorCourses)
+          const tutorCourses = response.data.data.filter(
+            (course) => course.tutor._id.toString() === tutorId
+          );
+          console.log(tutorCourses);
           setCourses(tutorCourses || []); // Ensure courses is always an array
-          
+
           // Fetch ratings for each course
           fetchCourseRatings(tutorCourses, token);
         } else {
@@ -62,62 +65,71 @@ export default function TDashboard() {
     fetchCourses();
     fetchUpcomingSessions();
   }, []);
-  
+
   // New function to fetch upcoming sessions
   const fetchUpcomingSessions = async () => {
     setFetchingUpcomingSessions(true);
     try {
       const token = localStorage.getItem("token");
-  
+
       if (!token) {
         console.error("No authentication token found");
         return;
       }
-  
+
       // Use the acceptedClasses endpoint to get upcoming sessions
-      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      const response = await fetch(
+        "http://localhost:4000/api/v1/classes/accepted-classes",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (response.status === 401) {
         console.error("Authentication token expired or invalid");
         return;
       }
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         // Log the raw data to see its structure
         console.log("Raw API response for upcoming sessions:", data);
-        
+
         // Get accepted classes
         const classItems = data.acceptedClasses || [];
-        
+
         // Transform the class data into upcoming sessions format
         // and filter for only future sessions
         const now = new Date();
         const transformedSessions = classItems
-          .filter(classItem => {
+          .filter((classItem) => {
             const sessionTime = new Date(classItem.time);
             return !isNaN(sessionTime.getTime()) && sessionTime > now;
           })
-          .map(classItem => {
+          .map((classItem) => {
             const startTime = new Date(classItem.time);
             const sessionDate = startTime.toLocaleDateString();
-            const sessionTime = startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
+            const sessionTime = startTime.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
             return {
               id: classItem._id,
               topic: classItem.course?.courseName || "Untitled Class",
               date: sessionDate,
               time: sessionTime,
-              studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+              studentName:
+                classItem.student?.firstName ||
+                classItem.student?.email ||
+                "Unknown Student",
               type: classItem.type || "Personal",
-              meetLink: classItem.classLink || ""
+              meetLink: classItem.classLink || "",
             };
           })
           .sort((a, b) => {
@@ -126,7 +138,7 @@ export default function TDashboard() {
             const dateB = new Date(`${b.date} ${b.time}`);
             return dateA - dateB;
           });
-  
+
         console.log("Transformed upcoming sessions:", transformedSessions);
         setUpcomingSessions(transformedSessions);
       } else {
@@ -152,50 +164,60 @@ export default function TDashboard() {
               },
             }
           );
-          
+
           console.log(response.data);
-          
+
           // Extract rating from the data array if it exists
           let rating = 0;
-          if (response.data.success && response.data.data && response.data.data.length > 0) {
+          if (
+            response.data.success &&
+            response.data.data &&
+            response.data.data.length > 0
+          ) {
             // If multiple ratings exist, we could calculate an average
             // For now, we'll take the first rating
             rating = response.data.data[0].rating || 0;
-            
+
             // Log the extracted rating
             console.log(`Rating for course ${course._id}: ${rating}`);
           }
-          
-          return { 
-            courseId: course._id, 
-            rating: rating
+
+          return {
+            courseId: course._id,
+            rating: rating,
           };
         } catch (error) {
-          console.error(`Error fetching rating for course ${course._id}:`, error);
+          console.error(
+            `Error fetching rating for course ${course._id}:`,
+            error
+          );
           // Return 0 rating if error occurs
           return { courseId: course._id, rating: 0 };
         }
       });
-      
+
       const ratingsResults = await Promise.all(ratingsPromises);
-      
+
       // Convert array of results to an object with courseId as key
       const ratingsObj = {};
-      ratingsResults.forEach(result => {
+      ratingsResults.forEach((result) => {
         ratingsObj[result.courseId] = result.rating;
       });
-      
+
       // Calculate average rating
-      const totalRating = ratingsResults.reduce((sum, item) => sum + item.rating, 0);
-      const avgRating = courses.length > 0 ? (totalRating / courses.length).toFixed(1) : 0;
-      
+      const totalRating = ratingsResults.reduce(
+        (sum, item) => sum + item.rating,
+        0
+      );
+      const avgRating =
+        courses.length > 0 ? (totalRating / courses.length).toFixed(1) : 0;
+
       // Log the complete ratings object and average
       console.log("All course ratings:", ratingsObj);
       console.log("Average rating:", avgRating);
-      
+
       setCourseRatings(ratingsObj);
       setAverageRating(avgRating);
-      
     } catch (error) {
       console.error("Error in fetchCourseRatings:", error);
     }
@@ -211,23 +233,26 @@ export default function TDashboard() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         setError("Authentication token is missing. Please log in.");
         return;
       }
-      
-      const response = await axios.get("http://localhost:4000/api/v1/classes/class-requests", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      const response = await axios.get(
+        "http://localhost:4000/api/v1/classes/class-requests",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       // Check if classRequests exists in the response
       if (response.data && response.data.classRequests) {
         // Simply set the requests first to ensure they appear
         setClassRequests(response.data.classRequests);
-        
+
         // Then try to enrich them with course details if possible
         try {
           const requestsWithCourses = await Promise.all(
@@ -243,15 +268,16 @@ export default function TDashboard() {
                       },
                     }
                   );
-                  
+
                   if (courseResponse.data && courseResponse.data.data) {
-                    const courseName = courseResponse.data.data.courseName || "Unknown Course";
+                    const courseName =
+                      courseResponse.data.data.courseName || "Unknown Course";
                     return {
                       ...req,
                       course: {
                         ...req.course,
-                        title: courseName
-                      }
+                        title: courseName,
+                      },
                     };
                   }
                 }
@@ -260,8 +286,8 @@ export default function TDashboard() {
                   ...req,
                   course: {
                     ...req.course,
-                    title: req.course?.title || "Course"
-                  }
+                    title: req.course?.title || "Course",
+                  },
                 };
               } catch (err) {
                 console.error("Error fetching course details:", err);
@@ -270,35 +296,41 @@ export default function TDashboard() {
                   ...req,
                   course: {
                     ...req.course,
-                    title: req.course?.title || "Course"
-                  }
+                    title: req.course?.title || "Course",
+                  },
                 };
               }
             })
           );
-          
-          // Sort requests by time (newest first)
-          const sortedRequests = requestsWithCourses.sort((a, b) => {
 
+          // First sort by status (Pending first, then by time)
+          const sortedRequests = requestsWithCourses.sort((a, b) => {
+            // Prioritize Pending status
             if (a.status === "Pending" && b.status !== "Pending") return -1;
             if (a.status !== "Pending" && b.status === "Pending") return 1;
 
+            // Then sort by time (newest first)
             const timeA = a.time ? new Date(a.time).getTime() : 0;
             const timeB = b.time ? new Date(b.time).getTime() : 0;
-            return timeB - timeA; // descending order (newest first)
+            return timeB - timeA;
           });
-          
+
           setClassRequests(sortedRequests);
         } catch (err) {
           console.error("Error enriching request data:", err);
-          // Keep the original requests if enrichment fails, but still sort them
-          const sortedRequests = [...response.data.classRequests].sort((a, b) => {
-            if (a.status === "Pending" && b.status !== "Pending") return -1;
-            if (a.status !== "Pending" && b.status === "Pending") return 1;
-            const timeA = a.time ? new Date(a.time).getTime() : 0;
-            const timeB = b.time ? new Date(b.time).getTime() : 0;
-            return timeB - timeA; // descending order (newest first)
-          });
+          // Keep the original requests if enrichment fails, but sort by status and time
+          const sortedRequests = [...response.data.classRequests].sort(
+            (a, b) => {
+              // Prioritize Pending status
+              if (a.status === "Pending" && b.status !== "Pending") return -1;
+              if (a.status !== "Pending" && b.status === "Pending") return 1;
+
+              // Then sort by time (newest first)
+              const timeA = a.time ? new Date(a.time).getTime() : 0;
+              const timeB = b.time ? new Date(b.time).getTime() : 0;
+              return timeB - timeA;
+            }
+          );
           setClassRequests(sortedRequests);
         }
       } else {
@@ -327,13 +359,16 @@ export default function TDashboard() {
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const payload = JSON.parse(atob(base64));
       const tutorId = payload.id; // Extract tutor ID from token
-      
-      const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}/enrolled-students`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/tutor/${tutorId}/enrolled-students`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (response.data.success) {
         setTotalStudents(response.data.totalStudentsEnrolled);
       }
@@ -348,13 +383,13 @@ export default function TDashboard() {
     try {
       // Close modal first
       setIsModalOpen(false);
-      
+
       const token = localStorage.getItem("token");
       if (!token) {
         setError("Authentication token is missing. Please log in.");
         return;
       }
-      
+
       // Make the API request
       await axios.post(
         `http://localhost:4000/api/v1/classes/handle-request/${requestId}`,
@@ -365,17 +400,18 @@ export default function TDashboard() {
           },
         }
       );
-      
+
       // If we get here without an error being thrown, refresh the page
       window.location.reload();
-      
     } catch (err) {
       console.error("Error handling request:", err);
-      
+
       // Show alert with more detailed error information if available
-      const errorMessage = err.response?.data?.message || "Failed to update request status. Please try again.";
+      const errorMessage =
+        err.response?.data?.message ||
+        "Failed to update request status. Please try again.";
       alert(errorMessage);
-      
+
       // Re-open the modal in case of error
       setIsModalOpen(true);
     }
@@ -389,15 +425,6 @@ export default function TDashboard() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedRequest(null);
-  };
-
-  const handleAccept = () => {
-    if (selectedRequest && selectedRequest._id) {
-      handleRequestAction(selectedRequest._id, "Accepted");
-    } else {
-      console.error("No request selected or missing ID");
-      alert("Error: Cannot process request. Missing request ID.");
-    }
   };
 
   const handleDecline = () => {
@@ -425,14 +452,14 @@ export default function TDashboard() {
   // Helper function to safely access nested properties
   const safelyAccess = (obj, path, fallback = "") => {
     try {
-      const keys = path.split('.');
+      const keys = path.split(".");
       return keys.reduce((o, key) => (o || {})[key], obj) || fallback;
     } catch (err) {
       return fallback;
     }
   };
 
-  // Get only the 3 latest requests (already sorted by time in fetchClassRequests)
+  // Get only the 3 latest requests (already sorted by status and time in fetchClassRequests)
   const latestRequests = classRequests.slice(0, 3);
   const hasMoreRequests = classRequests.length > 3;
 
@@ -442,36 +469,53 @@ export default function TDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Header/>
+      <Header />
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Tutor Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          Tutor Dashboard
+        </h1>
 
         {/* Overview Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-blue-700">Total Students</h2>
-            <p className="text-3xl font-semibold text-gray-800 mt-4">{totalStudents}</p>
+            <p className="text-3xl font-semibold text-gray-800 mt-4">
+              {totalStudents}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-blue-700">Average Tutor Rating</h2>
-            <p className="text-3xl font-semibold text-gray-800 mt-4">{averageRating} / 5</p>
+            <h2 className="text-xl font-bold text-blue-700">
+              Average Tutor Rating
+            </h2>
+            <p className="text-3xl font-semibold text-gray-800 mt-4">
+              {averageRating} / 5
+            </p>
           </div>
         </div>
 
         {/* Course Ratings Section - New section */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-4">Course Ratings</h2>
+          <h2 className="text-2xl font-bold text-blue-700 mb-4">
+            Course Ratings
+          </h2>
           {courses.length > 0 ? (
             <div className="space-y-4">
               {courses.map((course) => (
-                <div key={course._id} className="flex justify-between items-center border-b pb-2">
-                  <p className="text-gray-800 font-semibold">{course.courseName || "Unnamed Course"}</p>
+                <div
+                  key={course._id}
+                  className="flex justify-between items-center border-b pb-2"
+                >
+                  <p className="text-gray-800 font-semibold">
+                    {course.courseName || "Unnamed Course"}
+                  </p>
                   <div className="flex items-center">
                     <span className="text-yellow-500 mr-1">★</span>
-                    <span className="text-gray-700">{courseRatings[course._id] || 0} / 5</span>
+                    <span className="text-gray-700">
+                      {courseRatings[course._id] || 0} / 5
+                    </span>
                   </div>
                 </div>
               ))}
@@ -484,9 +528,11 @@ export default function TDashboard() {
         {/* Recent Requests Section */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-blue-700">Recent Requests</h2>
+            <h2 className="text-2xl font-bold text-blue-700">
+              Recent Requests
+            </h2>
             {hasMoreRequests && (
-              <button 
+              <button
                 onClick={navigateToRequestsPage}
                 className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
@@ -494,7 +540,7 @@ export default function TDashboard() {
               </button>
             )}
           </div>
-          
+
           {loading ? (
             <p className="text-gray-600">Loading requests...</p>
           ) : error ? (
@@ -504,28 +550,36 @@ export default function TDashboard() {
               {latestRequests.map((request) => (
                 <li
                   key={request._id || Math.random().toString()}
-                  className="flex items-center justify-between border-b pb-2"
+                  className={`flex items-center justify-between border-b pb-2 ${
+                    request.status === "Pending" ? "bg-yellow-50" : ""
+                  }`}
                 >
                   <div>
                     <p className="text-gray-800 font-semibold">
-                      {safelyAccess(request, 'student.name') || 
-                       safelyAccess(request, 'student.email') || 
-                       "Student"}
+                      {safelyAccess(request, "student.name") ||
+                        safelyAccess(request, "student.email") ||
+                        "Student"}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      {safelyAccess(request, 'course.title', 'Course')} - 
-                      {safelyAccess(request, 'type', 'Class')} Class
+                      {safelyAccess(request, "course.title", "Course")} -
+                      {safelyAccess(request, "type", "Class")} Class
                     </p>
                     <p className="text-gray-600 text-sm">
-                      {request.time ? new Date(request.time).toLocaleString() : "Scheduled time not available"}
+                      {request.time
+                        ? new Date(request.time).toLocaleString()
+                        : "Scheduled time not available"}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 rounded ${
-                      request.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                      request.status === "Accepted" ? "bg-green-100 text-green-800" :
-                      "bg-red-100 text-red-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded ${
+                        request.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : request.status === "Accepted"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {request.status || "Status unknown"}
                     </span>
                     {(!request.status || request.status === "Pending") && (
@@ -548,9 +602,11 @@ export default function TDashboard() {
         {/* Upcoming Sessions Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-blue-700">Upcoming Sessions</h2>
+            <h2 className="text-2xl font-bold text-blue-700">
+              Upcoming Sessions
+            </h2>
             {hasMoreSessions && (
-              <button 
+              <button
                 onClick={navigateToSchedulePage}
                 className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
@@ -558,7 +614,7 @@ export default function TDashboard() {
               </button>
             )}
           </div>
-          
+
           {fetchingUpcomingSessions ? (
             <p className="text-gray-600">Loading upcoming sessions...</p>
           ) : displayedSessions.length > 0 ? (
@@ -569,7 +625,9 @@ export default function TDashboard() {
                   className="flex items-center justify-between border-b pb-2"
                 >
                   <div>
-                    <p className="text-gray-800 font-semibold">{session.topic}</p>
+                    <p className="text-gray-800 font-semibold">
+                      {session.topic}
+                    </p>
                     <p className="text-gray-600 text-sm">
                       {session.date} at {session.time}
                     </p>
@@ -578,9 +636,9 @@ export default function TDashboard() {
                     </p>
                   </div>
                   {session.meetLink && (
-                    <a 
-                      href={session.meetLink} 
-                      target="_blank" 
+                    <a
+                      href={session.meetLink}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
@@ -600,20 +658,27 @@ export default function TDashboard() {
       {isModalOpen && selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Request Details</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Request Details
+            </h2>
             <p className="text-gray-600">
-              <strong>Student:</strong> {safelyAccess(selectedRequest, 'student.name') || 
-                                        safelyAccess(selectedRequest, 'student.email') || 
-                                        "Student"}
+              <strong>Student:</strong>{" "}
+              {safelyAccess(selectedRequest, "student.name") ||
+                safelyAccess(selectedRequest, "student.email") ||
+                "Student"}
             </p>
             <p className="text-gray-600">
-              <strong>Course:</strong> {safelyAccess(selectedRequest, 'course.title', 'Course')}
+              <strong>Course:</strong>{" "}
+              {safelyAccess(selectedRequest, "course.title", "Course")}
             </p>
             <p className="text-gray-600">
               <strong>Type:</strong> {selectedRequest.type || "Class"}
             </p>
             <p className="text-gray-600">
-              <strong>Time:</strong> {selectedRequest.time ? new Date(selectedRequest.time).toLocaleString() : "Not specified"}
+              <strong>Time:</strong>{" "}
+              {selectedRequest.time
+                ? new Date(selectedRequest.time).toLocaleString()
+                : "Not specified"}
             </p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
@@ -638,7 +703,7 @@ export default function TDashboard() {
           </div>
         </div>
       )}
-      <Footer/>
+      <Footer />
     </div>
   );
 }
