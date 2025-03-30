@@ -123,8 +123,14 @@ export default function SubjectDetails() {
 
   const fetchAvailableGroupTimes = async () => {
     try {
+      // Add Authorization header to fix the 401 error
       const response = await axios.get(
-        `http://localhost:4000/api/v1/classes/available-group-times/${id}`
+        `http://localhost:4000/api/v1/classes/group-classes/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       setAvailableGroupTimes(response.data.data);
     } catch (error) {
