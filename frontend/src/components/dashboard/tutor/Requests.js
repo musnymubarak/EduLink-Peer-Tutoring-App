@@ -75,6 +75,22 @@ export default function Requests() {
         );
         // Sort by proximity to current time
         const now = new Date();
+        const sortedRequests = pendingRequests.sort((a, b) => {
+          // If both are in the future
+          if (a.fullTime > now && b.fullTime > now) {
+            return a.fullTime - b.fullTime;
+          }
+          // If a is in the future but b is in the past
+          if (a.fullTime > now && b.fullTime <= now) {
+            return -1; // a comes first (future events before past)
+          }
+          // If b is in the future but a is in the past
+          if (b.fullTime > now && a.fullTime <= now) {
+            return 1; // b comes first
+          }
+          // If both are in the past, show most recent first
+          return b.fullTime - a.fullTime;
+        });
         setRequests(requestsWithCourses);
         setFilteredRequests(requestsWithCourses);
         setLoading(false);
