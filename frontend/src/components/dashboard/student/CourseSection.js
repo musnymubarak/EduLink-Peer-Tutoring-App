@@ -24,18 +24,38 @@ const CourseSection = () => {
     fetchSectionDetails();
   }, [sectionId]);
 
-  const handleAnswerChange = (questionIndex, answer) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionIndex]: answer,
-    }));
+  // Handle answer selection (multiple choices)
+  const handleAnswerChange = (questionIndex, optionIndex) => {
+    setAnswers((prevAnswers) => {
+      const updatedAnswers = { ...prevAnswers };
+      const selectedOptions = updatedAnswers[questionIndex] || [];
+
+      // Toggle selection
+      if (selectedOptions.includes(optionIndex)) {
+        updatedAnswers[questionIndex] = selectedOptions.filter((opt) => opt !== optionIndex);
+      } else {
+        updatedAnswers[questionIndex] = [...selectedOptions, optionIndex];
+      }
+
+      return updatedAnswers;
+    });
   };
 
+  // Calculate the score
   const handleSubmitQuiz = () => {
     let correctAnswers = 0;
 
-    section.quiz.forEach((question, index) => {
-      if (answers[index] === question.correctAnswer) {
+    section.quiz.forEach((question, qIndex) => {
+      const selectedOptions = answers[qIndex] || [];
+      const correctOptions = question.options
+        .map((opt, index) => (opt.isCorrect ? index : null))
+        .filter((val) => val !== null);
+
+      // Check if selected options match the correct options
+      if (
+        selectedOptions.length === correctOptions.length &&
+        selectedOptions.every((val) => correctOptions.includes(val))
+      ) {
         correctAnswers++;
       }
     });
@@ -81,32 +101,21 @@ const CourseSection = () => {
             <div className="mb-4">
               <h2 className="text-xl font-semibold">Quiz:</h2>
               {section.quiz.length > 0 ? (
-                section.quiz.map((question, index) => (
-                  <div key={index} className="mb-4 p-4 border rounded">
-                    <h3 className="font-bold">{`Question ${index + 1}: ${question.questionText}`}</h3>
+                section.quiz.map((question, qIndex) => (
+                  <div key={qIndex} className="mb-4 p-4 border rounded">
+                    <h3 className="font-bold">{`Question ${qIndex + 1}: ${question.questionText}`}</h3>
                     <div className="mt-2">
-                      <label className="mr-4">
-                        <input
-                          type="radio"
-                          name={`question-${index}`}
-                          value="true"
-                          checked={answers[index] === "true"}
-                          onChange={() => handleAnswerChange(index, "true")}
-                          className="mr-1"
-                        />
-                        True
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name={`question-${index}`}
-                          value="false"
-                          checked={answers[index] === "false"}
-                          onChange={() => handleAnswerChange(index, "false")}
-                          className="mr-1"
-                        />
-                        False
-                      </label>
+                      {question.options.map((option, optIndex) => (
+                        <label key={optIndex} className="block cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={answers[qIndex]?.includes(optIndex) || false}
+                            onChange={() => handleAnswerChange(qIndex, optIndex)}
+                            className="mr-2"
+                          />
+                          {option.optionText}
+                        </label>
+                      ))}
                     </div>
                   </div>
                 ))
