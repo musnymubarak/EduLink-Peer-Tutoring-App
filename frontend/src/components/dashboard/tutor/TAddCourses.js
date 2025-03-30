@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import Header from "../Header";
 import Footer from "../Footer";
+import { FiPlus, FiUpload, FiSave } from "react-icons/fi";
+import "../../css/tutor/TAddCourses.css";
 
 export default function TAddCourses() {
   const navigate = useNavigate();
@@ -123,74 +125,157 @@ export default function TAddCourses() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="tutor-add-course-container">
       <Header/>
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
 
-      <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Add New Course</h1>
+      <div className="tutor-add-course-content">
+        <h1 className="tutor-add-course-title">Add New Course</h1>
 
         {message && (
-          <div className={`p-4 mb-4 rounded ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          <div className={`message-container ${message.type === "success" ? "message-success" : "message-error"}`}>
             {message.text}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Course Name</label>
-            <input type="text" name="courseName" value={formData.courseName} onChange={handleChange} required className="w-full border border-gray-300 rounded-lg p-3" />
+        <form onSubmit={handleSubmit} className="form-container">
+          <div className="form-group">
+            <label className="form-label">Course Name</label>
+            <input 
+              type="text" 
+              name="courseName" 
+              value={formData.courseName} 
+              onChange={handleChange} 
+              required 
+              className="form-input"
+              placeholder="Enter course name"
+            />
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Category</label>
-            <input type="text" name="category" value={formData.category} onChange={handleChange} required className="w-full border border-gray-300 rounded-lg p-3" />
+          <div className="form-group">
+            <label className="form-label">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              className="form-select"
+            >
+              <option value="">Select a category</option>
+              <option value="programming">Programming</option>
+              <option value="design">Design</option>
+              <option value="business">Business</option>
+              <option value="marketing">Marketing</option>
+              <option value="personal">Personal Development</option>
+            </select>
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Description</label>
-            <textarea name="courseDescription" value={formData.courseDescription} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" />
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <textarea 
+              name="courseDescription" 
+              value={formData.courseDescription} 
+              onChange={handleChange} 
+              className="form-textarea"
+              placeholder="Enter course description"
+            />
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">What You Will Learn</label>
-            <textarea name="whatYouWillLearn" value={formData.whatYouWillLearn} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" />
+          <div className="form-group">
+            <label className="form-label">What You Will Learn</label>
+            <textarea 
+              name="whatYouWillLearn" 
+              value={formData.whatYouWillLearn} 
+              onChange={handleChange} 
+              className="form-textarea"
+              placeholder="Enter learning outcomes"
+            />
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Thumbnail</label>
-            <input type="file" accept="image/*" onChange={uploadThumbnail} className="w-full border border-gray-300 rounded-lg p-3" />
-            {uploading && <p className="text-gray-600">Uploading...</p>}
-            {formData.thumbnail && <img src={formData.thumbnail} alt="Thumbnail Preview" className="w-32 h-32 object-cover rounded-lg mt-4" />}
+          <div className="form-group">
+            <label className="form-label">Course Thumbnail</label>
+            <div className="thumbnail-upload" onClick={() => document.getElementById('thumbnail').click()}>
+              {formData.thumbnail ? (
+                <img 
+                  src={formData.thumbnail} 
+                  alt="Thumbnail Preview" 
+                  className="thumbnail-preview" 
+                />
+              ) : (
+                <>
+                  <FiUpload className="upload-icon" />
+                  <p className="upload-text">Click to upload thumbnail</p>
+                </>
+              )}
+            </div>
+            <input 
+              type="file" 
+              id="thumbnail"
+              accept="image/*" 
+              onChange={uploadThumbnail} 
+              className="form-input"
+              style={{ display: 'none' }}
+            />
+            {uploading && <p className="upload-status">Uploading...</p>}
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Tags (comma-separated)</label>
-            <input type="text" name="tag" value={formData.tag} onChange={handleChange} required className="w-full border border-gray-300 rounded-lg p-3" />
+          <div className="form-group">
+            <label className="form-label">Tags (comma-separated)</label>
+            <input 
+              type="text" 
+              name="tag" 
+              value={formData.tag} 
+              onChange={handleChange} 
+              required 
+              className="form-input"
+              placeholder="e.g., web development, javascript, react"
+            />
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Instructions</label>
-            <textarea name="instructions" value={formData.instructions} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" />
+          <div className="form-group">
+            <label className="form-label">Instructions</label>
+            <textarea 
+              name="instructions" 
+              value={formData.instructions} 
+              onChange={handleChange} 
+              className="form-textarea"
+              placeholder="Enter course instructions"
+            />
           </div>
 
-          <button onClick={handleRedirect} className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none">
-            Add Sections
-          </button>
-
-          <div>
-            <label className="block text-gray-700 font-bold mb-2">Status</label>
-            <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3">
+          <div className="form-group">
+            <label className="form-label">Status</label>
+            <select 
+              name="status" 
+              value={formData.status} 
+              onChange={handleChange} 
+              className="form-select"
+            >
               <option value="Draft">Draft</option>
               <option value="Published">Published</option>
             </select>
           </div>
 
-          <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            Create Course
-          </button>
+          <div className="button-container">
+            <button 
+              onClick={handleRedirect} 
+              className="add-sections-button"
+              type="button"
+            >
+              <FiPlus />
+              Add Sections
+            </button>
+
+            <button 
+              type="submit" 
+              className="submit-button"
+            >
+              <FiSave />
+              Create Course
+            </button>
+          </div>
         </form>
       </div>
       <Footer/>
