@@ -27,7 +27,8 @@ export default function Requests() {
     classLink: "",
     duration:""
   });
-
+ const [currentPage, setCurrentPage] = useState(1);
+ const [requestsPerPage] = useState(4);
   useEffect(() => {
     const fetchRequests = async () => {
       try {
