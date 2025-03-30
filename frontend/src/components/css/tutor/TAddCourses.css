@@ -9,40 +9,60 @@
   margin-left: 16rem;
   padding: 2rem;
   overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .tutor-add-course-title {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #1f2937;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.tutor-add-course-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #2563eb;
+  border-radius: 2px;
 }
 
 .message-container {
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .message-success {
   background-color: #d1fae5;
   color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .message-error {
   background-color: #fee2e2;
   color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 .form-container {
   background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-label {
@@ -50,78 +70,154 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .form-input,
 .form-textarea,
 .form-select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
   font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-textarea {
-  min-height: 100px;
+  min-height: 120px;
   resize: vertical;
 }
 
+.thumbnail-upload {
+  border: 2px dashed #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.thumbnail-upload:hover {
+  border-color: #2563eb;
+  background-color: #f3f4f6;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
 .thumbnail-preview {
-  width: 8rem;
-  height: 8rem;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 0.5rem;
   margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .upload-status {
   color: #6b7280;
   font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
 
 .button-container {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.add-sections-button,
+.submit-button {
+  padding: 0.875rem 1.75rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .add-sections-button {
-  padding: 0.75rem 1.5rem;
   background-color: #059669;
   color: white;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
 }
 
 .add-sections-button:hover {
   background-color: #047857;
+  transform: translateY(-1px);
 }
 
 .add-sections-button:focus {
   outline: none;
-  ring: 2px;
-  ring-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
 }
 
 .submit-button {
-  padding: 0.75rem 1.5rem;
   background-color: #2563eb;
   color: white;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .submit-button:hover {
   background-color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 .submit-button:focus {
   outline: none;
-  ring: 2px;
-  ring-color: #2563eb;
-} 
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.submit-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .tutor-add-course-content {
+    padding: 1rem;
+    margin-left: 0;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  .tutor-add-course-title {
+    font-size: 1.5rem;
+  }
+
+  .button-container {
+    flex-direction: column;
+  }
+
+  .add-sections-button,
+  .submit-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

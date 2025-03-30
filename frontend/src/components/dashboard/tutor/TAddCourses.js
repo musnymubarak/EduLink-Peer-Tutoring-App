@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import Header from "../Header";
 import Footer from "../Footer";
+import { FiPlus, FiUpload, FiSave } from "react-icons/fi";
 import "../../css/tutor/TAddCourses.css";
 
 export default function TAddCourses() {
@@ -148,20 +149,27 @@ export default function TAddCourses() {
               value={formData.courseName} 
               onChange={handleChange} 
               required 
-              className="form-input" 
+              className="form-input"
+              placeholder="Enter course name"
             />
           </div>
 
           <div className="form-group">
             <label className="form-label">Category</label>
-            <input 
-              type="text" 
-              name="category" 
-              value={formData.category} 
-              onChange={handleChange} 
-              required 
-              className="form-input" 
-            />
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              className="form-select"
+            >
+              <option value="">Select a category</option>
+              <option value="programming">Programming</option>
+              <option value="design">Design</option>
+              <option value="business">Business</option>
+              <option value="marketing">Marketing</option>
+              <option value="personal">Personal Development</option>
+            </select>
           </div>
 
           <div className="form-group">
@@ -170,7 +178,8 @@ export default function TAddCourses() {
               name="courseDescription" 
               value={formData.courseDescription} 
               onChange={handleChange} 
-              className="form-textarea" 
+              className="form-textarea"
+              placeholder="Enter course description"
             />
           </div>
 
@@ -180,26 +189,36 @@ export default function TAddCourses() {
               name="whatYouWillLearn" 
               value={formData.whatYouWillLearn} 
               onChange={handleChange} 
-              className="form-textarea" 
+              className="form-textarea"
+              placeholder="Enter learning outcomes"
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Thumbnail</label>
+            <label className="form-label">Course Thumbnail</label>
+            <div className="thumbnail-upload" onClick={() => document.getElementById('thumbnail').click()}>
+              {formData.thumbnail ? (
+                <img 
+                  src={formData.thumbnail} 
+                  alt="Thumbnail Preview" 
+                  className="thumbnail-preview" 
+                />
+              ) : (
+                <>
+                  <FiUpload className="upload-icon" />
+                  <p className="upload-text">Click to upload thumbnail</p>
+                </>
+              )}
+            </div>
             <input 
               type="file" 
+              id="thumbnail"
               accept="image/*" 
               onChange={uploadThumbnail} 
-              className="form-input" 
+              className="form-input"
+              style={{ display: 'none' }}
             />
             {uploading && <p className="upload-status">Uploading...</p>}
-            {formData.thumbnail && (
-              <img 
-                src={formData.thumbnail} 
-                alt="Thumbnail Preview" 
-                className="thumbnail-preview" 
-              />
-            )}
           </div>
 
           <div className="form-group">
@@ -210,7 +229,8 @@ export default function TAddCourses() {
               value={formData.tag} 
               onChange={handleChange} 
               required 
-              className="form-input" 
+              className="form-input"
+              placeholder="e.g., web development, javascript, react"
             />
           </div>
 
@@ -220,7 +240,8 @@ export default function TAddCourses() {
               name="instructions" 
               value={formData.instructions} 
               onChange={handleChange} 
-              className="form-textarea" 
+              className="form-textarea"
+              placeholder="Enter course instructions"
             />
           </div>
 
@@ -241,7 +262,9 @@ export default function TAddCourses() {
             <button 
               onClick={handleRedirect} 
               className="add-sections-button"
+              type="button"
             >
+              <FiPlus />
               Add Sections
             </button>
 
@@ -249,6 +272,7 @@ export default function TAddCourses() {
               type="submit" 
               className="submit-button"
             >
+              <FiSave />
               Create Course
             </button>
           </div>
