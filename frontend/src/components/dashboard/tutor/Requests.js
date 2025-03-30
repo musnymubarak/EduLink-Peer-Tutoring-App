@@ -33,11 +33,14 @@ export default function Requests() {
     const fetchRequests = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:4000/api/v1/classes/class-requests", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:4000/api/v1/classes/class-requests",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const requestsWithCourses = await Promise.all(
           response.data.classRequests.map(async (req) => {
@@ -49,7 +52,8 @@ export default function Requests() {
                 },
               }
             );
-            const courseName = courseResponse.data.data.courseName || "Unknown Course";
+            const courseName =
+              courseResponse.data.data.courseName || "Unknown Course";
             return {
               id: req._id,
               student: req.student.email,
@@ -66,7 +70,11 @@ export default function Requests() {
             };
           })
         );
-        
+        const pendingRequests = requestsWithCourses.filter(
+          (req) => req !== null
+        );
+        // Sort by proximity to current time
+        const now = new Date();
         setRequests(requestsWithCourses);
         setFilteredRequests(requestsWithCourses);
         setLoading(false);
