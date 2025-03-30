@@ -123,10 +123,13 @@ export default function SubjectDetails() {
 
   const fetchAvailableGroupTimes = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/v1/classes/available-group-times/${id}`);
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/classes/available-group-times/${id}`
+      );
       setAvailableGroupTimes(response.data.data);
     } catch (error) {
-      console.error("Error fetching available group times:", error);
+      console.error("Error fetching available group classes:", error);
+      setAvailableGroupTimes([]); // Set empty array on error
     }
   };
 
