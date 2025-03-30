@@ -178,7 +178,7 @@ const TAddSection = () => {
             <button
               type="button"
               className="cancel-button"
-              onClick={() => navigate('/tutor/subjects')}
+              onClick={() => navigate('/dashboard/tutor/add-course')}
             >
               <FiX />
               Cancel
