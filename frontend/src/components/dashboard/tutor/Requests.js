@@ -57,10 +57,12 @@ export default function Requests() {
               courseId: req.course._id,
               date: eventTime.toLocaleDateString(),
               time: eventTime.toLocaleTimeString(),
+              fullTime: eventTime,
               status: req.status,
               type: req.type,
               duration: req.duration || "Not specified", // Ensure duration is included
-              isNew: req.status === "Pending",
+              isNew: true,
+              classLink: req.classLink || "",
             };
           })
         );
