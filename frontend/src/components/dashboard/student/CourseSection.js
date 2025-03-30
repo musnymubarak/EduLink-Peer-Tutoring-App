@@ -4,8 +4,9 @@ import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
 
 const CourseSection = () => {
-  const { sectionId } = useParams(); // Get sectionId from URL params
+  const { sectionId } = useParams();
   const [section, setSection] = useState(null);
+  const [showQuiz, setShowQuiz] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,34 +38,52 @@ const CourseSection = () => {
 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-3xl font-bold mb-4">{section.sectionName}</h1>
-        
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">Video:</h2>
-          <video controls className="w-full mt-2">
-            <source src={section.videoFile} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">Quiz:</h2>
-          {section.quiz.length > 0 ? (
-            section.quiz.map((question, index) => (
-              <div key={index} className="mb-4">
-                <h3 className="font-bold">{`Question ${index + 1}: ${question.questionText}`}</h3>
-                <ul className="list-disc pl-5">
-                  {question.options.map((option, optIndex) => (
-                    <li key={optIndex}>{option.optionText}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          ) : (
-            <p>No quiz available for this section.</p>
-          )}
-        </div>
-        
-        <p className="text-gray-600">{section.details}</p>
+
+        {!showQuiz ? (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Video:</h2>
+              <video controls className="w-full mt-2">
+                <source src={section.videoFile} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <button
+              onClick={() => setShowQuiz(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Attempt Quiz
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Quiz:</h2>
+              {section.quiz.length > 0 ? (
+                section.quiz.map((question, index) => (
+                  <div key={index} className="mb-4">
+                    <h3 className="font-bold">{`Question ${index + 1}: ${question.questionText}`}</h3>
+                    <ul className="list-disc pl-5">
+                      {question.options.map((option, optIndex) => (
+                        <li key={optIndex}>{option.optionText}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                <p>No quiz available for this section.</p>
+              )}
+            </div>
+            <button
+              onClick={() => setShowQuiz(false)}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+            >
+              Back to Video
+            </button>
+          </div>
+        )}
+
+        <p className="text-gray-600 mt-4">{section.details}</p>
       </div>
     </div>
   );
