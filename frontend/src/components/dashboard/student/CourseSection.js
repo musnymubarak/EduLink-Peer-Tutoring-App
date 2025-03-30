@@ -106,7 +106,7 @@ const CourseSection = () => {
                     <h3 className="font-bold">{`Question ${qIndex + 1}: ${question.questionText}`}</h3>
                     <div className="mt-2">
                       {question.options.map((option, optIndex) => (
-                        <label key={optIndex} className="block cursor-pointer">
+                        <label key={optIndex} className="block cursor-pointer text-black">
                           <input
                             type="checkbox"
                             checked={answers[qIndex]?.includes(optIndex) || false}
