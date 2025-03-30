@@ -78,27 +78,13 @@ export const sidebarLinks = [
   },
   {
     id: 12,
-    name: "Notifications",
-    path: "/dashboard/student/noti",
-    type: 'student',
-    icon: "VscBell",
-  },  
-  {
-    id: 13,
-    name: "Notifications",
-    path: "/dashboard/tutor/noti",
-    type: 'tutor',
-    icon: "VscBell",
-  },
-  {
-    id: 14,
     name: "Classes",
     path: "/dashboard/student/classes",
     type: 'student',
     icon: "VscBook",
   },
   {
-    id: 15,
+    id: 13,
     name: "Classes",
     path: "/dashboard/tutor/classes",
     type: 'tutor',
