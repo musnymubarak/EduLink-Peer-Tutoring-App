@@ -130,14 +130,14 @@ export default function Requests() {
           },
         }
       );
-      setRequests((prevRequests) =>
-        prevRequests.map((req) =>
-          req.id === id ? { ...req, status: action, isNew: false } : req
-        )
-      );
-      setFilteredRequests((prevRequests) =>
-        prevRequests.map((req) =>
-          req.id === id ? { ...req, status: action, isNew: false } : req
+      const updatedRequests = requests.filter((req) => req.id !== id);
+
+      setRequests(updatedRequests);
+      setFilteredRequests(
+        updatedRequests.filter(
+          (req) =>
+            req.student.toLowerCase().includes(searchQuery) ||
+            req.topic.toLowerCase().includes(searchQuery)
         )
       );
     } catch (err) {
