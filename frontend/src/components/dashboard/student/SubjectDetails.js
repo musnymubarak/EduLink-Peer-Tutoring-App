@@ -227,7 +227,33 @@ export default function SubjectDetails() {
     if (!availableGroupTimes || availableGroupTimes.length === 0) {
       return <option value="">No available group classes</option>;
     }
-  }
+
+    return [
+      <option key="default" value="">
+        Select a class
+      </option>,
+      ...availableGroupTimes.map((groupClass) => {
+        // Handle both array of strings and array of objects
+        if (typeof groupClass === "string") {
+          return (
+            <option key={groupClass} value={groupClass}>
+              {new Date(groupClass).toLocaleString()}
+            </option>
+          );
+        } else {
+          return (
+            <option
+              key={groupClass._id || groupClass.time}
+              value={groupClass.time}
+            >
+              {new Date(groupClass.time).toLocaleString()} -{" "}
+              {groupClass.duration} mins
+            </option>
+          );
+        }
+      }),
+    ];
+  };
   return (
     <div className="subject-details-container">
       <Header />
