@@ -108,13 +108,14 @@ export default function Requests() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 
-    setFilteredRequests(
-      requests.filter(
-        (req) =>
-          req.student.toLowerCase().includes(query) ||
-          req.topic.toLowerCase().includes(query)
-      )
+    const filtered = requests.filter(
+      (req) =>
+        req.student.toLowerCase().includes(query) ||
+        req.topic.toLowerCase().includes(query)
     );
+
+    setFilteredRequests(filtered);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleDeclineAction = async (id, action) => {
