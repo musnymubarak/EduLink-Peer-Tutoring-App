@@ -55,8 +55,8 @@ export default function Requests() {
               student: req.student.email,
               topic: courseName,
               courseId: req.course._id,
-              date: new Date(req.time).toLocaleDateString(),
-              time: new Date(req.time).toLocaleTimeString(),
+              date: eventTime.toLocaleDateString(),
+              time: eventTime.toLocaleTimeString(),
               status: req.status,
               type: req.type,
               duration: req.duration || "Not specified", // Ensure duration is included
