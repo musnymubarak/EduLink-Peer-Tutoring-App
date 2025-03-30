@@ -279,6 +279,10 @@ export default function TDashboard() {
           
           // Sort requests by time (newest first)
           const sortedRequests = requestsWithCourses.sort((a, b) => {
+
+            if (a.status === "Pending" && b.status !== "Pending") return -1;
+            if (a.status !== "Pending" && b.status === "Pending") return 1;
+
             const timeA = a.time ? new Date(a.time).getTime() : 0;
             const timeB = b.time ? new Date(b.time).getTime() : 0;
             return timeB - timeA; // descending order (newest first)
