@@ -7,6 +7,8 @@ const CourseSection = () => {
   const { sectionId } = useParams();
   const [section, setSection] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [score, setScore] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,6 +23,25 @@ const CourseSection = () => {
 
     fetchSectionDetails();
   }, [sectionId]);
+
+  const handleAnswerChange = (questionIndex, answer) => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [questionIndex]: answer,
+    }));
+  };
+
+  const handleSubmitQuiz = () => {
+    let correctAnswers = 0;
+
+    section.quiz.forEach((question, index) => {
+      if (answers[index] === question.correctAnswer) {
+        correctAnswers++;
+      }
+    });
+
+    setScore(correctAnswers);
+  };
 
   if (!section) {
     return <div className="p-8 text-center text-xl text-gray-700">Loading section details...</div>;
@@ -61,22 +82,57 @@ const CourseSection = () => {
               <h2 className="text-xl font-semibold">Quiz:</h2>
               {section.quiz.length > 0 ? (
                 section.quiz.map((question, index) => (
-                  <div key={index} className="mb-4">
+                  <div key={index} className="mb-4 p-4 border rounded">
                     <h3 className="font-bold">{`Question ${index + 1}: ${question.questionText}`}</h3>
-                    <ul className="list-disc pl-5">
-                      {question.options.map((option, optIndex) => (
-                        <li key={optIndex}>{option.optionText}</li>
-                      ))}
-                    </ul>
+                    <div className="mt-2">
+                      <label className="mr-4">
+                        <input
+                          type="radio"
+                          name={`question-${index}`}
+                          value="true"
+                          checked={answers[index] === "true"}
+                          onChange={() => handleAnswerChange(index, "true")}
+                          className="mr-1"
+                        />
+                        True
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`question-${index}`}
+                          value="false"
+                          checked={answers[index] === "false"}
+                          onChange={() => handleAnswerChange(index, "false")}
+                          className="mr-1"
+                        />
+                        False
+                      </label>
+                    </div>
                   </div>
                 ))
               ) : (
                 <p>No quiz available for this section.</p>
               )}
             </div>
+
+            {score === null ? (
+              <button
+                onClick={handleSubmitQuiz}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"
+              >
+                Submit Quiz
+              </button>
+            ) : (
+              <p className="text-lg font-bold">Your Score: {score} / {section.quiz.length}</p>
+            )}
+
             <button
-              onClick={() => setShowQuiz(false)}
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              onClick={() => {
+                setShowQuiz(false);
+                setScore(null);
+                setAnswers({});
+              }}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 ml-2"
             >
               Back to Video
             </button>
