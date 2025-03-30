@@ -25,7 +25,9 @@ export default function SubjectDetails() {
   const [isCheckingEnrollment, setIsCheckingEnrollment] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 2;
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -184,6 +186,21 @@ export default function SubjectDetails() {
     }
   };
 
+  // Calculate pagination for reviews
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = ratingsAndReviews.slice(indexOfFirstReview, indexOfLastReview);
+  const totalPages = Math.ceil(ratingsAndReviews.length / reviewsPerPage);
+
+  // Navigation handlers for pagination
+  const goToNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
+  const goToPrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
   if (!course) {
     return (
       <div className="subject-details-container">
@@ -230,15 +247,6 @@ export default function SubjectDetails() {
         </section>
 
         <section className="mb-8">
-          <h2 className="section-title">Additional Details</h2>
-          <ul className="details-list">
-            <li><strong>Status:</strong> {course.status || "Not specified"}</li>
-            <li><strong>Category:</strong> {category}</li>
-            <li><strong>Created At:</strong> {new Date(course.createdAt).toLocaleString()}</li>
-          </ul>
-        </section>
-
-        <section className="mb-8">
           <h2 className="section-title">Tutor</h2>
           {tutor ? (
             <div className="tutor-card">
@@ -271,15 +279,42 @@ export default function SubjectDetails() {
           <h2 className="section-title">Ratings and Reviews</h2>
           <div className="space-y-6">
             {ratingsAndReviews.length > 0 ? (
-              ratingsAndReviews.map((review, index) => (
-                <div key={index} className="review-card">
-                  <h3 className="reviewer-name">
-                    {review.user?.firstName} {review.user?.lastName}
-                  </h3>
-                  <p className="review-content"><strong>Rating:</strong> {review.rating}</p>
-                  <p className="review-content"><strong>Review:</strong> {review.review}</p>
+              <>
+                <div className="reviews-grid">
+                  {currentReviews.map((review, index) => (
+                    <div key={index} className="review-card">
+                      <h3 className="reviewer-name">
+                        {review.user?.firstName} {review.user?.lastName}
+                      </h3>
+                      <p className="review-content"><strong>Rating:</strong> {review.rating}</p>
+                      <p className="review-content"><strong>Review:</strong> {review.review}</p>
+                    </div>
+                  ))}
                 </div>
-              ))
+                
+                {/* Pagination controls */}
+                {ratingsAndReviews.length > reviewsPerPage && (
+                  <div className="pagination-controls">
+                    <button 
+                      onClick={goToPrevPage} 
+                      disabled={currentPage === 1}
+                      className={`pagination-button ${currentPage === 1 ? 'pagination-button-disabled' : ''}`}
+                    >
+                      Previous
+                    </button>
+                    <span className="pagination-info">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button 
+                      onClick={goToNextPage} 
+                      disabled={currentPage === totalPages}
+                      className={`pagination-button ${currentPage === totalPages ? 'pagination-button-disabled' : ''}`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <p className="section-description">No ratings or reviews available for this course.</p>
             )}

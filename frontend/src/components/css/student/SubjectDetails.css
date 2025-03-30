@@ -36,33 +36,41 @@
   overflow: hidden;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  height: 400px;
 }
 
 .thumbnail-image {
   width: 100%;
-  height: 24rem;
+  height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
 .thumbnail-container:hover .thumbnail-image {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .thumbnail-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
   display: flex;
   align-items: flex-end;
   padding: 2rem;
 }
 
 .thumbnail-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1rem;
+}
+
+.thumbnail-subtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .content-card {
@@ -97,11 +105,6 @@
   height: 3px;
   background-color: #1d4ed8;
   border-radius: 2px;
-}
-
-.section-description {
-  color: #4b5563;
-  line-height: 1.6;
 }
 
 .details-list {
@@ -421,8 +424,16 @@
     margin: 1.5rem 0 1.5rem 0;
   }
 
+  .thumbnail-container {
+    height: 300px;
+  }
+
   .thumbnail-title {
     font-size: 2rem;
+  }
+
+  .thumbnail-subtitle {
+    font-size: 1rem;
   }
 
   .section-title {
@@ -436,5 +447,61 @@
   .modal-content {
     margin: 1rem;
     padding: 1.5rem;
+  }
+}
+
+/* Pagination styles */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.pagination-button {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pagination-button:hover {
+  background-color: #3451b2;
+}
+
+.pagination-button-disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Two-column grid for reviews */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Make sure review cards look good in the grid */
+.review-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 768px) {
+  .reviews-grid {
+    grid-template-columns: 1fr;
   }
 }
