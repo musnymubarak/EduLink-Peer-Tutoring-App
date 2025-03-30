@@ -223,7 +223,11 @@ export default function SubjectDetails() {
   }
 
   const category = course.category?.name || "Uncategorized";
-
+  const renderGroupClassOptions = () => {
+    if (!availableGroupTimes || availableGroupTimes.length === 0) {
+      return <option value="">No available group classes</option>;
+    }
+  }
   return (
     <div className="subject-details-container">
       <Header />
