@@ -362,31 +362,27 @@ exports.createGroupClass = async (req, res) => {
 
 exports.getGroupClasses = async (req, res) => {
     try {
-        const courseId = req.params.courseId;
-        const tutorId = req.user.id;
-
-        // Check if the course exists and the user is the tutor
-        const course = await Course.findById(courseId);
-        if (!course) {
-            return res.status(404).json({ error: "Course not found." });
-        }
-
-        if (!course.tutor.equals(tutorId)) {
-            return res.status(403).json({ error: "You are not authorized to view group classes for this course." });
-        }
-
-        // Fetch all group classes for the course
-        const groupClasses = await Class.find({ 
-            course: courseId, 
-            type: "Group" 
-        }).populate("participants", "name email"); // Populate participants if needed
-
-        return res.status(200).json({
-            message: "Group classes retrieved successfully.",
-            groupClasses,
-        });
+      const courseId = req.params.courseId;
+      const userId = req.user.id;
+      
+      // Check if the course exists
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found." });
+      }
+  
+      const groupClasses = await Class.find({
+        course: courseId,
+        type: "Group",
+        time: { $gte: new Date() }
+      });
+  
+      return res.status(200).json({
+        message: "Group classes retrieved successfully.",
+        groupClasses,
+      });
     } catch (error) {
-        console.error("Error fetching group classes:", error);
-        return res.status(500).json({ error: "An error occurred. Please try again later." });
+      console.error("Error fetching group classes:", error);
+      return res.status(500).json({ error: "An error occurred. Please try again later." });
     }
-};
+  };
