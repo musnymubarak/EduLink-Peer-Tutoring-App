@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import '../../css/student/SchedulePage.css';
+import React, { useState, useEffect } from "react";
+import "../../css/student/SchedulePage.css";
 
 export default function SchedulePage() {
   const [events, setEvents] = useState([]);
@@ -203,14 +203,6 @@ export default function SchedulePage() {
     }
   };
 
-
-
-  const deleteEvent = (eventId) => {
-    setEvents((prevEvents) =>
-      prevEvents.filter((event) => event.id !== eventId)
-    );
-  };
-
   const combineClassEvents = () => {
     const allEvents = [
       ...events.filter((e) => e.type === "Individual"),
@@ -227,9 +219,6 @@ export default function SchedulePage() {
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth();
     const day = selectedDate.getDate();
-
-    // Removed the week-only filter to properly display month view
-    // Now we'll filter within each view generator function
 
     switch (viewMode) {
       case "month":
@@ -253,7 +242,6 @@ export default function SchedulePage() {
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
 
-      // Filter events for this specific day
       const dayEvents = allEvents.filter((event) => {
         const eventDate = new Date(event.start);
         return (
@@ -323,6 +311,7 @@ export default function SchedulePage() {
         </div>
       );
     }
+
     if (error) {
       return (
         <div className="error-message">
@@ -340,6 +329,7 @@ export default function SchedulePage() {
         </div>
       );
     }
+
     if (events.length === 0) {
       return (
         <div className="no-events-message">
@@ -382,7 +372,14 @@ export default function SchedulePage() {
                     <div className="date-number">{day.date.getDate()}</div>
                     {day.events.length > 0
                       ? day.events.map((event) => (
-                          <div key={event.id} className="event-item">
+                          <div
+                            key={event.id}
+                            className={`event-item ${
+                              event.type === "Group"
+                                ? "group-event"
+                                : "individual-event"
+                            }`}
+                          >
                             <div className="event-title">{event.title}</div>
                             <div className="event-details">
                               {event.tutorName && (
@@ -401,12 +398,6 @@ export default function SchedulePage() {
                                 </a>
                               )}
                             </div>
-                            <button
-                              onClick={() => deleteEvent(event.id)}
-                              className="delete-btn"
-                            >
-                              ✖
-                            </button>
                           </div>
                         ))
                       : null}
@@ -436,7 +427,14 @@ export default function SchedulePage() {
                     <div className="date-number">{day.date.getDate()}</div>
                     {day.events.length > 0
                       ? day.events.map((event) => (
-                          <div key={event.id} className="event-item">
+                          <div
+                            key={event.id}
+                            className={`event-item ${
+                              event.type === "Group"
+                                ? "group-event"
+                                : "individual-event"
+                            }`}
+                          >
                             <div className="event-title">{event.title}</div>
                             <div className="event-time">
                               {new Date(event.start).toLocaleTimeString([], {
@@ -466,12 +464,6 @@ export default function SchedulePage() {
                                 </a>
                               )}
                             </div>
-                            <button
-                              onClick={() => deleteEvent(event.id)}
-                              className="delete-btn"
-                            >
-                              ✖
-                            </button>
                           </div>
                         ))
                       : null}
@@ -491,9 +483,17 @@ export default function SchedulePage() {
       <div className="schedule-content">
         <div className="header-container">
           <h1 className="main-title">Class Schedule</h1>
-          <button onClick={fetchAcceptedClasses} className="refresh-btn">
-            ↻ Refresh
-          </button>
+        </div>
+
+        <div className="legend-container">
+          <div className="legend-item">
+            <div className="legend-color individual-color"></div>
+            <span>Individual Classes</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color group-color"></div>
+            <span>Group Classes</span>
+          </div>
         </div>
 
         <div className="controls-container">
@@ -503,6 +503,7 @@ export default function SchedulePage() {
               className={`toggle-btn ${
                 viewMode === "month" ? "active-toggle" : ""
               }`}
+              disabled={fetchingClasses}
             >
               Month
             </button>
@@ -511,16 +512,25 @@ export default function SchedulePage() {
               className={`toggle-btn ${
                 viewMode === "week" ? "active-toggle" : ""
               }`}
+              disabled={fetchingClasses}
             >
               Week
             </button>
           </div>
 
           <div className="navigation-controls">
-            <button onClick={goToToday} className="today-btn">
+            <button
+              onClick={goToToday}
+              className="today-btn"
+              disabled={fetchingClasses}
+            >
               Today
             </button>
-            <button onClick={() => changeDate(-1)} className="nav-btn">
+            <button
+              onClick={() => changeDate(-1)}
+              className="nav-btn"
+              disabled={fetchingClasses}
+            >
               Previous
             </button>
             <h2 className="date-title">
@@ -531,7 +541,11 @@ export default function SchedulePage() {
                   })
                 : selectedDate.toDateString()}
             </h2>
-            <button onClick={() => changeDate(1)} className="nav-btn">
+            <button
+              onClick={() => changeDate(1)}
+              className="nav-btn"
+              disabled={fetchingClasses}
+            >
               Next
             </button>
           </div>
