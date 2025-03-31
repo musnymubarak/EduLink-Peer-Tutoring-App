@@ -27,6 +27,17 @@ export default function TSchedulePage() {
     fetchGroupClasses();
   }, []);
 
+  useEffect(() => {
+    combineClassEvents();
+  }, [groupClasses]);
+
+  const fetchAcceptedClasses = async () => {
+
+  }
+
+
+
+
   const fetchClasses = async () => {
     setFetchingClasses(true);
     try {
