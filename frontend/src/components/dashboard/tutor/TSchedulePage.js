@@ -59,7 +59,36 @@ export default function TSchedulePage() {
       }
 
       const data = await response.json();
+      if (response.ok) {
+        const transformedEvents = data.acceptedClasses.map((classItem) => {
+          const startTime = new Date(classItem.time);
+          const validStartTime = isNaN(startTime.getTime())
+            ? new Date()
+            : startTime;
+          const endTime = new Date(
+            validStartTime.getTime() + (classItem.duration || 60) * 60000
+          );
 
+          return {
+            id: classItem._id,
+            title: classItem.course?.courseName || "Untitled Class",
+            start: validStartTime,
+            end: endTime,
+            description:
+              classItem.course?.courseDescription || "No description provided",
+            meetLink: classItem.classLink || "",
+            studentName:
+              classItem.student?.firstName ||
+              classItem.student?.email ||
+              "Unknown Student",
+            type: "Individual",
+          };
+        });
+
+        setEvents(transformedEvents);
+      } else {
+        setError(data.error || "Failed to fetch classes");
+      }
 
     } catch (error) {
       console.error("Error fetching accepted classes:", error);
