@@ -22,11 +22,13 @@ export default function SchedulePage() {
 
   const fetchAcceptedClasses = async () => {
     setFetchingClasses(true);
+    setError(null);
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
         console.error("No authentication token found");
+        setError("Authentication token not found");
         return;
       }
 
@@ -42,16 +44,13 @@ export default function SchedulePage() {
       );
 
       if (response.status === 401) {
-        console.error("Authentication token expired or invalid");
+        setError("Authentication token expired or invalid");
         return;
       }
 
       const data = await response.json();
 
       if (response.ok) {
-        // Log the raw data to see its structure
-        console.log("Raw API response:", data);
-
         const transformedEvents = data.acceptedClasses.map((classItem) => {
           const startTime = new Date(classItem.time);
           const validStartTime = isNaN(startTime.getTime())
@@ -73,16 +72,17 @@ export default function SchedulePage() {
               classItem.tutor?.firstName ||
               classItem.tutor?.email ||
               "Unknown Tutor",
+            type: "Individual",
           };
         });
 
-        console.log("Transformed events:", transformedEvents);
         setEvents(transformedEvents);
       } else {
-        console.error("Failed to fetch classes:", data.error);
+        setError(data.error || "Failed to fetch classes");
       }
     } catch (error) {
       console.error("Error fetching accepted classes:", error);
+      setError("Failed to fetch individual classes");
     } finally {
       setFetchingClasses(false);
     }
