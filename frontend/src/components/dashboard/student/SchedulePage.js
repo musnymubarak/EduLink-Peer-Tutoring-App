@@ -218,7 +218,7 @@ export default function SchedulePage() {
     ];
     setEvents(allEvents);
   };
-  
+
   const goToToday = () => {
     setSelectedDate(new Date());
   };
@@ -281,7 +281,6 @@ export default function SchedulePage() {
       const currentDate = new Date(weekStart);
       currentDate.setDate(weekStart.getDate() + i);
 
-      // Filter events for this specific day
       const dayEvents = allEvents.filter((event) => {
         const eventDate = new Date(event.start);
         return (
@@ -324,7 +323,23 @@ export default function SchedulePage() {
         </div>
       );
     }
-
+    if (error) {
+      return (
+        <div className="error-message">
+          <p>{error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              fetchAcceptedClasses();
+              fetchGroupClasses();
+            }}
+            className="retry-btn"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
     if (events.length === 0) {
       return (
         <div className="no-events-message">
