@@ -125,13 +125,13 @@ export default function TAddCourses() {
   };
 
   return (
-    <div className="tutor-add-course-container">
+    <div className="flex min-h-screen pb-20 bg-gray-100">
       <Header/>
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
 
-      <div className="tutor-add-course-content">
+      <div className="ml-64 p-8 w-[calc(100%-16rem)]">
         <h1 className="tutor-add-course-title">Add New Course</h1>
 
         {message && (
@@ -140,7 +140,7 @@ export default function TAddCourses() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="form-container">
+        <form onSubmit={handleSubmit} className="form-container max-w-4xl mx-auto">
           <div className="form-group">
             <label className="form-label">Course Name</label>
             <input 

@@ -96,6 +96,7 @@ export default function Classes() {
                     
                     if (response.ok) {
                         const data = await response.json();
+                        console.log(data)
                         if (data.groupClasses && data.groupClasses.length > 0) {
                             return data.groupClasses.map(classItem => ({
                                 ...classItem,
@@ -132,7 +133,7 @@ export default function Classes() {
             type: classItem.type || "Unknown Type",
             time: classItem.time || "Unknown Time",
             description: classItem.course?.courseDescription || "No description provided",
-            studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+            tutorName: classItem.tutor?.firstName || classItem.tutor?.email || "Unknown tutor",
             meetLink: classItem.classLink,
             duration: classItem.duration || 60
         };

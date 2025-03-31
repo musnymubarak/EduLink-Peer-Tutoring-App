@@ -156,6 +156,7 @@ export default function TSchedulePage() {
                     validStartTime.getTime() +
                       (classItem.duration || 60) * 60000
                   );
+                  const studentCount = classItem.participants.length;                 
 
                   return {
                     id: classItem._id,
@@ -170,6 +171,7 @@ export default function TSchedulePage() {
                     meetLink: classItem.classLink || "",
                     type: "Group",
                     courseId: course._id,
+                    studentCount: studentCount
                   };
                 }
               );
@@ -378,7 +380,12 @@ export default function TSchedulePage() {
                           >
                             <div className="event-title">{event.title}</div>
                             <div className="event-details">
-                              {event.studentName && (
+                              {event.type === "Group" && event.studentCount !== undefined && (
+                                <div className="student-count">
+                                  {event.studentCount} Students
+                                </div>
+                              )}
+                              {event.type === "Individual" && event.studentName && (
                                 <div className="student-name">
                                   Student: {event.studentName}
                                 </div>
@@ -444,7 +451,12 @@ export default function TSchedulePage() {
                               })}
                             </div>
                             <div className="event-details">
-                              {event.studentName && (
+                              {event.type === "Group" && event.studentCount !== undefined && (
+                                <div className="student-count">
+                                  {event.studentCount} Students
+                                </div>
+                              )}
+                              {event.type === "Individual" && event.studentName && (
                                 <div className="student-name">
                                   Student: {event.studentName}
                                 </div>

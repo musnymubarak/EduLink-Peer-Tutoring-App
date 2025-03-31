@@ -96,6 +96,7 @@ export default function TClasses() {
                     
                     if (response.ok) {
                         const data = await response.json();
+                        console.log(data)
                         if (data.groupClasses && data.groupClasses.length > 0) {
                             return data.groupClasses.map(classItem => ({
                                 ...classItem,
@@ -124,6 +125,9 @@ export default function TClasses() {
     };
 
     const transformClassData = (classItem) => {
+        // Check if it's a group class with participants
+        const participants = classItem.participants || [];
+        
         return {
             id: classItem._id,
             title: classItem.type === "Group" 
@@ -132,14 +136,20 @@ export default function TClasses() {
             type: classItem.type || "Unknown Type",
             time: classItem.time || "Unknown Time",
             description: classItem.course?.courseDescription || "No description provided",
+            // For individual classes, keep the single student
             studentName: classItem.student?.firstName || classItem.student?.email || "Unknown Student",
+            // Add participants list for group classes
+            participants: participants.map(participant => ({
+                id: participant._id || participant.studentId,
+                name: participant.firstName || participant.name || participant.email || "Unknown Student"
+            })),
             meetLink: classItem.classLink,
             duration: classItem.duration || 60
         };
     };
 
     return(
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen pb-20 bg-gray-100">
             <Header/>
             {/* Sidebar */}
             <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">

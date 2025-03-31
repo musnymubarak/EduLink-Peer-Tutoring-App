@@ -284,7 +284,7 @@ export default function Requests() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 pt-20">
       <Header />
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
@@ -292,7 +292,7 @@ export default function Requests() {
 
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Pending Requests
+          Requests
         </h1>
 
         <div className="mb-6">
