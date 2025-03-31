@@ -211,6 +211,14 @@ export default function SchedulePage() {
     );
   };
 
+  const combineClassEvents = () => {
+    const allEvents = [
+      ...events.filter((e) => e.type === "Individual"),
+      ...groupClasses,
+    ];
+    setEvents(allEvents);
+  };
+  
   const goToToday = () => {
     setSelectedDate(new Date());
   };
