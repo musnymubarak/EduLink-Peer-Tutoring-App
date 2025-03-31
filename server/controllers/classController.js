@@ -370,13 +370,17 @@ exports.getGroupClasses = async (req, res) => {
       if (!course) {
         return res.status(404).json({ error: "Course not found." });
       }
-  
+      
       const groupClasses = await Class.find({
         course: courseId,
         type: "Group",
         time: { $gte: new Date() }
-      });
-  
+      })
+      .populate('tutor', 'firstName email')
+      .populate('course', 'courseName courseDescription')
+      .populate('participants', 'firstName email')
+      .populate('student', 'firstName email');
+      
       return res.status(200).json({
         message: "Group classes retrieved successfully.",
         groupClasses,
