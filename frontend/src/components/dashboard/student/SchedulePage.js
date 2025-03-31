@@ -346,6 +346,15 @@ export default function SchedulePage() {
           <p>
             No scheduled classes found. Check back later or refresh to update.
           </p>
+          <button
+            onClick={() => {
+              fetchAcceptedClasses();
+              fetchGroupClasses();
+            }}
+            className="refresh-btn"
+          >
+            Refresh Classes
+          </button>
         </div>
       );
     }
