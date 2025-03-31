@@ -6,7 +6,8 @@ export default function TSchedulePage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
   const [fetchingClasses, setFetchingClasses] = useState(true);
-  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const [groupClasses, setGroupClasses] = useState([]);
+  const [error, setError] = useState(null);
   const [newEvent, setNewEvent] = useState({
     title: "",
     start: "",
@@ -19,6 +20,11 @@ export default function TSchedulePage() {
   // Fetch classes on component mount
   useEffect(() => {
     fetchClasses();
+  }, []);
+
+  useEffect(() => {
+    fetchAcceptedClasses();
+    fetchGroupClasses();
   }, []);
 
   const fetchClasses = async () => {
