@@ -36,7 +36,29 @@ export default function TSchedulePage() {
     setError(null);
     try {
 
-      
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No authentication token found");
+        setError("Authentication token not found");
+        return;
+      }
+      const response = await fetch(
+        "http://localhost:4000/api/v1/classes/accepted-classes",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 401) {
+        setError("Authentication token expired or invalid");
+        return;
+      }
+
+      const data = await response.json();
 
 
     } catch (error) {
