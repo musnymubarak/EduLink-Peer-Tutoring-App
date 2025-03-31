@@ -32,7 +32,19 @@ export default function TSchedulePage() {
   }, [groupClasses]);
 
   const fetchAcceptedClasses = async () => {
+    setFetchingClasses(true);
+    setError(null);
+    try {
 
+      
+
+
+    } catch (error) {
+      console.error("Error fetching accepted classes:", error);
+      setError("Failed to fetch individual classes");
+    } finally {
+      setFetchingClasses(false);
+    }
   }
 
 
