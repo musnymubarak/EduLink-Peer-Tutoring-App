@@ -96,12 +96,13 @@ const getAllReports = async (req, res) => {
     const reports = await Report.find()
       .populate('reportedBy', 'name email')  // Populate user info for reportedBy
       .populate('courseCreatorId', 'name email')  // Populate user info for course creator
-      .populate('courseId', 'title description');  // Populate course details
+      .populate('courseId', 'courseName description');  // Populate course details
 
     if (!reports.length) {
       return res.status(404).json({ message: 'No reports found' });
     }
 
+    // Sending the populated reports as a response
     res.status(200).json(reports);
   } catch (error) {
     console.error(error);
