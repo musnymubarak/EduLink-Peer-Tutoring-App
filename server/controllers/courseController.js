@@ -247,3 +247,20 @@ exports.deleteCourseById = async (req, res) => {
         });
     }
 };
+
+exports.countAllCourses = async (req, res) => {
+    try {
+        const totalCourses = await Course.countDocuments();
+        return res.status(200).json({
+            success: true,
+            message: "Total number of courses fetched successfully.",
+            data: { totalCourses },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while counting courses.",
+            error: error.message,
+        });
+    }
+};
