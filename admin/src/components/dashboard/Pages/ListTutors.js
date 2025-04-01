@@ -148,12 +148,6 @@ const ListTutors = () => {
             <p>
               <strong>Email:</strong> {selectedTutor.email}
             </p>
-            <p>
-              <strong>Status:</strong> {selectedTutor.active ? "Active" : "Inactive"}
-            </p>
-            <p>
-              <strong>Resume:</strong> <a href={selectedTutor.resumePath} target="_blank" rel="noopener noreferrer">View Resume</a>
-            </p>
             <button
               style={{
                 marginTop: "10px",
