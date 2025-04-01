@@ -5,17 +5,15 @@ import Header from "../Header";
 import Footer from "../Footer";
 
 export default function TNotification() {
-  // State to hold the fetched notifications
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch notifications from the API
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem("token"); // Get token from local storage
+        const token = localStorage.getItem("token");
         if (!token) {
           setError("Unauthorized: No token found.");
           setLoading(false);
@@ -26,11 +24,11 @@ export default function TNotification() {
           "http://localhost:4000/api/v1/notifications/",
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Include token in request header
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-        setNotifications(response.data.notifications); // Adjust based on API response structure
+        setNotifications(response.data.notifications);
       } catch (err) {
         setError("Failed to fetch notifications. Please try again.");
       } finally {
@@ -41,12 +39,40 @@ export default function TNotification() {
     fetchNotifications();
   }, []);
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
   };
 
-  // Filter notifications based on the search query
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Unauthorized: No token found.");
+        return;
+      }
+      
+      await axios.patch(
+        `http://localhost:4000/api/v1/notifications/${notificationId}/read`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification._id === notificationId
+            ? { ...notification, status: "read" }
+            : notification
+        )
+      );
+    } catch (err) {
+      setError("Failed to mark notification as read.");
+    }
+  };
+
   const filteredNotifications = notifications.filter(
     (notification) =>
       notification.message.toLowerCase().includes(searchQuery) ||
@@ -54,18 +80,13 @@ export default function TNotification() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen pt-20 bg-gray-100">
       <Header/>
-      {/* Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Notifications</h1>
-
-        {/* Search Bar */}
         <div className="mb-6">
           <input
             type="text"
@@ -75,8 +96,6 @@ export default function TNotification() {
             className="w-full border text-black border-gray-300 rounded-lg p-3 placeholder-gray-600"
           />
         </div>
-
-        {/* Loading and Error States */}
         {loading ? (
           <p className="text-gray-600">Loading notifications...</p>
         ) : error ? (
@@ -111,6 +130,14 @@ export default function TNotification() {
                   <strong>Created At:</strong>{" "}
                   {new Date(notification.createdAt).toLocaleString()}
                 </p>
+                {notification.status === "unread" && (
+                  <button
+                    onClick={() => handleMarkAsRead(notification._id)}
+                    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                  >
+                    Mark as Read
+                  </button>
+                )}
               </div>
             ))}
           </div>

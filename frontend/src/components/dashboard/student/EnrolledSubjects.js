@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import RatingModal from "./RatingModal"; // Import the new RatingModal component
-
+import RatingModal from "./RatingModal";
 import Sidebar from "../Sidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +15,8 @@ export default function EnrolledSubjects() {
     categoryIndex: null,
     subjectIndex: null,
   });
-  const [rating, setRating] = useState(""); // State for rating input
-  const [feedback, setFeedback] = useState(""); // State for feedback input
+  const [rating, setRating] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const navigate = useNavigate();
 
@@ -33,14 +32,12 @@ export default function EnrolledSubjects() {
         const response = await axios.get(
           "http://localhost:4000/api/v1/enrollment/enrolled-courses",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
         if (response.data.success) {
-          const mappedCategories = [
+          setCategories([
             {
               subjects: response.data.data.map((course) => ({
                 id: course.courseId,
@@ -48,11 +45,9 @@ export default function EnrolledSubjects() {
                 description: course.courseDescription,
                 author: `${course.tutor.firstName} ${course.tutor.lastName}`,
                 rating: course.averageRating || 0,
-                feedback: "",
               })),
             },
-          ];
-          setCategories(mappedCategories);
+          ]);
         } else {
           alert("Failed to load enrolled courses");
         }
@@ -65,34 +60,7 @@ export default function EnrolledSubjects() {
     fetchEnrolledCourses();
   }, []);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value.toLowerCase());
-  };
-
-  const handleOpenModal = (categoryIndex, subjectIndex) => {
-    setModal({ isOpen: true, categoryIndex, subjectIndex });
-  };
-
-  const handleCloseModal = () => {
-    setModal({ isOpen: false, categoryIndex: null, subjectIndex: null });
-    setRating(""); // Reset rating state
-    setFeedback(""); // Reset feedback state
-  };
-
-  const handleNavigateToCourse = (courseId) => {
-    navigate(`/dashboard/student/subject/${courseId}`);
-  };
-
-const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const { categoryIndex, subjectIndex } = modal;
-    const newRating = parseInt(rating, 10);
-    const subject = categories[categoryIndex].subjects[subjectIndex];
-    const courseId = subject.id;
-
-    console.log("Submitting rating:", { courseId, rating: newRating, feedback }); // Log the data being sent
-
+  const handleUnenroll = async (courseId) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -101,92 +69,72 @@ const handleSubmit = async (event) => {
       }
 
       const response = await axios.post(
-        `http://localhost:4000/api/v1/rating/${courseId}`,
-        {
-          rating: newRating,
-          review: feedback, // Include feedback in the request
-
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `http://localhost:4000/api/v1/enrollment/unenroll/${courseId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-
-      if (response.status === 201 || response.status === 200) {
-        alert("Rating posted successfully!");
-
-        // Update the categories state to reflect the new rating
+      if (response.data.success) {
+        alert("Successfully unenrolled from the course.");
         setCategories((prevCategories) => {
-          const updatedCategories = [...prevCategories];
-          updatedCategories[categoryIndex].subjects[subjectIndex].rating = newRating;
-          return updatedCategories;
+          return prevCategories.map((category) => ({
+            ...category,
+            subjects: category.subjects.filter((subject) => subject.id !== courseId),
+          }));
         });
-
-        handleCloseModal(); // Close modal after submission
       }
     } catch (error) {
-      console.error("Error posting rating:", error);
-      const errorMessage = error.response?.data?.message || "An error occurred.";
-      alert(errorMessage);
+      console.error("Error unenrolling from course:", error);
+      alert("Failed to unenroll from the course.");
     }
   };
 
   return (
     <>
-      <div className="enrolled-subjects-container">
+      <div className="enrolled-subjects-container pb-20 pt-20">
         <Header />
         <div className="sidebar-container">
           <Sidebar />
         </div>
-
         <div className="main-content">
           <h1 className="page-title">Enrolled Courses</h1>
-
           <div className="search-bar">
             <input
               type="text"
-              placeholder="Search for a course by title, description, or author..."
+              placeholder="Search for a course..."
               value={searchQuery}
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
               className="search-input"
             />
           </div>
-
           <div className="categories-container">
             {categories.length === 0 ? (
               <p>No enrolled courses available.</p>
             ) : (
               categories.map((category, categoryIndex) => (
                 <div key={categoryIndex}>
-                  <h2 className="category-title">{category.title}</h2>
                   <div className="subjects-grid">
                     {category.subjects.map((subject, subjectIndex) => (
-                      <div
-                        className="subject-card"
-                        key={subject.id}
-                        onClick={() => handleNavigateToCourse(subject.id)}
-                      >
+                      <div className="subject-card" key={subject.id}>
                         <h3 className="subject-title">{subject.title}</h3>
                         <p className="subject-description">{subject.description}</p>
                         <p className="subject-author">
                           <strong>By:</strong> {subject.author}
                         </p>
                         <p className="subject-rating">
-                          <strong>Rating:</strong>{" "}
-                          {"⭐".repeat(Math.min(subject.rating, 5))}
+                          <strong>Rating:</strong> {"⭐".repeat(Math.min(subject.rating, 5))}
                         </p>
-
                         <button
                           className="rate-button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenModal(categoryIndex, subjectIndex);
-                          }}
+                          onClick={() => setModal({ isOpen: true, categoryIndex, subjectIndex })}
                         >
                           Rate
+                        </button>
+                        <button
+                          className="unenroll-button"
+                          onClick={() => handleUnenroll(subject.id)}
+                        >
+                          Unenroll
                         </button>
                       </div>
                     ))}
@@ -198,12 +146,11 @@ const handleSubmit = async (event) => {
         </div>
         <RatingModal
           isOpen={modal.isOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleSubmit}
+          onClose={() => setModal({ isOpen: false, categoryIndex: null, subjectIndex: null })}
           rating={rating}
           setRating={setRating}
           feedback={feedback}
-          setFeedback={setFeedback} // Pass setFeedback to the modal
+          setFeedback={setFeedback}
         />
         <Footer />
       </div>

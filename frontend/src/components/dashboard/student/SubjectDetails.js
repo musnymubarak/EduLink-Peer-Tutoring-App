@@ -32,7 +32,9 @@ export default function SubjectDetails() {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/v1/courses/${id}`);
+        const response = await axios.get(
+          `http://localhost:4000/api/v1/courses/${id}`
+        );
         setCourse(response.data.data);
         const tutorId = response.data.data.tutor._id;
         fetchTutor(tutorId);
@@ -44,7 +46,9 @@ export default function SubjectDetails() {
 
     const fetchTutor = async (tutorId) => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}`);
+        const response = await axios.get(
+          `http://localhost:4000/api/v1/tutor/${tutorId}`
+        );
         setTutor(response.data.data);
       } catch (error) {
         console.error("Error fetching tutor details:", error);
@@ -53,7 +57,9 @@ export default function SubjectDetails() {
 
     const fetchSections = async (courseId) => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/v1/sections/course/${courseId}`);
+        const response = await axios.get(
+          `http://localhost:4000/api/v1/sections/course/${courseId}`
+        );
         setSections(response.data.data);
       } catch (error) {
         console.error("Error fetching sections:", error);
@@ -62,7 +68,9 @@ export default function SubjectDetails() {
 
     const fetchRatingsAndReviews = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/v1/rating/${id}`);
+        const response = await axios.get(
+          `http://localhost:4000/api/v1/rating/${id}`
+        );
         setRatingsAndReviews(response.data.data);
       } catch (error) {
         console.error("Error fetching ratings and reviews:", error);
@@ -72,10 +80,17 @@ export default function SubjectDetails() {
     const checkEnrollment = async () => {
       try {
         setIsCheckingEnrollment(true);
-        const response = await axios.get("http://localhost:4000/api/v1/profile/student", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        const userCourses = response.data.courses.map((course) => course._id || course.$oid);
+        const response = await axios.get(
+          "http://localhost:4000/api/v1/profile/student",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const userCourses = response.data.courses.map(
+          (course) => course._id || course.$oid
+        );
         setIsEnrolled(userCourses.includes(id));
       } catch (error) {
         console.error("Error checking enrollment status:", error);
@@ -123,10 +138,19 @@ export default function SubjectDetails() {
 
   const fetchAvailableGroupTimes = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/v1/classes/available-group-times/${id}`);
-      setAvailableGroupTimes(response.data.data);
+      // Add Authorization header to fix the 401 error
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/classes/group-classes/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setAvailableGroupTimes(response.data.groupClasses || []); // Handle possible undefined
     } catch (error) {
-      console.error("Error fetching available group times:", error);
+      console.error("Error fetching available group classes:", error);
+      setAvailableGroupTimes([]); // Set empty array on error
     }
   };
 
@@ -179,8 +203,13 @@ export default function SubjectDetails() {
       setFormData({ time: "", suggestions: "", duration: 60 }); // Reset form data
       setSelectedGroupTime("");
     } catch (error) {
-      console.error("Error sending class request:", error.response?.data || error);
-      setError(error.response?.data?.error || "An error occurred. Please try again.");
+      console.error(
+        "Error sending class request:",
+        error.response?.data || error
+      );
+      setError(
+        error.response?.data?.error || "An error occurred. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -189,16 +218,19 @@ export default function SubjectDetails() {
   // Calculate pagination for reviews
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-  const currentReviews = ratingsAndReviews.slice(indexOfFirstReview, indexOfLastReview);
+  const currentReviews = ratingsAndReviews.slice(
+    indexOfFirstReview,
+    indexOfLastReview
+  );
   const totalPages = Math.ceil(ratingsAndReviews.length / reviewsPerPage);
 
   // Navigation handlers for pagination
   const goToNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
   const goToPrevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
   if (!course) {
@@ -215,20 +247,53 @@ export default function SubjectDetails() {
 
   const category = course.category?.name || "Uncategorized";
 
+  // Fix rendering of group class options
+  const renderGroupClassOptions = () => {
+    if (!availableGroupTimes || availableGroupTimes.length === 0) {
+      return <option value="">No available group classes</option>;
+    }
+
+    return [
+      <option key="default" value="">
+        Select a class
+      </option>,
+      ...availableGroupTimes.map((groupClass) => {
+        // Handle both array of strings and array of objects
+        if (typeof groupClass === "string") {
+          return (
+            <option key={groupClass} value={groupClass}>
+              {new Date(groupClass).toLocaleString()}
+            </option>
+          );
+        } else {
+          return (
+            <option
+              key={groupClass._id || groupClass.time}
+              value={groupClass.time}
+            >
+              {new Date(groupClass.time).toLocaleString()} -{" "}
+              {groupClass.duration} mins
+            </option>
+          );
+        }
+      }),
+    ];
+  };
+
   return (
     <div className="subject-details-container">
       <Header />
-      <button
-        onClick={() => navigate(-1)}
-        className="back-button"
-      >
+      <button onClick={() => navigate(-1)} className="back-button">
         <IoArrowBack className="back-icon" />
         Back
       </button>
 
       <div className="thumbnail-container">
         <img
-          src={course.thumbnail || "https://via.placeholder.com/800x400?text=No+Image"}
+          src={
+            course.thumbnail ||
+            "https://via.placeholder.com/800x400?text=No+Image"
+          }
           alt={`${course.courseName} thumbnail`}
           className="thumbnail-image"
           onError={(e) => {
@@ -243,7 +308,9 @@ export default function SubjectDetails() {
       <div className="content-card">
         <section className="mb-8">
           <h2 className="section-title">Course Description</h2>
-          <p className="section-description">{course.courseDescription || "No description available."}</p>
+          <p className="section-description">
+            {course.courseDescription || "No description available."}
+          </p>
         </section>
 
         <section className="mb-8">
@@ -253,10 +320,14 @@ export default function SubjectDetails() {
               <h3 className="tutor-name">
                 {tutor.firstName} {tutor.lastName}
               </h3>
-              <p className="tutor-email"><strong>Email:</strong> {tutor.email}</p>
+              <p className="tutor-email">
+                <strong>Email:</strong> {tutor.email}
+              </p>
             </div>
           ) : (
-            <p className="section-description">No tutor assigned to this course.</p>
+            <p className="section-description">
+              No tutor assigned to this course.
+            </p>
           )}
         </section>
 
@@ -265,13 +336,21 @@ export default function SubjectDetails() {
           {sections.length > 0 ? (
             <ul className="details-list">
               {sections.map((section) => (
-                <li key={section._id} className="section-item" onClick={() => navigate(`/dashboard/student/section/${section._id}`)}>
+                <li
+                  key={section._id}
+                  className="section-item"
+                  onClick={() =>
+                    navigate(`/dashboard/student/section/${section._id}`)
+                  }
+                >
                   {section.sectionName}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="section-description">No sections available for this course.</p>
+            <p className="section-description">
+              No sections available for this course.
+            </p>
           )}
         </section>
 
@@ -286,29 +365,39 @@ export default function SubjectDetails() {
                       <h3 className="reviewer-name">
                         {review.user?.firstName} {review.user?.lastName}
                       </h3>
-                      <p className="review-content"><strong>Rating:</strong> {review.rating}</p>
-                      <p className="review-content"><strong>Review:</strong> {review.review}</p>
+                      <p className="review-content">
+                        <strong>Rating:</strong> {review.rating}
+                      </p>
+                      <p className="review-content">
+                        <strong>Review:</strong> {review.review}
+                      </p>
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Pagination controls */}
                 {ratingsAndReviews.length > reviewsPerPage && (
                   <div className="pagination-controls">
-                    <button 
-                      onClick={goToPrevPage} 
+                    <button
+                      onClick={goToPrevPage}
                       disabled={currentPage === 1}
-                      className={`pagination-button ${currentPage === 1 ? 'pagination-button-disabled' : ''}`}
+                      className={`pagination-button ${
+                        currentPage === 1 ? "pagination-button-disabled" : ""
+                      }`}
                     >
                       Previous
                     </button>
                     <span className="pagination-info">
                       Page {currentPage} of {totalPages}
                     </span>
-                    <button 
-                      onClick={goToNextPage} 
+                    <button
+                      onClick={goToNextPage}
                       disabled={currentPage === totalPages}
-                      className={`pagination-button ${currentPage === totalPages ? 'pagination-button-disabled' : ''}`}
+                      className={`pagination-button ${
+                        currentPage === totalPages
+                          ? "pagination-button-disabled"
+                          : ""
+                      }`}
                     >
                       Next
                     </button>
@@ -316,17 +405,16 @@ export default function SubjectDetails() {
                 )}
               </>
             ) : (
-              <p className="section-description">No ratings or reviews available for this course.</p>
+              <p className="section-description">
+                No ratings or reviews available for this course.
+              </p>
             )}
           </div>
         </section>
 
         <div className="action-button">
           {isCheckingEnrollment ? (
-            <button
-              disabled
-              className="button"
-            >
+            <button disabled className="button">
               Checking Enrollment...
             </button>
           ) : isEnrolled ? (
@@ -342,10 +430,7 @@ export default function SubjectDetails() {
               Request to Class
             </button>
           ) : (
-            <button
-              onClick={handleEnroll}
-              className="button button-enroll"
-            >
+            <button onClick={handleEnroll} className="button button-enroll">
               Enroll
             </button>
           )}
@@ -356,11 +441,7 @@ export default function SubjectDetails() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">Request Class</h2>
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
+            {error && <div className="error-message">{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">Class Type</label>
@@ -381,24 +462,19 @@ export default function SubjectDetails() {
 
               {selectedClassType === "Group" ? (
                 <div className="form-group">
-                  <label className="form-label">Available Group Class Times</label>
+                  <label className="form-label">Available Group Classes</label>
                   <select
                     value={selectedGroupTime}
                     onChange={(e) => setSelectedGroupTime(e.target.value)}
                     className="form-select"
                     required
                   >
-                    <option value="">Select a time</option>
-                    {availableGroupTimes.map((time) => (
-                      <option key={time} value={time}>
-                        {new Date(time).toLocaleString()}
-                      </option>
-                    ))}
+                    {renderGroupClassOptions()}
                   </select>
                 </div>
               ) : (
                 <div className="form-group">
-                  <label className="form-label" htmlFor="time">Preferred Time</label>
+                  <label className="form-label">Preferred Time</label>
                   <input
                     type="datetime-local"
                     id="time"
@@ -408,14 +484,13 @@ export default function SubjectDetails() {
                     className="form-input"
                     required
                   />
-                  <p className="help-text">
-                    Please select a date and time for your session (30-minute intervals).
-                  </p>
                 </div>
               )}
 
               <div className="form-group">
-                <label className="form-label" htmlFor="duration">Duration (minutes)</label>
+                <label className="form-label" htmlFor="duration">
+                  Duration (minutes)
+                </label>
                 <input
                   type="number"
                   id="duration"
@@ -428,12 +503,15 @@ export default function SubjectDetails() {
                   required
                 />
                 <p className="help-text">
-                  Please enter the duration of the session in minutes (minimum 30 minutes).
+                  Please enter the duration of the session in minutes (minimum
+                  30 minutes).
                 </p>
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="suggestions">Suggestions</label>
+                <label className="form-label" htmlFor="suggestions">
+                  Suggestions
+                </label>
                 <textarea
                   id="suggestions"
                   name="suggestions"
@@ -457,7 +535,9 @@ export default function SubjectDetails() {
                 </button>
                 <button
                   type="submit"
-                  className={`button button-submit ${isSubmitting ? 'opacity-50' : ''}`}
+                  className={`button button-submit ${
+                    isSubmitting ? "opacity-50" : ""
+                  }`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Submitting..." : "Submit"}

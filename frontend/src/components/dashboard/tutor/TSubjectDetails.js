@@ -84,7 +84,7 @@ export default function TSubjectDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen pt-24 bg-gray-100 p-8">
       <Header />
       {/* Back Button */}
       <button

@@ -4,6 +4,8 @@ import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
+import { FiUpload, FiX, FiSave } from 'react-icons/fi';
+import '../../css/tutor/TAddNewSection.css';
 
 const TAddNewSection = () => {
   const [sectionName, setSectionName] = useState("");
@@ -24,6 +26,14 @@ const TAddNewSection = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    video: null,
+    duration: '',
+    order: 0
+  });
+  const [error, setError] = useState('');
 
   const handleQuizChange = (index, field, value) => {
     const updatedQuiz = [...quiz];
@@ -106,6 +116,7 @@ const TAddNewSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
     setMessage("");
     setShowSuccessAlert(false);
@@ -121,51 +132,50 @@ const TAddNewSection = () => {
     }
 
     try {
-      const formData = {
-        sectionName,
-        videoFile, // Use the uploaded video URL
-        quiz,
-        courseIds: [], // Add this empty array if not selecting courses yet
-      };
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
 
-      const response = await axios.post(
-        "http://localhost:4000/api/v1/sections/add",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'video' && formData[key]) {
+          formDataToSend.append('video', formData[key]);
+        } else {
+          formDataToSend.append(key, formData[key]);
         }
-      );
+      });
 
-      setMessage(response.data.message);
-      setShowSuccessAlert(true);
-      
-      // Reset form after successful submission
-      setSectionName("");
-      setVideoFile(null);
-      setQuiz([
-        {
-          questionText: "",
-          options: [
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-          ],
-        },
-      ]);
-      
-      // Automatically close the alert after 5 seconds
-      setTimeout(() => {
-        setShowSuccessAlert(false);
-      }, 5000);
-      
-    } catch (error) {
-      setMessage(error.response?.data?.message || "An error occurred.");
-      console.error("Error details:", error.response?.data || error);
+      await axios.post('/api/sections', formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      navigate('/tutor/subjects');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create section');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        video: file
+      }));
     }
   };
 
@@ -205,118 +215,111 @@ const TAddNewSection = () => {
               <p className="text-sm text-gray-600">Fill in the form below to add a new section.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-4">
-              <div className="flex flex-col">
-                <label htmlFor="sectionName" className="text-gray-600 text-sm mb-1">
-                  Section Name
-                </label>
+            {error && (
+              <div className="message-container message-error">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="form-container">
+              <div className="form-group">
+                <label className="form-label">Section Title</label>
                 <input
                   type="text"
-                  id="sectionName"
-                  value={sectionName}
-                  onChange={(e) => setSectionName(e.target.value)}
-                  placeholder="Enter section name"
-                  className="border border-gray-300 rounded-lg p-2"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className="form-input"
                   required
+                  placeholder="Enter section title"
                 />
               </div>
 
-              <div className="flex flex-col">
-                <label htmlFor="videoFile" className="text-gray-600 text-sm mb-1">
-                  Upload Video File
-                </label>
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="form-textarea"
+                  required
+                  placeholder="Enter section description"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Video</label>
+                <div className="video-upload" onClick={() => document.getElementById('video').click()}>
+                  {formData.video ? (
+                    <video
+                      src={URL.createObjectURL(formData.video)}
+                      controls
+                      className="video-preview"
+                    />
+                  ) : (
+                    <>
+                      <FiUpload className="upload-icon" />
+                      <p className="upload-text">Click to upload video</p>
+                    </>
+                  )}
+                </div>
                 <input
                   type="file"
-                  id="videoFile"
+                  id="video"
                   accept="video/*"
-                  onChange={handleVideoUpload}
-                  className="border border-gray-300 rounded-lg p-2"
-                  required
+                  onChange={handleVideoChange}
+                  className="form-input"
+                  style={{ display: 'none' }}
                 />
-                {videoFile && (
-                  <p className="text-sm text-green-600">Video uploaded successfully!</p>
-                )}
               </div>
 
-              {quiz.map((question, quizIndex) => (
-                <div key={quizIndex} className="flex flex-col space-y-4">
-                  <div className="flex justify-between">
-                    <label className="text-gray-600 text-sm">Question {quizIndex + 1}</label>
-                    {quiz.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeQuestion(quizIndex)}
-                        className="text-red-500 text-xs"
-                      >
-                        Remove Question
-                      </button>
-                    )}
-                  </div>
-                  <input
-                    type="text"
-                    value={question.questionText}
-                    onChange={(e) => handleQuizChange(quizIndex, "questionText", e.target.value)}
-                    placeholder="Enter question text"
-                    className="border border-gray-300 rounded-lg p-2"
-                    required
-                  />
-                  {question.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={option.optionText}
-                        onChange={(e) =>
-                          handleOptionChange(quizIndex, optionIndex, "optionText", e.target.value)
-                        }
-                        placeholder={`Option ${optionIndex + 1}`}
-                        className="border border-gray-300 rounded-lg p-2 flex-1"
-                        required
-                      />
-                      <label className="flex items-center space-x-1">
-                        <input
-                          type="checkbox"
-                          checked={option.isCorrect}
-                          onChange={() => handleCorrectOptionChange(quizIndex, optionIndex)}
-                        />
-                        <span className="text-gray-600 text-xs">Correct</span>
-                      </label>
-                      {question.options.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeOption(quizIndex, optionIndex)}
-                          className="text-red-500 text-xs"
-                        >
-                          Remove Option
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addOption(quizIndex)}
-                    className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-                  >
-                    Add Option
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addQuestion}
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-              >
-                Add Question
-              </button>
+              <div className="form-group">
+                <label className="form-label">Duration (minutes)</label>
+                <input
+                  type="number"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  className="form-input"
+                  min="1"
+                  required
+                  placeholder="Enter duration in minutes"
+                />
+              </div>
 
-              {message && <p className="text-center text-gray-600 mt-4">{message}</p>}
+              <div className="form-group">
+                <label className="form-label">Order</label>
+                <input
+                  type="number"
+                  name="order"
+                  value={formData.order}
+                  onChange={handleChange}
+                  className="form-input"
+                  min="0"
+                  required
+                  placeholder="Enter section order"
+                />
+              </div>
 
-              <button
-                type="submit"
-                disabled={loading || !videoFile}
-                className="w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600"
-              >
-                {loading ? "Adding Section..." : "Add Section"}
-              </button>
+              <div className="button-container">
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => navigate('/tutor/subjects')}
+                >
+                  <FiX />
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="submit-button"
+                  disabled={loading}
+                >
+                  <FiSave />
+                  {loading ? 'Creating...' : 'Create Section'}
+                </button>
+              </div>
             </form>
           </div>
         </main>
