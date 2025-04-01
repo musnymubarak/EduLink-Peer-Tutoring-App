@@ -16,7 +16,7 @@ router.get("/class-requests", auth, isTutor, classController.getClassRequestsFor
 router.get("/student/class-requests", auth, isStudent, classController.getStudentClassRequests);
 
 // Student-only: Get Accepted Classes (Personal & Group)
-router.get("/student/accepted-classes", auth, isStudent, classController.getAcceptedClasses);
+router.get("/accepted-classes", auth, classController.getAcceptedClasses);
 
 // Admin-only: Create a Group Class
 router.post("/create-group-class/:courseId", auth, isTutor, classController.createGroupClass);

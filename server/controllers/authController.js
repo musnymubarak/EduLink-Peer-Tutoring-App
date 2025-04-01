@@ -128,3 +128,35 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.googleLogin = async (req, res) => {
+  try{
+ const { uid, name, email, role, accessToken } = req.body;
+
+ let user = await User.findOne({ email });
+
+  if (!user) {
+    user = new User({
+      uid,
+      firstName: name.split(" ")[0],
+      lastName: name.split(" ").slice(1).join(" ") || "",
+      email,
+      accountType: role,
+      password: "",
+    });
+    await user.save();
+  }
+
+   const token = jwt.sign(
+     { userId: user._id, role: user.accountType },
+     process.env.JWT_SECRET,
+     { expiresIn: "7d" }
+   );
+
+   res.status(200).json({ success: true, token, role: user.accountType });
+
+  }catch(error){
+    console.error("Google Login Error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
