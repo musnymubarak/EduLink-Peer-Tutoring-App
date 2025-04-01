@@ -90,8 +90,29 @@ const getReportsByUser = async (req, res) => {
   }
 };
 
+// Get all reports
+const getAllReports = async (req, res) => {
+  try {
+    const reports = await Report.find()
+      .populate('reportedBy', 'name email')  // Populate user info for reportedBy
+      .populate('courseCreatorId', 'name email')  // Populate user info for course creator
+      .populate('courseId', 'courseName description');  // Populate course details
+
+    if (!reports.length) {
+      return res.status(404).json({ message: 'No reports found' });
+    }
+
+    // Sending the populated reports as a response
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createReport,
   getReportsByCourse,
-  getReportsByUser
+  getReportsByUser,
+  getAllReports  // Export the new function
 };

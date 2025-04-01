@@ -119,3 +119,27 @@ exports.getTotalEnrolledStudents = async (req, res) => {
         });
     }
 };
+
+exports.getAllTutors = async (req, res) => {
+    try {
+        // Filter by accountType, since the field in your document is 'accountType'
+        const tutors = await User.find({ accountType: 'Tutor' });
+
+        if (!tutors || tutors.length === 0) {
+            return res.status(404).json({ success: false, message: "No tutors found." });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: tutors,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching tutor details.",
+            error: error.message,
+        });
+    }
+};
+
