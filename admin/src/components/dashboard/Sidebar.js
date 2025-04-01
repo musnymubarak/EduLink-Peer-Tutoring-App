@@ -23,7 +23,11 @@ const Sidebar = () => {
             List Tutors
           </Link>
         </li>
-        {/* Add other links as needed */}
+        <li className="mb-4">
+          <Link to="/dashboard/admin/list-reports" className="hover:bg-gray-700 p-2 rounded-md block">
+            List Reports
+          </Link>
+        </li>
       </ul>
     </div>
   );

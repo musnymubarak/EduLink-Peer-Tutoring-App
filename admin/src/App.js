@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/dashboard/Sidebar'; // Import Sidebar
 import ListCourses from './components/dashboard/Pages/ListCourses'; // Import ListCourses page
 import ListTutors from './components/dashboard/Pages/ListTutors'; // Import ListTutors page
+import ListReports from './components/dashboard/Pages/ListReports';
 
 function App() {
   return (
@@ -51,6 +52,18 @@ function App() {
               <div className="flex">
                 <Sidebar /> {/* Sidebar */}
                 <ListTutors /> {/* List Tutors Page */}
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/admin/list-reports"
+          element={
+            <ProtectedRoute>
+              <div className="flex">
+                <Sidebar /> {/* Sidebar */}
+                <ListReports /> {/* List Tutors Page */}
               </div>
             </ProtectedRoute>
           }
