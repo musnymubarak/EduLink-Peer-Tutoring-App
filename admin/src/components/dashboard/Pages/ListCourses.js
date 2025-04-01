@@ -6,18 +6,7 @@ const ListCourses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [courseToUpdate, setCourseToUpdate] = useState(null);
-  const [updatedCourse, setUpdatedCourse] = useState({
-    courseName: "",
-    courseDescription: "",
-    availableInstructors: [],
-    price: "",
-    thumbnail: "",
-    tag: "",
-    category: "",
-    instructions: "",
-    status: "",
-  });
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const fetchCourses = async () => {
     setLoading(true);
@@ -37,7 +26,6 @@ const ListCourses = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // Update this part to match the new response structure.
       setCourses(response.data.data);
     } catch (err) {
       setError(err.response ? err.response.data.message : "Failed to fetch courses");
@@ -46,172 +34,93 @@ const ListCourses = () => {
     }
   };
 
-  const deleteCourse = async (courseId) => {
+  const fetchCourseDetails = async (courseId) => {
+    setLoading(true);
+    setError(null);
+
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Authentication required. Please log in.");
+      setError("Authentication required. Please log in.");
+      setLoading(false);
       return;
     }
 
-    if (!window.confirm("Are you sure you want to delete this course?")) return;
-
     try {
-      await axios.delete(`http://localhost:4000/api/v1/courses/${courseId}`, {
+      const response = await axios.get(`http://localhost:4000/api/v1/courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      alert("Course deleted successfully");
-      fetchCourses();
+      setSelectedCourse(response.data.data);
     } catch (err) {
-      alert(err.response ? err.response.data.message : "Failed to delete course");
+      setError(err.response ? err.response.data.message : "Failed to fetch course details");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const updateCourse = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Authentication required. Please log in.");
-      return;
-    }
-
-    try {
-      await axios.put(
-        `http://localhost:4000/api/v1/courses/${courseToUpdate._id}`,
-        updatedCourse,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      alert("Course updated successfully");
-      setShowModal(false);
-      fetchCourses();
-    } catch (err) {
-      alert(err.response ? err.response.data.message : "Failed to update course");
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedCourse((prevState) => ({
-      ...prevState,
-      [name]: name === "tag" ? value.split(",") : value, // Split tags by comma
-    }));
-  };
-
-  const openUpdateModal = (course) => {
-    setCourseToUpdate(course);
-    setUpdatedCourse({
-      courseName: course.courseName || "",
-      courseDescription: course.courseDescription || "",
-      availableInstructors: course.availableInstructors || [],
-      price: course.price || "",
-      thumbnail: course.thumbnail || "",
-      tag: Array.isArray(course.tag) ? course.tag.join(", ") : "", // Ensure tag is an array and join it
-      category: course.category?.name || "", // Safe access with optional chaining
-      instructions: course.instructions || "",
-      status: course.status || "Draft", // Default status if none provided
-    });
-    setShowModal(true);
-  };
-
-  const closeUpdateModal = () => {
-    setShowModal(false);
-    setUpdatedCourse({
-      courseName: "",
-      courseDescription: "",
-      availableInstructors: [],
-      price: "",
-      thumbnail: "",
-      tag: "",
-      category: "",
-      instructions: "",
-      status: "",
-    });
   };
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
+  const openCourseDetails = (courseId) => {
+    fetchCourseDetails(courseId);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCourse(null);
+  };
+
   if (loading) return <p style={{ textAlign: "center" }}>Loading courses...</p>;
   if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
-  const containerStyle = {
-    fontFamily: "Arial, sans-serif",
-    padding: "20px",
-    maxWidth: "800px",
-    margin: "20px auto",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "8px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  };
-
-  const tableStyle = {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "20px",
-  };
-
-  const thStyle = {
-    backgroundColor: "#4CAF50",
-    color: "white",
-    padding: "10px",
-    textAlign: "left",
-  };
-
-  const tdStyle = {
-    padding: "10px",
-    border: "1px solid #ddd",
-  };
-
-  const buttonStyle = {
-    margin: "0 5px",
-    padding: "5px 10px",
-    backgroundColor: "#007BFF",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  };
-
-  const deleteButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#DC3545",
-  };
-
   return (
-    <div style={containerStyle}>
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "20px auto" }}>
       <h1>Course List</h1>
-      <table style={tableStyle}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
         <thead>
           <tr>
-            <th style={thStyle}>Course Name</th>
-            <th style={thStyle}>Category</th>
-            <th style={thStyle}>Actions</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Course Name</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Category</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {courses.map((course) => (
             <tr key={course._id}>
-              <td style={tdStyle}>{course.courseName}</td>
-              <td style={tdStyle}>{course.category?.name || "N/A"}</td>
-              <td style={tdStyle}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: "1px solid #ddd",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+                onClick={() => openCourseDetails(course._id)}
+              >
+                {course.courseName}
+              </td>
+              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                {course.category?.name || "N/A"}
+              </td>
+              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                 <button
-                  style={buttonStyle}
-                  onClick={() => openUpdateModal(course)}
+                  style={{
+                    padding: "5px 10px",
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the modal from opening twice
+                    openCourseDetails(course._id);
+                  }}
                 >
-                  Update
-                </button>
-                <button
-                  style={deleteButtonStyle}
-                  onClick={() => deleteCourse(course._id)}
-                >
-                  Delete
+                  View Details
                 </button>
               </td>
             </tr>
@@ -219,7 +128,7 @@ const ListCourses = () => {
         </tbody>
       </table>
 
-      {showModal && (
+      {showModal && selectedCourse && (
         <div
           style={{
             position: "fixed",
@@ -242,92 +151,41 @@ const ListCourses = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <h3>Update Course</h3>
-            <form>
-              <div>
-                <label>Course Name:</label>
-                <input
-                  type="text"
-                  name="courseName"
-                  value={updatedCourse.courseName}
-                  onChange={handleInputChange}
-                  style={{ width: "100%", padding: "8px", margin: "8px 0" }}
-                />
-              </div>
-              <div>
-                <label>Course Description:</label>
-                <textarea
-                  name="courseDescription"
-                  value={updatedCourse.courseDescription}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    margin: "8px 0",
-                    height: "100px",
-                  }}
-                />
-              </div>
-              <div>
-                <label>Price:</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={updatedCourse.price}
-                  onChange={handleInputChange}
-                  style={{ width: "100%", padding: "8px", margin: "8px 0" }}
-                />
-              </div>
-              <div>
-                <label>Tag:</label>
-                <input
-                  type="text"
-                  name="tag"
-                  value={updatedCourse.tag}
-                  onChange={handleInputChange}
-                  style={{ width: "100%", padding: "8px", margin: "8px 0" }}
-                />
-              </div>
-              <div>
-                <label>Status:</label>
-                <input
-                  type="text"
-                  name="status"
-                  value={updatedCourse.status}
-                  onChange={handleInputChange}
-                  style={{ width: "100%", padding: "8px", margin: "8px 0" }}
-                />
-              </div>
-              <div>
-                <label>Category:</label>
-                <input
-                  type="text"
-                  name="category"
-                  value={updatedCourse.category}
-                  onChange={handleInputChange}
-                  style={{ width: "100%", padding: "8px", margin: "8px 0" }}
-                />
-              </div>
-            </form>
+            <h3>Course Details</h3>
+            <p>
+              <strong>Name:</strong> {selectedCourse.courseName}
+            </p>
+            <p>
+              <strong>Description:</strong> {selectedCourse.courseDescription}
+            </p>
+            <p>
+              <strong>Category:</strong> {selectedCourse.category?.name || "N/A"}
+            </p>
+            <p>
+              <strong>Tag:</strong> {selectedCourse.tag?.join(", ") || "N/A"}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedCourse.status}
+            </p>
+            <p>
+              <strong>Instructor Name:</strong> {selectedCourse.tutor?.firstName} {selectedCourse.tutor?.lastName || "N/A"}
+            </p>
+            <p>
+              <strong>Instructor Email:</strong> {selectedCourse.tutor?.email || "N/A"}
+            </p>
             <button
               style={{
-                ...buttonStyle,
-                marginTop: "10px",
-                backgroundColor: "#28a745",
-              }}
-              onClick={updateCourse}
-            >
-              Save Changes
-            </button>
-            <button
-              style={{
-                ...buttonStyle,
                 marginTop: "10px",
                 backgroundColor: "#6c757d",
+                color: "white",
+                padding: "5px 10px",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
               }}
-              onClick={closeUpdateModal}
+              onClick={closeModal}
             >
-              Cancel
+              Close
             </button>
           </div>
         </div>
