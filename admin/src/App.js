@@ -4,9 +4,9 @@ import Login from './components/Login';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/dashboard/Sidebar'; // Import Sidebar
-import AddCourse from './components/dashboard/Pages/AddCourse'; // Import AddCourse page
-import AddSection from './components/dashboard/Pages/AddSection'; // Import AddSection page
 import ListCourses from './components/dashboard/Pages/ListCourses'; // Import ListCourses page
+import ListTutors from './components/dashboard/Pages/ListTutors'; // Import ListTutors page
+import ListReports from './components/dashboard/Pages/ListReports';
 
 function App() {
   return (
@@ -31,31 +31,6 @@ function App() {
           }
         />
 
-        {/* Protected Routes for Admin Pages */}
-        <Route
-          path="/dashboard/admin/add-course"
-          element={
-            <ProtectedRoute>
-              <div className="flex">
-                <Sidebar /> {/* Sidebar */}
-                <AddCourse /> {/* Add Course Page */}
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/admin/add-section"
-          element={
-            <ProtectedRoute>
-              <div className="flex">
-                <Sidebar /> {/* Sidebar */}
-                <AddSection /> {/* Add Section Page */}
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
         {/* Route for List Courses Page */}
         <Route
           path="/dashboard/admin/list-courses"
@@ -64,6 +39,31 @@ function App() {
               <div className="flex">
                 <Sidebar /> {/* Sidebar */}
                 <ListCourses /> {/* List Courses Page */}
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Route for List Tutors Page */}
+        <Route
+          path="/dashboard/admin/list-tutors"
+          element={
+            <ProtectedRoute>
+              <div className="flex">
+                <Sidebar /> {/* Sidebar */}
+                <ListTutors /> {/* List Tutors Page */}
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/admin/list-reports"
+          element={
+            <ProtectedRoute>
+              <div className="flex">
+                <Sidebar /> {/* Sidebar */}
+                <ListReports /> {/* List Tutors Page */}
               </div>
             </ProtectedRoute>
           }

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const ListCourses = () => {
-  const [courses, setCourses] = useState([]);
+const ListTutors = () => {
+  const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedTutor, setSelectedTutor] = useState(null);
 
-  const fetchCourses = async () => {
+  const fetchTutors = async () => {
     setLoading(true);
     setError(null);
 
@@ -21,20 +21,20 @@ const ListCourses = () => {
     }
 
     try {
-      const response = await axios.get("http://localhost:4000/api/v1/courses", {
+      const response = await axios.get("http://localhost:4000/api/v1/tutor/alltutors/getall", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCourses(response.data.data);
+      setTutors(response.data.data);
     } catch (err) {
-      setError(err.response ? err.response.data.message : "Failed to fetch courses");
+      setError(err.response ? err.response.data.message : "Failed to fetch tutors");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchCourseDetails = async (courseId) => {
+  const fetchTutorDetails = async (tutorId) => {
     setLoading(true);
     setError(null);
 
@@ -47,64 +47,54 @@ const ListCourses = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:4000/api/v1/courses/${courseId}`, {
+      const response = await axios.get(`http://localhost:4000/api/v1/tutor/${tutorId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setSelectedCourse(response.data.data);
+      setSelectedTutor(response.data.data);
     } catch (err) {
-      setError(err.response ? err.response.data.message : "Failed to fetch course details");
+      setError(err.response ? err.response.data.message : "Failed to fetch tutor details");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCourses();
+    fetchTutors();
   }, []);
 
-  const openCourseDetails = (courseId) => {
-    fetchCourseDetails(courseId);
+  const openTutorDetails = (tutorId) => {
+    fetchTutorDetails(tutorId);
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setSelectedCourse(null);
+    setSelectedTutor(null);
   };
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading courses...</p>;
+  if (loading) return <p style={{ textAlign: "center" }}>Loading tutors...</p>;
   if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "20px auto" }}>
-      <h1>Course List</h1>
+      <h1>Tutor List</h1>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
         <thead>
           <tr>
-            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Course Name</th>
-            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Category</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>First Name</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Last Name</th>
+            <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Email</th>
             <th style={{ backgroundColor: "#4CAF50", color: "white", padding: "10px" }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {courses.map((course) => (
-            <tr key={course._id}>
-              <td
-                style={{
-                  padding: "10px",
-                  border: "1px solid #ddd",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
-                onClick={() => openCourseDetails(course._id)}
-              >
-                {course.courseName}
-              </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                {course.category?.name || "N/A"}
-              </td>
+          {tutors.map((tutor) => (
+            <tr key={tutor._id}>
+              <td style={{ padding: "10px", border: "1px solid #ddd" }}>{tutor.firstName}</td>
+              <td style={{ padding: "10px", border: "1px solid #ddd" }}>{tutor.lastName}</td>
+              <td style={{ padding: "10px", border: "1px solid #ddd" }}>{tutor.email}</td>
               <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                 <button
                   style={{
@@ -117,7 +107,7 @@ const ListCourses = () => {
                   }}
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent the modal from opening twice
-                    openCourseDetails(course._id);
+                    openTutorDetails(tutor._id);
                   }}
                 >
                   View Details
@@ -128,7 +118,7 @@ const ListCourses = () => {
         </tbody>
       </table>
 
-      {showModal && selectedCourse && (
+      {showModal && selectedTutor && (
         <div
           style={{
             position: "fixed",
@@ -151,27 +141,12 @@ const ListCourses = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <h3>Course Details</h3>
+            <h3>Tutor Details</h3>
             <p>
-              <strong>Name:</strong> {selectedCourse.courseName}
+              <strong>Name:</strong> {selectedTutor.firstName} {selectedTutor.lastName}
             </p>
             <p>
-              <strong>Description:</strong> {selectedCourse.courseDescription}
-            </p>
-            <p>
-              <strong>Category:</strong> {selectedCourse.category?.name || "N/A"}
-            </p>
-            <p>
-              <strong>Tag:</strong> {selectedCourse.tag?.join(", ") || "N/A"}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedCourse.status}
-            </p>
-            <p>
-              <strong>Instructor Name:</strong> {selectedCourse.tutor?.firstName} {selectedCourse.tutor?.lastName || "N/A"}
-            </p>
-            <p>
-              <strong>Instructor Email:</strong> {selectedCourse.tutor?.email || "N/A"}
+              <strong>Email:</strong> {selectedTutor.email}
             </p>
             <button
               style={{
@@ -194,4 +169,4 @@ const ListCourses = () => {
   );
 };
 
-export default ListCourses;
+export default ListTutors;

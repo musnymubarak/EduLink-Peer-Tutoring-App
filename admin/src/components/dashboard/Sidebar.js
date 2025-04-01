@@ -14,16 +14,6 @@ const Sidebar = () => {
           </Link>
         </li>
         <li className="mb-4">
-          <Link to="/dashboard/admin/add-course" className="hover:bg-gray-700 p-2 rounded-md block">
-            Add Course
-          </Link>
-        </li>
-        <li className="mb-4">
-          <Link to="/dashboard/admin/add-section" className="hover:bg-gray-700 p-2 rounded-md block">
-            Add Section
-          </Link>
-        </li>
-        <li className="mb-4">
           <Link to="/dashboard/admin/list-courses" className="hover:bg-gray-700 p-2 rounded-md block">
             List Courses
           </Link>
@@ -33,7 +23,11 @@ const Sidebar = () => {
             List Tutors
           </Link>
         </li>
-        {/* Add other links as needed */}
+        <li className="mb-4">
+          <Link to="/dashboard/admin/list-reports" className="hover:bg-gray-700 p-2 rounded-md block">
+            List Reports
+          </Link>
+        </li>
       </ul>
     </div>
   );
