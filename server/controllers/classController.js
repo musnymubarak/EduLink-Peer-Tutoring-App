@@ -84,16 +84,12 @@ exports.handleClassRequest = async (req, res) => {
         const { requestId } = req.params;
         const { status, classLink } = req.body;
 
-        console.log("Received Request Details:", {
-            requestId,
-            status,
-            classLink
-        });
+        console.log("Received Request Details:", { requestId, status, classLink });
 
         const classRequest = await ClassRequest.findById(requestId)
-            .populate('student')
-            .populate('tutor')
-            .populate('course');
+            .populate("student")
+            .populate("tutor")
+            .populate("course");
 
         if (!classRequest) {
             console.error("Class request not found for ID:", requestId);
@@ -131,13 +127,12 @@ exports.handleClassRequest = async (req, res) => {
                         course: classRequest.course._id,
                         type: "Personal",
                         time: classRequest.time,
-                        duration: classRequest.duration, // Use duration from classRequest
-                        classLink: classLink || "", // Allow empty link
+                        duration: classRequest.duration,
+                        classLink: classLink || "",
                         status: "Accepted"
                     });
 
                     console.log("New Class Object:", JSON.stringify(newClass, null, 2));
-
                     await newClass.save();
                     console.log("Personal Class Created Successfully");
                 } else if (classRequest.type === "Group") {
@@ -154,7 +149,7 @@ exports.handleClassRequest = async (req, res) => {
                             course: classRequest.course._id,
                             type: "Group",
                             time: classRequest.time,
-                            duration: classRequest.duration, // Use duration from classRequest
+                            duration: classRequest.duration,
                             classLink: classLink || "",
                             status: "Accepted"
                         });
@@ -176,6 +171,21 @@ exports.handleClassRequest = async (req, res) => {
                 });
             }
         }
+
+        const notificationMessage =
+            status === "Accepted"
+                ? `Your class request for ${classRequest.course.courseName} has been accepted.`
+                : `Your class request for ${classRequest.course.courseName} has been rejected.`;
+
+        const notification = new Notification({
+            user: classRequest.student._id, 
+            message: notificationMessage,
+            type: "ClassRequestHandled", 
+            status: "unread"
+        });
+
+        await notification.save();
+        console.log("Notification Sent Successfully");
 
         return res.status(200).json({ 
             message: `Class request ${status.toLowerCase()} successfully.`,
