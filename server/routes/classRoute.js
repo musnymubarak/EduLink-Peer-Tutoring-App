@@ -23,4 +23,5 @@ router.post("/create-group-class/:courseId", auth, isTutor, classController.crea
 
 router.get("/group-classes/:courseId", auth, classController.getGroupClasses);
 
+router.get('/my-group-classes', auth, classController.getMyGroupClasses);
 module.exports = router;
