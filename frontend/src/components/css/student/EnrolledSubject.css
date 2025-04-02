@@ -177,6 +177,22 @@
   transition: background-color 0.3s ease-in-out;
 }
 
+.report-button {
+  background-color: #cfc20a; /* Red color for emphasis */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
 .unenroll-button:hover {
   background-color: #cc0000; /* Darker red on hover */
+}
+
+.report-button:hover {
+  background-color: #e69704; /* Darker red on hover */
 }

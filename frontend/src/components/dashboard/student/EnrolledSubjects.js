@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import RatingModal from "./RatingModal";
+import ReportModal from "./ReportModel"; // Import the new ReportModal component
 import Sidebar from "../Sidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -10,10 +11,14 @@ import "../../css/student/EnrolledSubject.css";
 export default function EnrolledSubjects() {
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [modal, setModal] = useState({
+  const [ratingModal, setRatingModal] = useState({
     isOpen: false,
     categoryIndex: null,
     subjectIndex: null,
+  });
+  const [reportModal, setReportModal] = useState({
+    isOpen: false,
+    courseId: null,
   });
   const [rating, setRating] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -126,7 +131,7 @@ export default function EnrolledSubjects() {
                         </p>
                         <button
                           className="rate-button"
-                          onClick={() => setModal({ isOpen: true, categoryIndex, subjectIndex })}
+                          onClick={() => setRatingModal({ isOpen: true, categoryIndex, subjectIndex })}
                         >
                           Rate
                         </button>
@@ -135,6 +140,12 @@ export default function EnrolledSubjects() {
                           onClick={() => handleUnenroll(subject.id)}
                         >
                           Unenroll
+                        </button>
+                        <button
+                          className="report-button"
+                          onClick={() => setReportModal({ isOpen: true, courseId: subject.id })}
+                        >
+                          Report
                         </button>
                       </div>
                     ))}
@@ -145,12 +156,17 @@ export default function EnrolledSubjects() {
           </div>
         </div>
         <RatingModal
-          isOpen={modal.isOpen}
-          onClose={() => setModal({ isOpen: false, categoryIndex: null, subjectIndex: null })}
+          isOpen={ratingModal.isOpen}
+          onClose={() => setRatingModal({ isOpen: false, categoryIndex: null, subjectIndex: null })}
           rating={rating}
           setRating={setRating}
           feedback={feedback}
           setFeedback={setFeedback}
+        />
+        <ReportModal
+          isOpen={reportModal.isOpen}
+          onClose={() => setReportModal({ isOpen: false, courseId: null })}
+          courseId={reportModal.courseId}
         />
         <Footer />
       </div>
