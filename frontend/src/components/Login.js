@@ -41,7 +41,12 @@ export default function Login() {
 
       localStorage.setItem("token", token);
       setAccountType(accountType);
-      navigate(`/dashboard/${accountType.toLowerCase()}/subjects`);
+      if(accountType.toLowerCase()=='tutor'){
+        navigate('/dashboard/tutor/your-subjects')
+      }else if(accountType.toLowerCase()=='student'){
+        navigate('/dashboard/student/subjects');
+      }
+      
     } catch (error) {
       console.error("Login failed:", error.message || error.response?.data?.message);
       alert("Login failed: " + (error.message || error.response?.data?.message || "Unexpected error"));

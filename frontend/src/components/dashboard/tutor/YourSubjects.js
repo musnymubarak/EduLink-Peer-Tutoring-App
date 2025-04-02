@@ -5,6 +5,7 @@ import Header from "../Header";
 import Footer from "../Footer";
 import EditCourse from "./EditCourse";
 import "../../css/tutor/YourSubjects.css";
+import { Link } from "react-router-dom";
 
 export default function YourSubjects() {
   const [courses, setCourses] = useState([]);
@@ -26,7 +27,7 @@ export default function YourSubjects() {
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
         const tutorId = payload.id;
-
+        console.log(courses)
         const response = await axios.get("http://localhost:4000/api/v1/courses", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -82,7 +83,7 @@ export default function YourSubjects() {
       </div>
 
       <div className="flex-1 ml-64 p-8 overflow-y-auto">
-        <h1 className="page-title">Your Subjects</h1>
+        <h1 className="page-title">Your Courses</h1>
 
         <div className="search-container">
           <input
@@ -107,6 +108,12 @@ export default function YourSubjects() {
                   course.courseDescription.toLowerCase().includes(searchQuery)
               )
               .map((course) => (
+                
+                <Link
+                        to={`/dashboard/tutor/subject/${course._id}`}
+                        //key={i}
+                        className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition duration-200"
+                      >
                 <div key={course._id} className="course-card">
                   <img
                     src={course.thumbnail || "https://via.placeholder.com/400x200?text=No+Image"}
@@ -119,28 +126,12 @@ export default function YourSubjects() {
                   <div className="course-content">
                     <h3 className="course-title">{course.courseName}</h3>
                     <p className="course-description">{course.courseDescription}</p>
-                    <button
-                      onClick={() => handleEditCourse(course._id)}
-                      className="edit-button"
-                    >
-                      Edit Course
-                    </button>
                   </div>
                 </div>
+                </Link>
               ))
           )}
         </div>
-
-        {isEditModalOpen && (
-          <EditCourse
-            courseId={selectedCourseId}
-            onClose={handleCloseEditModal}
-            onUpdate={() => {
-              handleCloseEditModal();
-              // Optionally, refresh the course list here
-            }}
-          />
-        )}
       </div>
       <Footer />
     </div>
