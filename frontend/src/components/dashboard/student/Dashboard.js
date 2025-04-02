@@ -202,23 +202,7 @@ export default function Dashboard() {
           </div>
         )}
         </div>
-        
-        {/* Notifications */}
-        <div className="notifications-container">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
-          <ul className="space-y-4">
-            <li className="notification-item">
-              <p className="text-gray-600">Math Quiz tomorrow at 9:00 AM</p>
-              <span className="notification-badge urgent">Urgent</span>
-            </li>
-            <li className="notification-item">
-              <p className="text-gray-600">New announcement in Community</p>
-              <span className="notification-badge new">New</span>
-            </li>
-          </ul>
-        </div>
       </div>
-      
       <Footer />
     </div>
   );

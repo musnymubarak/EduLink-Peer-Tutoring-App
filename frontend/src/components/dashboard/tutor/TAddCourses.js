@@ -125,7 +125,7 @@ export default function TAddCourses() {
   };
 
   return (
-    <div className="flex min-h-screen pb-20 bg-gray-100">
+    <div className="flex min-h-screen pb-20 pt-20 bg-gray-100">
       <Header/>
       <div className="fixed top-0 left-0 w-64 h-screen bg-richblue-800 border-r border-richblack-700">
         <Sidebar />
