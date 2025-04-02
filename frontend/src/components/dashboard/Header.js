@@ -75,7 +75,7 @@ const Header = () => {
     <header className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center fixed top-0 left-0 z-50">
       <Link to="/" className="flex items-center">
         <img
-          src="https://res.cloudinary.com/dhgyagjqw/image/upload/v1739942364/course_thumbnails/hmsikyqccdadddnkunuk.png"
+          src="https://res.cloudinary.com/dhgyagjqw/image/upload/v1743558012/Edulinklogo_2_yvuuot.png"
           alt="EduLink Logo"
           className="h-12"
         />
