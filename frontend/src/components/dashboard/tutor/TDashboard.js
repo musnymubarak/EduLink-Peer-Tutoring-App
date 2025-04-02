@@ -374,7 +374,7 @@ export default function TDashboard() {
       }
     } catch (err) {
       console.error("Error fetching total students:", err);
-      setError("Failed to fetch student count. Please try again.");
+      setError("No Requests yet.");
     }
   };
 
@@ -544,7 +544,7 @@ export default function TDashboard() {
           {loading ? (
             <p className="text-gray-600">Loading requests...</p>
           ) : error ? (
-            <p className="text-red-600">{error}</p>
+            <p className="text-gray-700">{error}</p>
           ) : latestRequests && latestRequests.length > 0 ? (
             <ul className="space-y-4">
               {latestRequests.map((request) => (
