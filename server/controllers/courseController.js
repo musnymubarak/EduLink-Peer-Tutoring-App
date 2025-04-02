@@ -52,7 +52,7 @@ exports.addCourse = async (req, res) => {
             status: status || "Draft",
         });
 
-        await Section.updateMany({ courseIds: { $ne: newCourse._id } }, { $addToSet: { courseIds: newCourse._id } });
+        //await Section.updateMany({ courseIds: { $ne: newCourse._id } }, { $addToSet: { courseIds: newCourse._id } });
 
         categoryObj.courses.push(newCourse._id);
         await categoryObj.save();
