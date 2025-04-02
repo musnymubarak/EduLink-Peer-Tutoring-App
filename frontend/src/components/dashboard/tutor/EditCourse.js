@@ -140,7 +140,7 @@ const EditCourse = ({ courseId, onClose, onUpdate }) => {
                 <form onSubmit={handleSubmit}>
                     <div>
                         <label>Course Name:</label>
-                        <input type="text" name="courseName" value={courseData.courseName} onChange={handleChange} required />
+                        <input type="text" name="courseName" value={courseData.courseName} onChange={handleChange} disabled required />
                     </div>
                     <div>
                         <label>Category:</label>

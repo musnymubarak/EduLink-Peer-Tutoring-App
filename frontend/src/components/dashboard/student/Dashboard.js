@@ -42,7 +42,7 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch upcoming classes from the same endpoint used in SchedulePage
+  // Fetch all upcoming classes (both individual and group)
   const fetchUpcomingClasses = async () => {
     setLoading(true);
     try {
@@ -53,57 +53,79 @@ export default function Dashboard() {
         return;
       }
       
-      const response = await fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Fetch both individual and group classes in parallel
+      const [individualResponse, groupResponse] = await Promise.all([
+        fetch("http://localhost:4000/api/v1/classes/accepted-classes", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        fetch("http://localhost:4000/api/v1/classes/my-group-classes-student", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      ]);
       
-      if (response.status === 401) {
+      if (individualResponse.status === 401 || groupResponse.status === 401) {
         console.error("Authentication token expired or invalid");
         return;
       }
       
-      const data = await response.json();
+      const individualData = await individualResponse.json();
+      const groupData = await groupResponse.json();
       
-      if (response.ok) {
-        // Process classes and get only upcoming ones
-        const transformedEvents = data.acceptedClasses.map(classItem => {
-          const startTime = new Date(classItem.time);
-          const validStartTime = isNaN(startTime.getTime()) ? new Date() : startTime;
-          const endTime = new Date(validStartTime.getTime() + (classItem.duration || 60) * 60000);
-          
-          return {
-            id: classItem._id,
-            title: classItem.course?.courseName || "Untitled Class",
-            start: validStartTime,
-            end: endTime,
-            description: classItem.course?.courseDescription || "No description provided",
-            meetLink: classItem.classLink || "",
-            tutorName: classItem.tutor?.firstName || classItem.tutor?.email || "Unknown Tutor"
-          };
-        });
-        
-        // Filter to get only upcoming classes (today and future)
-        const now = new Date();
-        const upcoming = transformedEvents
-          .filter(event => event.start >= now)
-          .sort((a, b) => a.start - b.start); // Sort by start time
-        
-        // Set the next immediate class
-        if (upcoming.length > 0) {
-          setNextClass(upcoming[0]);
-        }
-        
-        // Set remaining upcoming classes (skip the first one as it's already shown as next class)
-        setUpcomingClasses(upcoming.slice(1, 3));
-      } else {
-        console.error("Failed to fetch classes:", data.error);
+      let allClasses = [];
+      
+      // Process individual classes
+      if (individualResponse.ok && individualData.acceptedClasses) {
+        const individualClasses = individualData.acceptedClasses.map(classItem => ({
+          id: classItem._id,
+          title: classItem.course?.courseName || "Untitled Class",
+          start: new Date(classItem.time),
+          end: new Date(new Date(classItem.time).getTime() + (classItem.duration || 60) * 60000),
+          description: classItem.course?.courseDescription || "No description provided",
+          meetLink: classItem.classLink || "",
+          tutorName: classItem.tutor?.firstName || classItem.tutor?.email || "Unknown Tutor",
+          type: "Individual"
+        }));
+        allClasses = [...allClasses, ...individualClasses];
       }
+      
+      // Process group classes
+      if (groupResponse.ok && groupData.groupClasses) {
+        const groupClasses = groupData.groupClasses.map(classItem => ({
+          id: classItem._id,
+          title: `[GROUP] ${classItem.course?.courseName || "Group Class"}`,
+          start: new Date(classItem.time),
+          end: new Date(new Date(classItem.time).getTime() + (classItem.duration || 60) * 60000),
+          description: classItem.course?.courseDescription || "No description provided",
+          meetLink: classItem.classLink || "",
+          tutorName: classItem.tutor?.firstName || classItem.tutor?.email || "Unknown Tutor",
+          type: "Group"
+        }));
+        allClasses = [...allClasses, ...groupClasses];
+      }
+      
+      // Filter to get only upcoming classes (today and future)
+      const now = new Date();
+      const upcoming = allClasses
+        .filter(event => event.start >= now)
+        .sort((a, b) => a.start - b.start); // Sort by start time
+      
+      // Set the next immediate class
+      if (upcoming.length > 0) {
+        setNextClass(upcoming[0]);
+      }
+      
+      // Set remaining upcoming classes (skip the first one as it's already shown as next class)
+      setUpcomingClasses(upcoming.slice(1, 3));
     } catch (error) {
-      console.error("Error fetching accepted classes:", error);
+      console.error("Error fetching classes:", error);
     } finally {
       setLoading(false);
     }
@@ -161,7 +183,6 @@ export default function Dashboard() {
           <p className="welcome-text">"Keep pushing forward—success is just around the corner!"</p>
         </div>
         
-         
         {/* Overview Cards */}
         <div className="overview-grid">
           <div className="overview-card">
@@ -169,38 +190,41 @@ export default function Dashboard() {
             <p>{coursesCount}</p>
           </div>
           
-        {/* Next Class Card - Prominently displayed */}
-        {loading ? (
-          <div className="next-class-card loading">
-            <p>Loading your next class...</p>
-          </div>
-        ) : nextClass ? (
-          <div className="next-class-card">
-            <div className="next-class-header">
-              <h2>Your Next Class</h2>
-              {nextClass.meetLink && (
-                <a 
-                  href={nextClass.meetLink} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="join-class-btn"
-                >
-                  Join Class
-                </a>
-              )}
-              <span className="time-badge">{getTimeUntilClass(nextClass.start)}</span>
+          {/* Next Class Card - Prominently displayed */}
+          {loading ? (
+            <div className="next-class-card loading">
+              <p>Loading your next class...</p>
             </div>
-            <div className="next-class-details">
-              <h3>{nextClass.title}</h3>
-              <p className="class-time">{formatDateTime(nextClass.start)}<span className="class-tutor"> with {nextClass.tutorName}</span></p>
+          ) : nextClass ? (
+            <div className="next-class-card">
+              <div className="next-class-header">
+                <h2>Your Next Class</h2>
+                {nextClass.meetLink && (
+                  <a 
+                    href={nextClass.meetLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="join-class-btn"
+                  >
+                    Join Class
+                  </a>
+                )}
+                <span className="time-badge">{getTimeUntilClass(nextClass.start)}</span>
+              </div>
+              <div className="next-class-details">
+                <h3>{nextClass.title}</h3>
+                <p className="class-time">{formatDateTime(nextClass.start)}<span className="class-tutor"> with {nextClass.tutorName}</span></p>
+                {nextClass.type === "Group" && (
+                  <p className="class-type-badge">Group Class</p>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="next-class-card empty">
-            <h2>No Upcoming Classes</h2>
-            <p>You don't have any classes scheduled at the moment.</p>
-          </div>
-        )}
+          ) : (
+            <div className="next-class-card empty">
+              <h2>No Upcoming Classes</h2>
+              <p>You don't have any classes scheduled at the moment.</p>
+            </div>
+          )}
         </div>
       </div>
       <Footer />

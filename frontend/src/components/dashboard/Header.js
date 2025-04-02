@@ -4,19 +4,13 @@ import { VscSignOut } from "react-icons/vsc";
 import { HiOutlineUserCircle, HiUserCircle } from "react-icons/hi";
 import { IoIosNotificationsOutline, IoIosNotifications } from "react-icons/io";
 import axios from "axios";
+import { useAccountType } from "../dashboard/AccountTypeContext"; // Adjust path as needed
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [accountType, setAccountType] = useState(null);
+  const { accountType } = useAccountType(); // Use the context instead of local state
   const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    const storedAccountType = localStorage.getItem("accountType");
-    if (storedAccountType) {
-      setAccountType(storedAccountType.toLowerCase());
-    }
-  }, []);
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -40,10 +34,12 @@ const Header = () => {
       }
     };
 
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (accountType) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 30000); // Refresh every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [accountType]); // Add accountType as a dependency
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -52,9 +48,9 @@ const Header = () => {
   };
 
   const handleProfileClick = () => {
-    if (accountType === "student") {
+    if (accountType.toLowerCase() === "student") {
       navigate("/dashboard/student/profile");
-    } else if (accountType === "tutor") {
+    } else if (accountType.toLowerCase() === "tutor") {
       navigate("/dashboard/tutor/profile");
     } else {
       navigate("/login");
@@ -62,9 +58,9 @@ const Header = () => {
   };
 
   const handleNotificationClick = () => {
-    if (accountType === "student") {
+    if (accountType.toLowerCase() === "student") {
       navigate("/dashboard/student/noti");
-    } else if (accountType === "tutor") {
+    } else if (accountType.toLowerCase() === "tutor") {
       navigate("/dashboard/tutor/noti");
     } else {
       navigate("/login");
