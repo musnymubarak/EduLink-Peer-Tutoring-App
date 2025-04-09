@@ -58,8 +58,8 @@ export default function TClasses() {
                 return;
             }
 
-            // Fetch all courses first to get their IDs
-            const coursesResponse = await fetch("http://localhost:4000/api/v1/courses", {
+            // Use the same endpoint as in TSchedulePage to get only logged-in tutor's group classes
+            const response = await fetch("http://localhost:4000/api/v1/classes/my-group-classes", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -67,54 +67,25 @@ export default function TClasses() {
                 },
             });
 
-            if (!coursesResponse.ok) {
-                setError("Failed to fetch courses list");
+            if (!response.ok) {
+                setError("Failed to fetch group classes");
                 return;
             }
 
-            const coursesData = await coursesResponse.json();
-            const courses = Array.isArray(coursesData) 
-                ? coursesData 
-                : coursesData.courses || coursesData.data || [];
+            const data = await response.json();
             
-            if (!courses.length) {
-                console.log("No courses available");
+            if (data.groupClasses && data.groupClasses.length > 0) {
+                // Map the fetched group classes to include the type and courseId
+                const transformedGroupClasses = data.groupClasses.map(classItem => ({
+                    ...classItem,
+                    type: "Group",
+                    courseId: classItem.course?._id
+                }));
+                
+                setGroupClasses(transformedGroupClasses);
+            } else {
                 setGroupClasses([]);
-                return;
             }
-
-            const allGroupClasses = [];
-            const fetchPromises = courses.map(async (course) => {
-                try {
-                    const response = await fetch(`http://localhost:4000/api/v1/classes/group-classes/${course._id}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data)
-                        if (data.groupClasses && data.groupClasses.length > 0) {
-                            return data.groupClasses.map(classItem => ({
-                                ...classItem,
-                                type: "Group",
-                                courseId: course._id
-                            }));
-                        }
-                    }
-                    return [];
-                } catch (error) {
-                    console.error(`Error fetching group classes for course ${course._id}:`, error);
-                    return [];
-                }
-            });
-
-            const groupClassesArrays = await Promise.all(fetchPromises);
-            const combinedGroupClasses = groupClassesArrays.flat();
-            setGroupClasses(combinedGroupClasses);
             
         } catch (error) {
             console.error("Error in fetchGroupClasses:", error);

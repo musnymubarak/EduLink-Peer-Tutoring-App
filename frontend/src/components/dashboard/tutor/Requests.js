@@ -159,10 +159,14 @@ export default function Requests() {
   const handleAcceptAction = async (request, action) => {
     try {
       const requestDetails = requests.find((r) => r.id === request.id);
+      
+      // Set initial class link based on the class type
+      const initialClassLink = request.type === "Group" ? "Using existing group class link" : "";
+      
       setClassDetails({
         date: requestDetails.date,
         time: requestDetails.time,
-        classLink: "",
+        classLink: initialClassLink,
         duration: requestDetails.duration || "0",
       });
 
@@ -180,27 +184,31 @@ export default function Requests() {
 
   const handleCreateClass = async () => {
     try {
-      // Validate Zoom link
-      if (!classDetails.classLink) {
-        alert("Please enter a Zoom link");
-        return;
-      }
-
       const token = localStorage.getItem("token");
       const requestId = classDetailsModal.requestId;
+      const classType = classDetailsModal.type;
 
-      // Ensure all required information is present
+      // Ensure request ID is present
       if (!requestId) {
         alert("Request ID is missing. Please try again.");
         return;
       }
 
+      // Different validation for Personal vs Group classes
+      if (classType === "Personal" && !classDetails.classLink) {
+        alert("Please enter a Zoom link for this personal class");
+        return;
+      }
+
+      // For Group classes, we don't need to send a class link as it uses the existing one
+      const requestData = {
+        status: "Accepted",
+        ...(classType === "Personal" && { classLink: classDetails.classLink }),
+      };
+
       const response = await axios.post(
         `http://localhost:4000/api/v1/classes/handle-request/${requestId}`,
-        {
-          status: "Accepted",
-          classLink: classDetails.classLink,
-        },
+        requestData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -502,24 +510,41 @@ export default function Requests() {
               />
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">
-                Class Link
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Zoom/Meet link"
-                value={classDetails.classLink}
-                onChange={(e) =>
-                  setClassDetails((prev) => ({
-                    ...prev,
-                    classLink: e.target.value,
-                  }))
-                }
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-            </div>
+            {classDetailsModal.type === "Personal" ? (
+              <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">
+                  Class Link
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Zoom/Meet link"
+                  value={classDetails.classLink}
+                  onChange={(e) =>
+                    setClassDetails((prev) => ({
+                      ...prev,
+                      classLink: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">
+                  Class Link
+                </label>
+                <input
+                  type="text"
+                  value="Using existing group class link"
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                  disabled
+                />
+                <p className="text-sm text-gray-600 mt-1">
+                  Group classes use the previously configured class link
+                </p>
+              </div>
+            )}
 
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2">

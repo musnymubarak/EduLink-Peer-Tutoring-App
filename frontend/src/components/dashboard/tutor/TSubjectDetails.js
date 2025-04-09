@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoArrowBack } from "react-icons/io5";
 import Header from "../Header";
+import EditCourse from "./EditCourse";
 
 export default function TSubjectDetails() {
   const { id } = useParams();
@@ -10,6 +11,9 @@ export default function TSubjectDetails() {
   const [course, setCourse] = useState(null);
   const [sections, setSections] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+
   const [formData, setFormData] = useState({
     time: "",
     duration: 60,
@@ -40,6 +44,16 @@ export default function TSubjectDetails() {
     fetchSections();
   }, [id]);
 
+  const handleEditCourse = (courseId) => {
+    setSelectedCourseId(courseId);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedCourseId(null);
+  };
+  
   const handleRedirect = () => {
     // Pass the course ID to the add-section page
     navigate(`/dashboard/tutor/add-section?courseId=${id}`);
@@ -202,8 +216,24 @@ export default function TSubjectDetails() {
           >
             Create Group Class
           </button>
+          <button
+            onClick={() => handleEditCourse(course._id)}
+            className="px-6 py-3 bg-yellow-400 text-white font-bold rounded-lg shadow"
+          >
+            Edit Course
+          </button>
         </div>
       </div>
+      {isEditModalOpen && (
+          <EditCourse
+            courseId={selectedCourseId}
+            onClose={handleCloseEditModal}
+            onUpdate={() => {
+              handleCloseEditModal();
+              // Optionally, refresh the course list here
+            }}
+          />
+        )}
 
       {/* Modal for Creating Group Class */}
       {isModalOpen && (
