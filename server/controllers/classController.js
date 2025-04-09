@@ -400,3 +400,51 @@ exports.getGroupClasses = async (req, res) => {
       return res.status(500).json({ error: "An error occurred. Please try again later." });
     }
   };
+  exports.getMyGroupClasses = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Find all group classes where the logged-in user is the tutor
+      const groupClasses = await Class.find({
+        tutor: userId,
+        type: "Group",
+        time: { $gte: new Date() }
+      })
+      .populate('course', 'courseName courseDescription')
+      .populate('participants', 'firstName email')
+      .sort({ time: 1 });
+      
+      return res.status(200).json({
+        message: "Group classes retrieved successfully.",
+        groupClasses,
+      });
+    } catch (error) {
+      console.error("Error fetching my group classes:", error);
+      return res.status(500).json({ error: "An error occurred. Please try again later." });
+    }
+};
+
+exports.getStudentGroupClasses = async (req, res) => {
+    try {
+      const studentId = req.user.id;
+      
+      // Find all group classes where the logged-in user is a participant
+      const groupClasses = await Class.find({
+        participants: studentId,
+        type: "Group",
+        time: { $gte: new Date() }
+      })
+      .populate('course', 'courseName courseDescription')
+      .populate('tutor', 'firstName email')
+      .sort({ time: 1 });
+      
+      return res.status(200).json({
+        message: "Student's group classes retrieved successfully.",
+        groupClasses,
+      });
+    } catch (error) {
+      console.error("Error fetching student's group classes:", error);
+      return res.status(500).json({ error: "An error occurred. Please try again later." });
+    }
+  };
+  

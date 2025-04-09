@@ -16,12 +16,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    if (accountType === "Tutor" && !resumePath) {
-      return res.status(400).json({
-        success: false,
-        message: "Resume is required for Tutor accounts",
-      });
-    }
+   
 
     if (password.length < 8) {
       return res.status(400).json({
